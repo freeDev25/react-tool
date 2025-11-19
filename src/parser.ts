@@ -106,7 +106,9 @@ export default GeneratedComponent;`;
         return propsString;
     }
 
-    // store it to a folder output
+    /**
+     * Save generated component to a file
+     */
     private saveToFile(content: string, filename: string): void {
         const fs = require('fs');
         const path = require('path');
@@ -120,7 +122,27 @@ export default GeneratedComponent;`;
         fs.writeFileSync(filePath, content, 'utf8');
     }
 
+    /**
+     * Clear the output folder
+     */
+    private clearOutputFolder(): void {
+        const fs = require('fs');
+        const path = require('path');
+        const outputDir = path.resolve(__dirname, '../output');
+
+        if (fs.existsSync(outputDir)) {
+            fs.readdirSync(outputDir).forEach((file: string) => {
+                fs.unlinkSync(path.join(outputDir, file));
+            });
+        }
+    }
+
+    /**
+     * Run the component generation and save to file
+     */
+
     public run(schema: BaseSchema): void {
+        this.clearOutputFolder();
         const componentCode = this.generate(schema);
         const fileName = schema.filename || 'GeneratedComponent';
         this.saveToFile(componentCode, `${fileName}.tsx`);

@@ -11,8 +11,8 @@ const componentSchema: BaseSchema = {
 
 async function main(): Promise<void> {
     const generator = new ComponentGenerator();
-    const componentCode = generator.run(componentSchema);
-    console.log(componentCode);
+    generator.run(componentSchema);
+    console.log("Component generated and saved to output folder.");
 }
 
 main().catch(err => console.error(err));
