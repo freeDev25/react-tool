@@ -278,7 +278,7 @@ export default function Generate() {
                 </svg>
               </button>
             </div>
-            <div className="flex-1 p-2 overflow-y-auto">
+            <div className="flex-1 py-2 overflow-y-auto">
               {selectedNode ? (
                 <div className="space-y-3">
                   {/* Save Button */}
@@ -292,7 +292,7 @@ export default function Generate() {
                   </div>
 
                   {/* Basic Properties */}
-                  <div className="p-2 bg-linear-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-100">
+                  <div className="p-2 bg-linear-to-br from-purple-50 to-pink-50 border border-purple-100">
                     <p className="text-xs font-semibold text-slate-700 mb-2">Basic Properties</p>
                     
                     {selectedNode.type === 'node' && (
@@ -332,7 +332,7 @@ export default function Generate() {
 
                   {/* Style Properties - Only for node elements */}
                   {selectedNode.type === 'node' && (
-                    <div className="p-2 bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+                    <div className="p-2 bg-linear-to-br from-blue-50 to-indigo-50 border border-blue-100">
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-xs font-semibold text-slate-700">Style Properties</p>
                         <button
