@@ -94,7 +94,7 @@ export default ${componentName};`;
             case 'node':
                 return schema.nodeType ?? 'div';
             case 'component':
-                return 'section';
+                return 'div';
             default:
                 return 'span';
         }
@@ -190,6 +190,50 @@ export default ${componentName};`;
     }
 
     /**
+     * Update the manifest file with component generation info
+     */
+    private updateManifest(componentName: string, schema: Schema): void {
+        const fs = require('fs');
+        const path = require('path');
+        const outputDir = path.resolve(__dirname, '../output');
+        const manifestPath = path.join(outputDir, 'manifest.json');
+
+        let manifest: any = { components: [] };
+
+        // Read existing manifest if it exists
+        if (fs.existsSync(manifestPath)) {
+            try {
+                const content = fs.readFileSync(manifestPath, 'utf8');
+                manifest = JSON.parse(content);
+            } catch (err) {
+                console.warn('Failed to parse manifest.json, creating new one');
+            }
+        }
+
+        // Remove existing entry for this component if it exists
+        manifest.components = manifest.components.filter((c: any) => c.name !== componentName);
+
+        // Add new entry
+        manifest.components.push({
+            name: componentName,
+            type: schema.type,
+            generatedAt: new Date().toISOString(),
+            path: {
+                tsx: `${componentName}/${componentName}.tsx`,
+                css: `${componentName}/${componentName}.css`
+            }
+        });
+
+        // Ensure output directory exists
+        if (!fs.existsSync(outputDir)) {
+            fs.mkdirSync(outputDir, { recursive: true });
+        }
+
+        // Write manifest
+        fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
+    }
+
+    /**
      * Run the component generation and save to file
      */
 
@@ -204,6 +248,9 @@ export default ${componentName};`;
         if (cssContent) {
             this.saveToFile(cssContent, `${componentFolderName}.css`, componentFolderName);
         }
+
+        // Update manifest
+        this.updateManifest(componentFolderName, schema);
     }
 }
 

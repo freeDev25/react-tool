@@ -57,16 +57,48 @@ const ExampleComponent: Schema = {
     props: { id: 'main-container' },
     styles: { padding: '10px', backgroundColor: '#f0f0f0' },
     children: [
-        ExampleDivNode
+        ExampleDivNode,
     ]
 }
 
+const H2Node: Schema = {
+    type: 'node',
+    nodeType: 'h2',
+    children: [
+        { type: 'text', children: ['Subheading'] }
+    ]
+}
+
+const ComponentOne: Schema = {
+    type: "component",
+    name: 'ComponentOne',
+    children: [ExampleComponent, H2Node, {
+        type: 'node',
+        nodeType: 'p',
+        children: [
+            {
+                type: 'text',
+                children: ['This is Component One rendering ExampleComponent and more.']
+            }
+        ]
+    }]
+};
+
+
 async function main(): Promise<void> {
-    console.log("ExampleComponent Schema:");
-    console.log(ExampleComponent);
+    console.log("Generating components...");
     const generator = new ComponentGenerator();
+    
+    // Generate ExampleComponent
+    console.log("\n1. ExampleComponent:");
     generator.run(ExampleComponent);
-    console.log("ExampleComponent generated and saved to output folder.");
+    
+    // Generate ComponentOne
+    console.log("\n2. ComponentOne:");
+    generator.run(ComponentOne);
+    
+    console.log("\nAll components generated and saved to output folder.");
+    console.log("Check output/manifest.json for the generation record.");
 }
 
 main().catch(err => console.error(err));
