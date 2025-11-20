@@ -223,7 +223,7 @@ export default function Generate() {
                 )}
               </div>
             ) : (
-              <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-4 min-h-[500px]">
+              <div className="bg-white shadow-xl border border-slate-200 p-4 min-h-[500px]">
                 <div className="mb-3 pb-2 border-b border-slate-200">
                   <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
                     <span>🔴</span>
@@ -232,7 +232,7 @@ export default function Generate() {
                     <span className="ml-2">Component Preview</span>
                   </h3>
                 </div>
-                <div className="p-4 bg-slate-50 rounded-lg min-h-[400px]">
+                <div className="p-4 bg-slate-50 min-h-[400px]">
                   <DynamicComponentRenderer 
                     schema={schema} 
                     onNodeClick={handleNodeSelect}
@@ -332,72 +332,246 @@ export default function Generate() {
 
                   {/* Style Properties - Only for node elements */}
                   {selectedNode.type === 'node' && (
-                    <div className="p-2 bg-linear-to-br from-blue-50 to-indigo-50 border border-blue-100">
-                      <div className="flex items-center justify-between mb-2">
-                        <p className="text-xs font-semibold text-slate-700">Style Properties</p>
-                        <button
-                          onClick={() => {
-                            const property = prompt('Enter CSS property name (e.g., width, height, border):');
-                            if (property) {
-                              const value = prompt(`Enter value for ${property}:`);
-                              if (value !== null) {
-                                handleNodeUpdate({
-                                  ...selectedNode,
-                                  styles: { ...selectedNode.styles, [property]: value }
-                                });
-                              }
-                            }
-                          }}
-                          className="px-2 py-0.5 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition-colors"
+                    <>
+                      {/* Layout Section */}
+                      <div className="border-b border-slate-200">
+                        <button 
+                          className="w-full py-2 px-3 flex items-center justify-between text-xs font-semibold text-slate-700 hover:bg-slate-50"
                         >
-                          + Add
+                          <span>Layout</span>
                         </button>
-                      </div>
-                      
-                      <div className="space-y-1 max-h-96 overflow-y-auto">
-                        {selectedNode.styles && Object.keys(selectedNode.styles).length > 0 ? (
-                          Object.entries(selectedNode.styles).map(([key, value]) => (
-                            <div key={key} className="bg-white p-1 rounded border border-slate-200 flex items-center gap-1">
-                              <label className="text-xs font-medium text-slate-700 min-w-20 truncate" title={key}>
-                                {key}:
-                              </label>
+                        <div className="px-3 pb-3 space-y-2">
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="text-[10px] text-slate-500 mb-0.5 block">Width</label>
                               <input 
                                 type="text"
-                                value={String(value)}
+                                value={(selectedNode.styles?.width as string) || ''}
                                 onChange={(e) => handleNodeUpdate({
                                   ...selectedNode,
-                                  styles: { ...selectedNode.styles, [key]: e.target.value }
+                                  styles: { ...selectedNode.styles, width: e.target.value }
                                 })}
-                                placeholder="value"
-                                className="flex-1 text-xs px-1 py-0.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                placeholder="auto"
+                                className="w-full text-xs px-2 py-1 border border-slate-200 bg-white focus:outline-none focus:border-blue-400"
                               />
-                              <button
-                                onClick={() => {
-                                  const newStyles: any = { ...selectedNode.styles };
-                                  delete newStyles[key];
-                                  handleNodeUpdate({
-                                    ...selectedNode,
-                                    styles: newStyles
-                                  });
-                                }}
-                                className="text-red-500 hover:text-red-700 text-xs px-1"
-                                title="Remove property"
-                              >
-                                ✕
-                              </button>
                             </div>
-                          ))
-                        ) : (
-                          <div className="text-center py-4 text-xs text-slate-400">
-                            No styles applied. Click "+ Add" to add styles.
+                            <div>
+                              <label className="text-[10px] text-slate-500 mb-0.5 block">Height</label>
+                              <input 
+                                type="text"
+                                value={(selectedNode.styles?.height as string) || ''}
+                                onChange={(e) => handleNodeUpdate({
+                                  ...selectedNode,
+                                  styles: { ...selectedNode.styles, height: e.target.value }
+                                })}
+                                placeholder="auto"
+                                className="w-full text-xs px-2 py-1 border border-slate-200 bg-white focus:outline-none focus:border-blue-400"
+                              />
+                            </div>
                           </div>
-                        )}
+                          <div>
+                            <label className="text-[10px] text-slate-500 mb-0.5 block">Display</label>
+                            <select 
+                              value={(selectedNode.styles?.display as string) || ''}
+                              onChange={(e) => handleNodeUpdate({
+                                ...selectedNode,
+                                styles: { ...selectedNode.styles, display: e.target.value || undefined }
+                              })}
+                              className="w-full text-xs px-2 py-1 border border-slate-200 bg-white focus:outline-none focus:border-blue-400"
+                            >
+                              <option value="">Default</option>
+                              <option value="block">Block</option>
+                              <option value="flex">Flex</option>
+                              <option value="inline-flex">Inline Flex</option>
+                              <option value="grid">Grid</option>
+                              <option value="inline">Inline</option>
+                              <option value="none">None</option>
+                            </select>
+                          </div>
+                        </div>
                       </div>
-                    </div>
+
+                      {/* Fill Section */}
+                      <div className="border-b border-slate-200">
+                        <button 
+                          className="w-full py-2 px-3 flex items-center justify-between text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                        >
+                          <span>Fill</span>
+                        </button>
+                        <div className="px-3 pb-3 space-y-2">
+                          <div>
+                            <label className="text-[10px] text-slate-500 mb-0.5 block">Background</label>
+                            <div className="flex gap-1">
+                              <input 
+                                type="color"
+                                value={((selectedNode.styles?.backgroundColor as string) || '')?.startsWith('#') ? selectedNode.styles?.backgroundColor as string : '#ffffff'}
+                                onChange={(e) => handleNodeUpdate({
+                                  ...selectedNode,
+                                  styles: { ...selectedNode.styles, backgroundColor: e.target.value }
+                                })}
+                                className="w-8 h-7 border border-slate-200 cursor-pointer"
+                              />
+                              <input 
+                                type="text"
+                                value={(selectedNode.styles?.backgroundColor as string) || ''}
+                                onChange={(e) => handleNodeUpdate({
+                                  ...selectedNode,
+                                  styles: { ...selectedNode.styles, backgroundColor: e.target.value }
+                                })}
+                                placeholder="transparent"
+                                className="flex-1 text-xs px-2 py-1 border border-slate-200 bg-white focus:outline-none focus:border-blue-400"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Stroke Section */}
+                      <div className="border-b border-slate-200">
+                        <button 
+                          className="w-full py-2 px-3 flex items-center justify-between text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                        >
+                          <span>Stroke</span>
+                        </button>
+                        <div className="px-3 pb-3 space-y-2">
+                          <div>
+                            <label className="text-[10px] text-slate-500 mb-0.5 block">Border</label>
+                            <input 
+                              type="text"
+                              value={(selectedNode.styles?.border as string) || ''}
+                              onChange={(e) => handleNodeUpdate({
+                                ...selectedNode,
+                                styles: { ...selectedNode.styles, border: e.target.value }
+                              })}
+                              placeholder="1px solid #000"
+                              className="w-full text-xs px-2 py-1 border border-slate-200 bg-white focus:outline-none focus:border-blue-400"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-slate-500 mb-0.5 block">Border Radius</label>
+                            <input 
+                              type="text"
+                              value={(selectedNode.styles?.borderRadius as string) || ''}
+                              onChange={(e) => handleNodeUpdate({
+                                ...selectedNode,
+                                styles: { ...selectedNode.styles, borderRadius: e.target.value }
+                              })}
+                              placeholder="0"
+                              className="w-full text-xs px-2 py-1 border border-slate-200 bg-white focus:outline-none focus:border-blue-400"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Text Section */}
+                      <div className="border-b border-slate-200">
+                        <button 
+                          className="w-full py-2 px-3 flex items-center justify-between text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                        >
+                          <span>Text</span>
+                        </button>
+                        <div className="px-3 pb-3 space-y-2">
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="text-[10px] text-slate-500 mb-0.5 block">Size</label>
+                              <input 
+                                type="text"
+                                value={(selectedNode.styles?.fontSize as string) || ''}
+                                onChange={(e) => handleNodeUpdate({
+                                  ...selectedNode,
+                                  styles: { ...selectedNode.styles, fontSize: e.target.value }
+                                })}
+                                placeholder="16px"
+                                className="w-full text-xs px-2 py-1 border border-slate-200 bg-white focus:outline-none focus:border-blue-400"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[10px] text-slate-500 mb-0.5 block">Weight</label>
+                              <select 
+                                value={(selectedNode.styles?.fontWeight as string) || ''}
+                                onChange={(e) => handleNodeUpdate({
+                                  ...selectedNode,
+                                  styles: { ...selectedNode.styles, fontWeight: e.target.value || undefined }
+                                })}
+                                className="w-full text-xs px-2 py-1 border border-slate-200 bg-white focus:outline-none focus:border-blue-400"
+                              >
+                                <option value="">Default</option>
+                                <option value="300">Light</option>
+                                <option value="400">Regular</option>
+                                <option value="500">Medium</option>
+                                <option value="600">Semibold</option>
+                                <option value="700">Bold</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-slate-500 mb-0.5 block">Color</label>
+                            <div className="flex gap-1">
+                              <input 
+                                type="color"
+                                value={((selectedNode.styles?.color as string) || '')?.startsWith('#') ? selectedNode.styles?.color as string : '#000000'}
+                                onChange={(e) => handleNodeUpdate({
+                                  ...selectedNode,
+                                  styles: { ...selectedNode.styles, color: e.target.value }
+                                })}
+                                className="w-8 h-7 border border-slate-200 cursor-pointer"
+                              />
+                              <input 
+                                type="text"
+                                value={(selectedNode.styles?.color as string) || ''}
+                                onChange={(e) => handleNodeUpdate({
+                                  ...selectedNode,
+                                  styles: { ...selectedNode.styles, color: e.target.value }
+                                })}
+                                placeholder="inherit"
+                                className="flex-1 text-xs px-2 py-1 border border-slate-200 bg-white focus:outline-none focus:border-blue-400"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Spacing Section */}
+                      <div className="border-b border-slate-200">
+                        <button 
+                          className="w-full py-2 px-3 flex items-center justify-between text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                        >
+                          <span>Spacing</span>
+                        </button>
+                        <div className="px-3 pb-3 space-y-2">
+                          <div>
+                            <label className="text-[10px] text-slate-500 mb-0.5 block">Padding</label>
+                            <input 
+                              type="text"
+                              value={(selectedNode.styles?.padding as string) || ''}
+                              onChange={(e) => handleNodeUpdate({
+                                ...selectedNode,
+                                styles: { ...selectedNode.styles, padding: e.target.value }
+                              })}
+                              placeholder="0"
+                              className="w-full text-xs px-2 py-1 border border-slate-200 bg-white focus:outline-none focus:border-blue-400"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-slate-500 mb-0.5 block">Margin</label>
+                            <input 
+                              type="text"
+                              value={(selectedNode.styles?.margin as string) || ''}
+                              onChange={(e) => handleNodeUpdate({
+                                ...selectedNode,
+                                styles: { ...selectedNode.styles, margin: e.target.value }
+                              })}
+                              placeholder="0"
+                              className="w-full text-xs px-2 py-1 border border-slate-200 bg-white focus:outline-none focus:border-blue-400"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </>
                   )}
                 </div>
               ) : (
-                <div className="p-2 bg-linear-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-100">
+                <div className="p-2 bg-linear-to-br from-purple-50 to-pink-50 border border-purple-100">
                   <p className="text-xs text-slate-600 text-center py-8">
                     👆 Click on any element in the preview to edit its properties
                   </p>
