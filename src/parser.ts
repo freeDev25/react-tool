@@ -231,6 +231,31 @@ export default ${componentName};`;
 
         // Write manifest
         fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
+
+        // Copy manifest to playground public folder
+        this.copyManifestToPlayground(manifestPath);
+    }
+
+    /**
+     * Copy manifest to playground public folder
+     */
+    private copyManifestToPlayground(manifestPath: string): void {
+        const fs = require('fs');
+        const path = require('path');
+        const playgroundPublicDir = path.resolve(__dirname, '../playground/public');
+        const playgroundManifestPath = path.join(playgroundPublicDir, 'manifest.json');
+
+        try {
+            // Ensure playground public directory exists
+            if (!fs.existsSync(playgroundPublicDir)) {
+                fs.mkdirSync(playgroundPublicDir, { recursive: true });
+            }
+
+            // Copy manifest file
+            fs.copyFileSync(manifestPath, playgroundManifestPath);
+        } catch (err) {
+            console.warn('Failed to copy manifest to playground:', err);
+        }
     }
 
     /**
