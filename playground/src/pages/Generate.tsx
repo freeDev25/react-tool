@@ -333,110 +333,65 @@ export default function Generate() {
                   {/* Style Properties - Only for node elements */}
                   {selectedNode.type === 'node' && (
                     <div className="p-2 bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
-                      <p className="text-xs font-semibold text-slate-700 mb-2">Style Properties</p>
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-xs font-semibold text-slate-700">Style Properties</p>
+                        <button
+                          onClick={() => {
+                            const property = prompt('Enter CSS property name (e.g., width, height, border):');
+                            if (property) {
+                              const value = prompt(`Enter value for ${property}:`);
+                              if (value !== null) {
+                                handleNodeUpdate({
+                                  ...selectedNode,
+                                  styles: { ...selectedNode.styles, [property]: value }
+                                });
+                              }
+                            }
+                          }}
+                          className="px-2 py-0.5 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition-colors"
+                        >
+                          + Add
+                        </button>
+                      </div>
                       
-                      <div className="space-y-2">
-                        <div className="bg-white p-1.5 rounded-lg border border-slate-200">
-                          <label className="text-xs font-semibold text-slate-700 mb-1 block">Background Color</label>
-                          <input 
-                            type="text"
-                            value={(selectedNode.styles?.backgroundColor as string) || ''}
-                            onChange={(e) => handleNodeUpdate({
-                              ...selectedNode,
-                              styles: { ...selectedNode.styles, backgroundColor: e.target.value }
-                            })}
-                            placeholder="#ffffff"
-                            className="w-full text-xs px-1.5 py-1 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                          />
-                        </div>
-
-                        <div className="bg-white p-1.5 rounded-lg border border-slate-200">
-                          <label className="text-xs font-semibold text-slate-700 mb-1 block">Text Color</label>
-                          <input 
-                            type="text"
-                            value={(selectedNode.styles?.color as string) || ''}
-                            onChange={(e) => handleNodeUpdate({
-                              ...selectedNode,
-                              styles: { ...selectedNode.styles, color: e.target.value }
-                            })}
-                            placeholder="#000000"
-                            className="w-full text-xs px-1.5 py-1 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                          />
-                        </div>
-
-                        <div className="bg-white p-1.5 rounded-lg border border-slate-200">
-                          <label className="text-xs font-semibold text-slate-700 mb-1 block">Padding</label>
-                          <input 
-                            type="text"
-                            value={(selectedNode.styles?.padding as string) || ''}
-                            onChange={(e) => handleNodeUpdate({
-                              ...selectedNode,
-                              styles: { ...selectedNode.styles, padding: e.target.value }
-                            })}
-                            placeholder="10px"
-                            className="w-full text-xs px-1.5 py-1 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                          />
-                        </div>
-
-                        <div className="bg-white p-1.5 rounded-lg border border-slate-200">
-                          <label className="text-xs font-semibold text-slate-700 mb-1 block">Margin</label>
-                          <input 
-                            type="text"
-                            value={(selectedNode.styles?.margin as string) || ''}
-                            onChange={(e) => handleNodeUpdate({
-                              ...selectedNode,
-                              styles: { ...selectedNode.styles, margin: e.target.value }
-                            })}
-                            placeholder="10px"
-                            className="w-full text-xs px-1.5 py-1 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                          />
-                        </div>
-
-                        <div className="bg-white p-1.5 rounded-lg border border-slate-200">
-                          <label className="text-xs font-semibold text-slate-700 mb-1 block">Border Radius</label>
-                          <input 
-                            type="text"
-                            value={(selectedNode.styles?.borderRadius as string) || ''}
-                            onChange={(e) => handleNodeUpdate({
-                              ...selectedNode,
-                              styles: { ...selectedNode.styles, borderRadius: e.target.value }
-                            })}
-                            placeholder="4px"
-                            className="w-full text-xs px-1.5 py-1 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                          />
-                        </div>
-
-                        <div className="bg-white p-1.5 rounded-lg border border-slate-200">
-                          <label className="text-xs font-semibold text-slate-700 mb-1 block">Font Size</label>
-                          <input 
-                            type="text"
-                            value={(selectedNode.styles?.fontSize as string) || ''}
-                            onChange={(e) => handleNodeUpdate({
-                              ...selectedNode,
-                              styles: { ...selectedNode.styles, fontSize: e.target.value }
-                            })}
-                            placeholder="16px"
-                            className="w-full text-xs px-1.5 py-1 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                          />
-                        </div>
-
-                        <div className="bg-white p-1.5 rounded-lg border border-slate-200">
-                          <label className="text-xs font-semibold text-slate-700 mb-1 block">Font Weight</label>
-                          <select 
-                            value={(selectedNode.styles?.fontWeight as string) || 'normal'}
-                            onChange={(e) => handleNodeUpdate({
-                              ...selectedNode,
-                              styles: { ...selectedNode.styles, fontWeight: e.target.value }
-                            })}
-                            className="w-full text-xs px-1.5 py-1 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                          >
-                            <option value="normal">Normal</option>
-                            <option value="bold">Bold</option>
-                            <option value="500">500</option>
-                            <option value="600">600</option>
-                            <option value="700">700</option>
-                          </select>
-                        </div>
+                      <div className="space-y-1 max-h-96 overflow-y-auto">
+                        {selectedNode.styles && Object.keys(selectedNode.styles).length > 0 ? (
+                          Object.entries(selectedNode.styles).map(([key, value]) => (
+                            <div key={key} className="bg-white p-1 rounded border border-slate-200 flex items-center gap-1">
+                              <label className="text-xs font-medium text-slate-700 min-w-20 truncate" title={key}>
+                                {key}:
+                              </label>
+                              <input 
+                                type="text"
+                                value={String(value)}
+                                onChange={(e) => handleNodeUpdate({
+                                  ...selectedNode,
+                                  styles: { ...selectedNode.styles, [key]: e.target.value }
+                                })}
+                                placeholder="value"
+                                className="flex-1 text-xs px-1 py-0.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                              />
+                              <button
+                                onClick={() => {
+                                  const newStyles: any = { ...selectedNode.styles };
+                                  delete newStyles[key];
+                                  handleNodeUpdate({
+                                    ...selectedNode,
+                                    styles: newStyles
+                                  });
+                                }}
+                                className="text-red-500 hover:text-red-700 text-xs px-1"
+                                title="Remove property"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="text-center py-4 text-xs text-slate-400">
+                            No styles applied. Click "+ Add" to add styles.
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
