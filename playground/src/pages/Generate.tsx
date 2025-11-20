@@ -28,7 +28,7 @@ export default function Generate() {
                 </svg>
               </button>
             </div>
-            <div className="flex-1 p-6 overflow-y-auto">
+            <div className="flex-1 p-2 overflow-y-auto">
               <div className="space-y-4">
                 <div className="p-2 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
                   <p className="text-sm text-slate-600 mb-2">Design your component schema</p>
@@ -108,7 +108,7 @@ export default function Generate() {
                 </svg>
               </button>
             </div>
-            <div className="flex-1 p-6 overflow-y-auto">
+            <div className="flex-1 p-2 overflow-y-auto">
               <div className="space-y-4">
                 <div className="p-2 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-100">
                   <p className="text-sm text-slate-600 mb-2">Configure component properties</p>
