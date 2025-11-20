@@ -281,40 +281,62 @@ export default function Generate() {
             <div className="flex-1 p-2 overflow-y-auto">
               {selectedNode ? (
                 <div className="space-y-3">
+                  {/* Save Button */}
+                  <div className="flex justify-end">
+                    <button
+                      onClick={handleSave}
+                      className="px-3 py-1.5 bg-green-500 text-white text-xs font-medium rounded hover:bg-green-600 transition-colors shadow-sm"
+                    >
+                      💾 Save Changes
+                    </button>
+                  </div>
+
+                  {/* Basic Properties */}
                   <div className="p-2 bg-linear-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-100">
-                    <div className="flex justify-between items-center mb-2">
-                      <p className="text-xs font-semibold text-slate-700">Element Properties</p>
-                      <button
-                        onClick={handleSave}
-                        className="px-2 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600 transition-colors"
-                      >
-                        💾 Save
-                      </button>
-                    </div>
+                    <p className="text-xs font-semibold text-slate-700 mb-2">Basic Properties</p>
                     
                     {selectedNode.type === 'node' && (
-                      <>
-                        <div className="bg-white p-1.5 rounded-lg border border-slate-200 mb-2">
-                          <label className="text-xs font-semibold text-slate-700 mb-1 block">Tag Name</label>
-                          <select 
-                            value={selectedNode.nodeType || 'div'}
-                            onChange={(e) => handleNodeUpdate({ ...selectedNode, nodeType: e.target.value as any })}
-                            className="w-full text-xs px-1.5 py-1 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                          >
-                            <option value="div">div</option>
-                            <option value="span">span</option>
-                            <option value="p">p</option>
-                            <option value="h1">h1</option>
-                            <option value="h2">h2</option>
-                            <option value="h3">h3</option>
-                            <option value="button">button</option>
-                            <option value="a">a</option>
-                            <option value="img">img</option>
-                            <option value="input">input</option>
-                          </select>
-                        </div>
+                      <div className="bg-white p-1.5 rounded-lg border border-slate-200">
+                        <label className="text-xs font-semibold text-slate-700 mb-1 block">Tag Name</label>
+                        <select 
+                          value={selectedNode.nodeType || 'div'}
+                          onChange={(e) => handleNodeUpdate({ ...selectedNode, nodeType: e.target.value as any })}
+                          className="w-full text-xs px-1.5 py-1 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        >
+                          <option value="div">div</option>
+                          <option value="span">span</option>
+                          <option value="p">p</option>
+                          <option value="h1">h1</option>
+                          <option value="h2">h2</option>
+                          <option value="h3">h3</option>
+                          <option value="button">button</option>
+                          <option value="a">a</option>
+                          <option value="img">img</option>
+                          <option value="input">input</option>
+                        </select>
+                      </div>
+                    )}
 
-                        <div className="bg-white p-1.5 rounded-lg border border-slate-200 mb-2">
+                    {selectedNode.type === 'text' && (
+                      <div className="bg-white p-1.5 rounded-lg border border-slate-200">
+                        <label className="text-xs font-semibold text-slate-700 mb-1 block">Text Content</label>
+                        <textarea 
+                          value={getTextContent(selectedNode)}
+                          onChange={(e) => handleNodeUpdate(updateTextContent(selectedNode, e.target.value))}
+                          rows={4}
+                          className="w-full text-xs px-1.5 py-1 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Style Properties - Only for node elements */}
+                  {selectedNode.type === 'node' && (
+                    <div className="p-2 bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+                      <p className="text-xs font-semibold text-slate-700 mb-2">Style Properties</p>
+                      
+                      <div className="space-y-2">
+                        <div className="bg-white p-1.5 rounded-lg border border-slate-200">
                           <label className="text-xs font-semibold text-slate-700 mb-1 block">Background Color</label>
                           <input 
                             type="text"
@@ -328,7 +350,7 @@ export default function Generate() {
                           />
                         </div>
 
-                        <div className="bg-white p-1.5 rounded-lg border border-slate-200 mb-2">
+                        <div className="bg-white p-1.5 rounded-lg border border-slate-200">
                           <label className="text-xs font-semibold text-slate-700 mb-1 block">Text Color</label>
                           <input 
                             type="text"
@@ -342,7 +364,7 @@ export default function Generate() {
                           />
                         </div>
 
-                        <div className="bg-white p-1.5 rounded-lg border border-slate-200 mb-2">
+                        <div className="bg-white p-1.5 rounded-lg border border-slate-200">
                           <label className="text-xs font-semibold text-slate-700 mb-1 block">Padding</label>
                           <input 
                             type="text"
@@ -356,7 +378,7 @@ export default function Generate() {
                           />
                         </div>
 
-                        <div className="bg-white p-1.5 rounded-lg border border-slate-200 mb-2">
+                        <div className="bg-white p-1.5 rounded-lg border border-slate-200">
                           <label className="text-xs font-semibold text-slate-700 mb-1 block">Margin</label>
                           <input 
                             type="text"
@@ -370,7 +392,7 @@ export default function Generate() {
                           />
                         </div>
 
-                        <div className="bg-white p-1.5 rounded-lg border border-slate-200 mb-2">
+                        <div className="bg-white p-1.5 rounded-lg border border-slate-200">
                           <label className="text-xs font-semibold text-slate-700 mb-1 block">Border Radius</label>
                           <input 
                             type="text"
@@ -384,7 +406,7 @@ export default function Generate() {
                           />
                         </div>
 
-                        <div className="bg-white p-1.5 rounded-lg border border-slate-200 mb-2">
+                        <div className="bg-white p-1.5 rounded-lg border border-slate-200">
                           <label className="text-xs font-semibold text-slate-700 mb-1 block">Font Size</label>
                           <input 
                             type="text"
@@ -415,21 +437,9 @@ export default function Generate() {
                             <option value="700">700</option>
                           </select>
                         </div>
-                      </>
-                    )}
-
-                    {selectedNode.type === 'text' && (
-                      <div className="bg-white p-1.5 rounded-lg border border-slate-200 mb-2">
-                        <label className="text-xs font-semibold text-slate-700 mb-1 block">Text Content</label>
-                        <textarea 
-                          value={getTextContent(selectedNode)}
-                          onChange={(e) => handleNodeUpdate(updateTextContent(selectedNode, e.target.value))}
-                          rows={4}
-                          className="w-full text-xs px-1.5 py-1 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
-                        />
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="p-2 bg-linear-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-100">
