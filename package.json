@@ -8,7 +8,10 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "demo": "ts-node src/demo.ts",
-    "gen": "ts-node src/tests/example.ts"
+    "gen": "ts-node src/tests/example.ts",
+    "play:dev": "npm --prefix playground run dev",
+    "play:build": "npm --prefix playground run build",
+    "play:preview": "npm --prefix playground run preview"
   },
   "keywords": [
     "json-schema",

@@ -58,6 +58,11 @@ export default ${componentName};`;
             return `${indentation}${schema.props?.text || ''}`;
         }
 
+        // Self-close void elements and do not attempt to render children
+        if (this.isVoidElement(elementType)) {
+            return `${indentation}<${elementType}${propsString} />`;
+        }
+
         const openingTag = `${indentation}<${elementType}${propsString}>`;
         const closingTag = `${indentation}</${elementType}>`;
 
@@ -70,6 +75,13 @@ export default ${componentName};`;
             .join('\n');
 
         return `${openingTag}\n${childrenStrings}\n${closingTag}`;
+    }
+
+    private isVoidElement(tag: string): boolean {
+        const voids = new Set([
+            'area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr'
+        ]);
+        return voids.has(tag);
     }
 
     /**
