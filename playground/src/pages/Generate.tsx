@@ -44,6 +44,7 @@ export default function Generate() {
   const [schemaJson, setSchemaJson] = useState(JSON.stringify(defaultSchema, null, 2))
   const [schema, setSchema] = useState<ComponentSchema>(defaultSchema)
   const [error, setError] = useState<string | null>(null)
+  const [showJson, setShowJson] = useState(false)
 
   return (
     <div className="flex h-full bg-linear-to-br from-slate-50 to-blue-50">
@@ -57,7 +58,7 @@ export default function Generate() {
           <>
             <div className="px-3 py-2 border-b border-slate-200 bg-linear-to-r from-blue-50 to-indigo-50 flex justify-between items-center">
               <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                <span className="text-blue-600">⚙️</span> Schema Editor
+                <span className="text-blue-600">🔧</span> Tools
               </h2>
               <button
                 onClick={() => setLeftCollapsed(true)}
@@ -70,35 +71,13 @@ export default function Generate() {
               </button>
             </div>
             <div className="flex-1 p-2 overflow-y-auto">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-slate-700">JSON Schema</span>
-                  <button
-                    onClick={() => {
-                      try {
-                        const parsed = JSON.parse(schemaJson);
-                        setSchema(parsed);
-                        setError(null);
-                      } catch (e: any) {
-                        setError(e.message);
-                      }
-                    }}
-                    className="px-2 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition-colors"
-                  >
-                    Apply
-                  </button>
-                </div>
-                <textarea
-                  value={schemaJson}
-                  onChange={(e) => setSchemaJson(e.target.value)}
-                  className="w-full h-[calc(100vh-200px)] p-2 text-xs font-mono border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                  spellCheck={false}
-                />
-                {error && (
-                  <div className="p-2 bg-red-50 border border-red-200 rounded text-xs text-red-600">
-                    {error}
+              <div className="space-y-3">
+                <div className="p-2 bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+                  <p className="text-xs text-slate-600 mb-2">Component Builder Tools</p>
+                  <div className="text-center text-slate-400 text-xs py-4">
+                    Tools coming soon...
                   </div>
-                )}
+                </div>
               </div>
             </div>
           </>
@@ -118,26 +97,70 @@ export default function Generate() {
 
       {/* Middle Content */}
       <div className="flex-1 flex flex-col overflow-hidden bg-white">
-        <div className="px-3 py-2 border-b border-slate-200 bg-linear-to-r from-slate-50 to-slate-100">
+        <div className="px-3 py-2 border-b border-slate-200 bg-linear-to-r from-slate-50 to-slate-100 flex justify-between items-center">
           <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
             <span className="text-indigo-600">🎨</span> Live Preview
           </h2>
+          <button
+            onClick={() => setShowJson(!showJson)}
+            className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors ${
+              showJson 
+                ? 'bg-indigo-500 text-white' 
+                : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-50'
+            }`}
+          >
+            {showJson ? '📋 Hide JSON' : '📝 Show JSON'}
+          </button>
         </div>
         <div className="flex-1 p-4 overflow-y-auto bg-slate-50">
           <div className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-4 min-h-[500px]">
-              <div className="mb-3 pb-2 border-b border-slate-200">
-                <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                  <span>🔴</span>
-                  <span>🟡</span>
-                  <span>🟢</span>
-                  <span className="ml-2">Live Preview</span>
-                </h3>
+            {showJson ? (
+              <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-4 min-h-[500px]">
+                <div className="mb-3 pb-2 border-b border-slate-200 flex justify-between items-center">
+                  <h3 className="text-sm font-semibold text-slate-700">JSON Schema Editor</h3>
+                  <button
+                    onClick={() => {
+                      try {
+                        const parsed = JSON.parse(schemaJson);
+                        setSchema(parsed);
+                        setError(null);
+                        setShowJson(false);
+                      } catch (e: any) {
+                        setError(e.message);
+                      }
+                    }}
+                    className="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition-colors"
+                  >
+                    Apply & Close
+                  </button>
+                </div>
+                <textarea
+                  value={schemaJson}
+                  onChange={(e) => setSchemaJson(e.target.value)}
+                  className="w-full h-[calc(100vh-250px)] p-3 text-sm font-mono border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none bg-slate-50"
+                  spellCheck={false}
+                />
+                {error && (
+                  <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-600">
+                    {error}
+                  </div>
+                )}
               </div>
-              <div className="p-4 bg-slate-50 rounded-lg min-h-[400px]">
-                <DynamicComponentRenderer schema={schema} />
+            ) : (
+              <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-4 min-h-[500px]">
+                <div className="mb-3 pb-2 border-b border-slate-200">
+                  <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                    <span>🔴</span>
+                    <span>🟡</span>
+                    <span>🟢</span>
+                    <span className="ml-2">Component Preview</span>
+                  </h3>
+                </div>
+                <div className="p-4 bg-slate-50 rounded-lg min-h-[400px]">
+                  <DynamicComponentRenderer schema={schema} />
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
