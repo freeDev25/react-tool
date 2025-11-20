@@ -1,4 +1,4 @@
-import React, { CSSProperties } from 'react';
+import React, { CSSProperties, useMemo, useEffect } from 'react';
 
 export interface ComponentSchema {
   type: 'node' | 'component' | 'text';
@@ -14,9 +14,88 @@ interface DynamicComponentRendererProps {
 }
 
 /**
+ * Converts camelCase CSS property to kebab-case
+ */
+const camelToKebab = (str: string): string => {
+  return str.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`);
+};
+
+/**
+ * Converts a CSSProperties object to CSS string
+ */
+const cssPropertiesToString = (styles: CSSProperties): string => {
+  return Object.entries(styles)
+    .map(([key, value]) => `${camelToKebab(key)}: ${value};`)
+    .join(' ');
+};
+
+/**
  * Converts a JSON schema to a live React component at runtime
  */
 export const DynamicComponentRenderer: React.FC<DynamicComponentRendererProps> = ({ schema }) => {
+  let classCounter = 0;
+  const cssRules = new Map<string, string>();
+
+  /**
+   * Generate a unique class name and store the CSS rule
+   */
+  const generateClassName = (styles: CSSProperties): string => {
+    const className = `dynamic-${classCounter++}`;
+    const cssString = cssPropertiesToString(styles);
+    cssRules.set(className, cssString);
+    return className;
+  };
+
+  /**
+   * Extract all styles and generate CSS rules
+   */
+  const extractStyles = (node: ComponentSchema): void => {
+    if (node.type === 'node' && node.styles && Object.keys(node.styles).length > 0) {
+      generateClassName(node.styles);
+    }
+    if (node.children && Array.isArray(node.children)) {
+      node.children.forEach(child => {
+        if (typeof child !== 'string' && child.type !== 'text') {
+          extractStyles(child as ComponentSchema);
+        }
+      });
+    }
+  };
+
+  // Pre-process to extract all styles
+  extractStyles(schema);
+
+  // Generate the complete CSS string
+  const cssString = useMemo(() => {
+    return Array.from(cssRules.entries())
+      .map(([className, rules]) => `.${className} { ${rules} }`)
+      .join('\n');
+  }, [schema]);
+
+  // Inject styles into the document head
+  useEffect(() => {
+    const styleId = 'dynamic-component-styles';
+    let styleElement = document.getElementById(styleId) as HTMLStyleElement;
+    
+    if (!styleElement) {
+      styleElement = document.createElement('style');
+      styleElement.id = styleId;
+      document.head.appendChild(styleElement);
+    }
+    
+    styleElement.textContent = cssString;
+    
+    return () => {
+      // Cleanup on unmount
+      if (styleElement && styleElement.parentNode) {
+        styleElement.parentNode.removeChild(styleElement);
+      }
+    };
+  }, [cssString]);
+
+  // Reset counter for rendering
+  let renderClassCounter = 0;
+
   const renderNode = (node: ComponentSchema, index: number = 0): React.ReactNode => {
     // Handle text nodes
     if (node.type === 'text') {
@@ -31,10 +110,17 @@ export const DynamicComponentRenderer: React.FC<DynamicComponentRendererProps> =
       const TagName = node.nodeType;
       const { props = {}, styles = {}, children = [] } = node;
 
-      // Merge styles into props
+      // Generate class name if styles exist
+      let className = props.className || '';
+      if (styles && Object.keys(styles).length > 0) {
+        const generatedClass = `dynamic-${renderClassCounter++}`;
+        className = className ? `${className} ${generatedClass}` : generatedClass;
+      }
+
+      // Create props without inline styles
       const elementProps: any = {
         ...props,
-        style: styles,
+        ...(className && { className }),
         key: index,
       };
 
