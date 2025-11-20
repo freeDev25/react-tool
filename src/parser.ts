@@ -1,13 +1,19 @@
 // This file will process a schema and convert it into a React element tree
-import { BaseSchema } from "./schema";
+import { Schema } from "./schema";
 
 export class ComponentGenerator {
+    private cssRules: Map<string, string> = new Map();
+    private classCounter: number = 0;
+
     /**
-     * Generate a React component from a BaseSchema tree
+     * Generate a React component from a Schema tree
      */
-    generate(schema: BaseSchema): string {
-        const imports = this.generateImports();
-        const component = this.generateComponent(schema);
+    generate(schema: Schema): string {
+        this.cssRules.clear();
+        this.classCounter = 0;
+        const componentName = schema.name || schema.filename || 'GeneratedComponent';
+        const imports = this.generateImports(componentName);
+        const component = this.generateComponent(schema, componentName);
 
         return `${imports}\n\n${component}`;
     }
@@ -15,36 +21,40 @@ export class ComponentGenerator {
     /**
      * Generate import statements
      */
-    private generateImports(): string {
-        return `import React from 'react';`;
+    private generateImports(filename: string): string {
+        return `import React from 'react';
+import './${filename}.css';`;
     }
 
     /**
      * Generate the main component code
      */
-    private generateComponent(schema: BaseSchema): string {
-        const componentTree = this.generateComponentTree(schema, 2);
-
-        return `const GeneratedComponent: React.FC = () => {
-  return (
+        private generateComponent(schema: Schema, componentName: string): string {
+                const componentTree = this.generateComponentTree(schema, 2);
+                return `const ${componentName}: React.FC = () => {
+    return (
 ${componentTree}
-  );
+    );
 };
 
-export default GeneratedComponent;`;
-    }
+export default ${componentName};`;
+        }
 
     /**
      * Generate the component tree recursively
      */
-    private generateComponentTree(schema: BaseSchema, indent: number = 0): string {
+    private generateComponentTree(schema: Schema, indent: number = 0): string {
         const indentation = ' '.repeat(indent);
-        const elementType = this.getElementType(schema.type);
-        const styleObj = this.generateStyleObject(schema);
-        const propsString = this.generatePropsString(schema.props, styleObj);
+        const elementType = this.getElementType(schema);
+        const className = this.generateClassName(schema);
+        const propsString = this.generatePropsString(schema.props, className);
         const children = schema.children || [];
 
         if (schema.type === 'text') {
+            // Text nodes may provide children as an array of strings
+            if (Array.isArray(schema.children) && schema.children.every(ch => typeof ch === 'string')) {
+                return `${indentation}${(schema.children as string[]).join('')}`;
+            }
             return `${indentation}${schema.props?.text || ''}`;
         }
 
@@ -65,10 +75,12 @@ export default GeneratedComponent;`;
     /**
      * Map schema type to React element type
      */
-    private getElementType(type: string): string {
+    private getElementType(schema: Schema): string {
+        const type = schema.type;
+
         switch (type) {
             case 'node':
-                return 'div';
+                return schema.nodeType ?? 'div';
             case 'component':
                 return 'section';
             default:
@@ -77,13 +89,24 @@ export default GeneratedComponent;`;
     }
 
     /**
-     * Generate style object string
+     * Generate CSS class name and add rule to collection
      */
-    private generateStyleObject(schema: BaseSchema): string {
-        if (!schema.styles) {
-            return '{}';
+    private generateClassName(schema: Schema): string {
+        if (!schema.styles || Object.keys(schema.styles).length === 0) {
+            return '';
         }
-        return JSON.stringify(schema.styles, null, 2);
+
+        const className = `generated-${this.classCounter++}`;
+        const cssProperties = Object.entries(schema.styles)
+            .map(([key, value]) => {
+                // Convert camelCase to kebab-case
+                const cssKey = key.replace(/([A-Z])/g, '-$1').toLowerCase();
+                return `  ${cssKey}: ${value};`;
+            })
+            .join('\n');
+
+        this.cssRules.set(className, cssProperties);
+        return className;
     }
 
     /**
@@ -91,7 +114,7 @@ export default GeneratedComponent;`;
      */
     private generatePropsString(
         props: Record<string, any> | undefined,
-        styleObj: string
+        className: string
     ): string {
         let propsString = '';
 
@@ -101,39 +124,56 @@ export default GeneratedComponent;`;
                 propsString += ` ${key}={${JSON.stringify(value)}}`;
             }
         }
-        propsString += ` style={${styleObj}}`;
+
+        if (className) {
+            propsString += ` className="${className}"`;
+        }
 
         return propsString;
     }
 
     /**
+     * Generate CSS file content
+     */
+    private generateCSSContent(): string {
+        const cssContent = Array.from(this.cssRules.entries())
+            .map(([className, properties]) => `.${className} {\n${properties}\n}`)
+            .join('\n\n');
+        return cssContent;
+    }
+
+    /**
      * Save generated component to a file
      */
-    private saveToFile(content: string, filename: string): void {
+    private saveToFile(content: string, filename: string, componentFolder: string): void {
         const fs = require('fs');
         const path = require('path');
         const outputDir = path.resolve(__dirname, '../output');
+        const componentDir = path.join(outputDir, componentFolder);
 
         if (!fs.existsSync(outputDir)) {
             fs.mkdirSync(outputDir);
         }
 
-        const filePath = path.join(outputDir, filename);
+        if (!fs.existsSync(componentDir)) {
+            fs.mkdirSync(componentDir, { recursive: true });
+        }
+
+        const filePath = path.join(componentDir, filename);
         fs.writeFileSync(filePath, content, 'utf8');
     }
 
     /**
-     * Clear the output folder
+     * Clear the component folder
      */
-    private clearOutputFolder(): void {
+    private clearComponentFolder(componentFolder: string): void {
         const fs = require('fs');
         const path = require('path');
         const outputDir = path.resolve(__dirname, '../output');
+        const componentDir = path.join(outputDir, componentFolder);
 
-        if (fs.existsSync(outputDir)) {
-            fs.readdirSync(outputDir).forEach((file: string) => {
-                fs.unlinkSync(path.join(outputDir, file));
-            });
+        if (fs.existsSync(componentDir)) {
+            fs.rmSync(componentDir, { recursive: true, force: true });
         }
     }
 
@@ -141,11 +181,17 @@ export default GeneratedComponent;`;
      * Run the component generation and save to file
      */
 
-    public run(schema: BaseSchema): void {
-        this.clearOutputFolder();
+    public run(schema: Schema): void {
+        const componentFolderName = schema.name || schema.filename || 'GeneratedComponent';
+        this.clearComponentFolder(componentFolderName);
         const componentCode = this.generate(schema);
-        const fileName = schema.filename || 'GeneratedComponent';
-        this.saveToFile(componentCode, `${fileName}.tsx`);
+        this.saveToFile(componentCode, `${componentFolderName}.tsx`, componentFolderName);
+
+        // Generate and save CSS file
+        const cssContent = this.generateCSSContent();
+        if (cssContent) {
+            this.saveToFile(cssContent, `${componentFolderName}.css`, componentFolderName);
+        }
     }
 }
 
