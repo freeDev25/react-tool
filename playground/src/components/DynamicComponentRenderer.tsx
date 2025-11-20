@@ -110,10 +110,26 @@ export const DynamicComponentRenderer: React.FC<DynamicComponentRendererProps> =
   const renderNode = (node: ComponentSchema, index: number = 0, currentPath: number[] = []): React.ReactNode => {
     // Handle text nodes
     if (node.type === 'text') {
-      if (Array.isArray(node.children)) {
-        return node.children.join('');
+      const textContent = Array.isArray(node.children) ? node.children.join('') : '';
+      const isSelected = isPathEqual(currentPath, selectedPath);
+      
+      if (onNodeClick) {
+        return (
+          <span
+            key={index}
+            onClick={(e) => {
+              e.stopPropagation();
+              onNodeClick(currentPath);
+            }}
+            className={`cursor-pointer hover:bg-blue-100 ${isSelected ? 'bg-blue-200 ring-2 ring-blue-500' : ''}`}
+            style={{ display: 'inline', padding: '2px 4px', borderRadius: '2px' }}
+          >
+            {textContent}
+          </span>
+        );
       }
-      return null;
+      
+      return textContent || null;
     }
 
     // Handle HTML nodes

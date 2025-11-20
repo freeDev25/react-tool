@@ -85,6 +85,22 @@ export default function Generate() {
     return newSchema
   }
 
+  // Helper to get text content from a node
+  const getTextContent = (node: ComponentSchema): string => {
+    if (node.type === 'text' && Array.isArray(node.children)) {
+      return node.children.join('')
+    }
+    return ''
+  }
+
+  // Helper to update text content
+  const updateTextContent = (node: ComponentSchema, newText: string): ComponentSchema => {
+    if (node.type === 'text') {
+      return { ...node, children: [newText] }
+    }
+    return node
+  }
+
   // Handle node selection
   const handleNodeSelect = (path: number[]) => {
     setSelectedNodePath(path)
@@ -400,6 +416,18 @@ export default function Generate() {
                           </select>
                         </div>
                       </>
+                    )}
+
+                    {selectedNode.type === 'text' && (
+                      <div className="bg-white p-1.5 rounded-lg border border-slate-200 mb-2">
+                        <label className="text-xs font-semibold text-slate-700 mb-1 block">Text Content</label>
+                        <textarea 
+                          value={getTextContent(selectedNode)}
+                          onChange={(e) => handleNodeUpdate(updateTextContent(selectedNode, e.target.value))}
+                          rows={4}
+                          className="w-full text-xs px-1.5 py-1 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                        />
+                      </div>
                     )}
                   </div>
                 </div>
