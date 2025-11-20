@@ -45,6 +45,66 @@ export default function Generate() {
   const [schema, setSchema] = useState<ComponentSchema>(defaultSchema)
   const [error, setError] = useState<string | null>(null)
   const [showJson, setShowJson] = useState(false)
+  const [selectedNodePath, setSelectedNodePath] = useState<number[]>([])
+  const [selectedNode, setSelectedNode] = useState<ComponentSchema | null>(null)
+
+  // Load schema from localStorage on mount
+  React.useEffect(() => {
+    const saved = localStorage.getItem('component-schema')
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved)
+        setSchema(parsed)
+        setSchemaJson(JSON.stringify(parsed, null, 2))
+      } catch (e) {
+        console.error('Failed to load saved schema:', e)
+      }
+    }
+  }, [])
+
+  // Helper to get node by path
+  const getNodeByPath = (schema: ComponentSchema, path: number[]): ComponentSchema | null => {
+    let current: any = schema
+    for (const index of path) {
+      if (!current.children || !current.children[index]) return null
+      current = current.children[index]
+    }
+    return current
+  }
+
+  // Helper to update node by path
+  const updateNodeByPath = (schema: ComponentSchema, path: number[], updatedNode: ComponentSchema): ComponentSchema => {
+    const newSchema = JSON.parse(JSON.stringify(schema)) // Deep clone
+    if (path.length === 0) return updatedNode
+
+    let current: any = newSchema
+    for (let i = 0; i < path.length - 1; i++) {
+      current = current.children[path[i]]
+    }
+    current.children[path[path.length - 1]] = updatedNode
+    return newSchema
+  }
+
+  // Handle node selection
+  const handleNodeSelect = (path: number[]) => {
+    setSelectedNodePath(path)
+    const node = getNodeByPath(schema, path)
+    setSelectedNode(node)
+  }
+
+  // Handle node update from properties panel
+  const handleNodeUpdate = (updatedNode: ComponentSchema) => {
+    const newSchema = updateNodeByPath(schema, selectedNodePath, updatedNode)
+    setSchema(newSchema)
+    setSchemaJson(JSON.stringify(newSchema, null, 2))
+    setSelectedNode(updatedNode)
+  }
+
+  // Save to localStorage
+  const handleSave = () => {
+    localStorage.setItem('component-schema', JSON.stringify(schema))
+    alert('Schema saved successfully!')
+  }
 
   return (
     <div className="flex h-full bg-linear-to-br from-slate-50 to-blue-50">
@@ -157,7 +217,11 @@ export default function Generate() {
                   </h3>
                 </div>
                 <div className="p-4 bg-slate-50 rounded-lg min-h-[400px]">
-                  <DynamicComponentRenderer schema={schema} />
+                  <DynamicComponentRenderer 
+                    schema={schema} 
+                    onNodeClick={handleNodeSelect}
+                    selectedPath={selectedNodePath}
+                  />
                 </div>
               </div>
             )}
@@ -199,28 +263,153 @@ export default function Generate() {
               </button>
             </div>
             <div className="flex-1 p-2 overflow-y-auto">
-              <div className="space-y-4">
-                <div className="p-2 bg-linear-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-100">
-                  <p className="text-sm text-slate-600 mb-2">Configure component properties</p>
-                  <div className="space-y-3">
-                    <div className="bg-white p-1.5 rounded-lg border border-slate-200">
-                      <label className="text-xs font-semibold text-slate-700 mb-1 block">Name</label>
-                      <input 
-                        type="text" 
-                        placeholder="Component name"
-                        className="w-full text-sm px-1.5 py-1 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      />
+              {selectedNode ? (
+                <div className="space-y-3">
+                  <div className="p-2 bg-linear-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-100">
+                    <div className="flex justify-between items-center mb-2">
+                      <p className="text-xs font-semibold text-slate-700">Element Properties</p>
+                      <button
+                        onClick={handleSave}
+                        className="px-2 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600 transition-colors"
+                      >
+                        💾 Save
+                      </button>
                     </div>
-                    <div className="bg-white p-1.5 rounded-lg border border-slate-200">
-                      <label className="text-xs font-semibold text-slate-700 mb-1 block">Type</label>
-                      <select className="w-full text-sm px-1.5 py-1 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
-                        <option>Component</option>
-                        <option>Node</option>
-                      </select>
-                    </div>
+                    
+                    {selectedNode.type === 'node' && (
+                      <>
+                        <div className="bg-white p-1.5 rounded-lg border border-slate-200 mb-2">
+                          <label className="text-xs font-semibold text-slate-700 mb-1 block">Tag Name</label>
+                          <select 
+                            value={selectedNode.nodeType || 'div'}
+                            onChange={(e) => handleNodeUpdate({ ...selectedNode, nodeType: e.target.value as any })}
+                            className="w-full text-xs px-1.5 py-1 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          >
+                            <option value="div">div</option>
+                            <option value="span">span</option>
+                            <option value="p">p</option>
+                            <option value="h1">h1</option>
+                            <option value="h2">h2</option>
+                            <option value="h3">h3</option>
+                            <option value="button">button</option>
+                            <option value="a">a</option>
+                            <option value="img">img</option>
+                            <option value="input">input</option>
+                          </select>
+                        </div>
+
+                        <div className="bg-white p-1.5 rounded-lg border border-slate-200 mb-2">
+                          <label className="text-xs font-semibold text-slate-700 mb-1 block">Background Color</label>
+                          <input 
+                            type="text"
+                            value={(selectedNode.styles?.backgroundColor as string) || ''}
+                            onChange={(e) => handleNodeUpdate({
+                              ...selectedNode,
+                              styles: { ...selectedNode.styles, backgroundColor: e.target.value }
+                            })}
+                            placeholder="#ffffff"
+                            className="w-full text-xs px-1.5 py-1 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          />
+                        </div>
+
+                        <div className="bg-white p-1.5 rounded-lg border border-slate-200 mb-2">
+                          <label className="text-xs font-semibold text-slate-700 mb-1 block">Text Color</label>
+                          <input 
+                            type="text"
+                            value={(selectedNode.styles?.color as string) || ''}
+                            onChange={(e) => handleNodeUpdate({
+                              ...selectedNode,
+                              styles: { ...selectedNode.styles, color: e.target.value }
+                            })}
+                            placeholder="#000000"
+                            className="w-full text-xs px-1.5 py-1 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          />
+                        </div>
+
+                        <div className="bg-white p-1.5 rounded-lg border border-slate-200 mb-2">
+                          <label className="text-xs font-semibold text-slate-700 mb-1 block">Padding</label>
+                          <input 
+                            type="text"
+                            value={(selectedNode.styles?.padding as string) || ''}
+                            onChange={(e) => handleNodeUpdate({
+                              ...selectedNode,
+                              styles: { ...selectedNode.styles, padding: e.target.value }
+                            })}
+                            placeholder="10px"
+                            className="w-full text-xs px-1.5 py-1 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          />
+                        </div>
+
+                        <div className="bg-white p-1.5 rounded-lg border border-slate-200 mb-2">
+                          <label className="text-xs font-semibold text-slate-700 mb-1 block">Margin</label>
+                          <input 
+                            type="text"
+                            value={(selectedNode.styles?.margin as string) || ''}
+                            onChange={(e) => handleNodeUpdate({
+                              ...selectedNode,
+                              styles: { ...selectedNode.styles, margin: e.target.value }
+                            })}
+                            placeholder="10px"
+                            className="w-full text-xs px-1.5 py-1 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          />
+                        </div>
+
+                        <div className="bg-white p-1.5 rounded-lg border border-slate-200 mb-2">
+                          <label className="text-xs font-semibold text-slate-700 mb-1 block">Border Radius</label>
+                          <input 
+                            type="text"
+                            value={(selectedNode.styles?.borderRadius as string) || ''}
+                            onChange={(e) => handleNodeUpdate({
+                              ...selectedNode,
+                              styles: { ...selectedNode.styles, borderRadius: e.target.value }
+                            })}
+                            placeholder="4px"
+                            className="w-full text-xs px-1.5 py-1 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          />
+                        </div>
+
+                        <div className="bg-white p-1.5 rounded-lg border border-slate-200 mb-2">
+                          <label className="text-xs font-semibold text-slate-700 mb-1 block">Font Size</label>
+                          <input 
+                            type="text"
+                            value={(selectedNode.styles?.fontSize as string) || ''}
+                            onChange={(e) => handleNodeUpdate({
+                              ...selectedNode,
+                              styles: { ...selectedNode.styles, fontSize: e.target.value }
+                            })}
+                            placeholder="16px"
+                            className="w-full text-xs px-1.5 py-1 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          />
+                        </div>
+
+                        <div className="bg-white p-1.5 rounded-lg border border-slate-200">
+                          <label className="text-xs font-semibold text-slate-700 mb-1 block">Font Weight</label>
+                          <select 
+                            value={(selectedNode.styles?.fontWeight as string) || 'normal'}
+                            onChange={(e) => handleNodeUpdate({
+                              ...selectedNode,
+                              styles: { ...selectedNode.styles, fontWeight: e.target.value }
+                            })}
+                            className="w-full text-xs px-1.5 py-1 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          >
+                            <option value="normal">Normal</option>
+                            <option value="bold">Bold</option>
+                            <option value="500">500</option>
+                            <option value="600">600</option>
+                            <option value="700">700</option>
+                          </select>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="p-2 bg-linear-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-100">
+                  <p className="text-xs text-slate-600 text-center py-8">
+                    👆 Click on any element in the preview to edit its properties
+                  </p>
+                </div>
+              )}
             </div>
           </>
         )}

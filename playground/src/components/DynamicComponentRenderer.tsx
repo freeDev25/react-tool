@@ -11,6 +11,8 @@ export interface ComponentSchema {
 
 interface DynamicComponentRendererProps {
   schema: ComponentSchema;
+  onNodeClick?: (path: number[]) => void;
+  selectedPath?: number[];
 }
 
 /**
@@ -32,7 +34,11 @@ const cssPropertiesToString = (styles: CSSProperties): string => {
 /**
  * Converts a JSON schema to a live React component at runtime
  */
-export const DynamicComponentRenderer: React.FC<DynamicComponentRendererProps> = ({ schema }) => {
+export const DynamicComponentRenderer: React.FC<DynamicComponentRendererProps> = ({ 
+  schema, 
+  onNodeClick,
+  selectedPath = []
+}) => {
   let classCounter = 0;
   const cssRules = new Map<string, string>();
 
@@ -96,7 +102,12 @@ export const DynamicComponentRenderer: React.FC<DynamicComponentRendererProps> =
   // Reset counter for rendering
   let renderClassCounter = 0;
 
-  const renderNode = (node: ComponentSchema, index: number = 0): React.ReactNode => {
+  // Helper to check if path matches
+  const isPathEqual = (path1: number[], path2: number[]): boolean => {
+    return path1.length === path2.length && path1.every((val, idx) => val === path2[idx]);
+  };
+
+  const renderNode = (node: ComponentSchema, index: number = 0, currentPath: number[] = []): React.ReactNode => {
     // Handle text nodes
     if (node.type === 'text') {
       if (Array.isArray(node.children)) {
@@ -109,6 +120,7 @@ export const DynamicComponentRenderer: React.FC<DynamicComponentRendererProps> =
     if (node.type === 'node' && node.nodeType) {
       const TagName = node.nodeType;
       const { props = {}, styles = {}, children = [] } = node;
+      const isSelected = isPathEqual(currentPath, selectedPath);
 
       // Generate class name if styles exist
       let className = props.className || '';
@@ -117,11 +129,27 @@ export const DynamicComponentRenderer: React.FC<DynamicComponentRendererProps> =
         className = className ? `${className} ${generatedClass}` : generatedClass;
       }
 
+      // Add selection highlight
+      if (isSelected) {
+        className = className ? `${className} ring-2 ring-blue-500 ring-offset-2` : 'ring-2 ring-blue-500 ring-offset-2';
+      }
+
+      // Add hover effect for selectable nodes
+      if (onNodeClick) {
+        className = className ? `${className} cursor-pointer hover:ring-1 hover:ring-blue-300` : 'cursor-pointer hover:ring-1 hover:ring-blue-300';
+      }
+
       // Create props without inline styles
       const elementProps: any = {
         ...props,
         ...(className && { className }),
         key: index,
+        ...(onNodeClick && {
+          onClick: (e: React.MouseEvent) => {
+            e.stopPropagation();
+            onNodeClick(currentPath);
+          }
+        }),
       };
 
       // Handle void elements (self-closing tags)
@@ -135,7 +163,7 @@ export const DynamicComponentRenderer: React.FC<DynamicComponentRendererProps> =
         if (typeof child === 'string') {
           return child;
         }
-        return renderNode(child as ComponentSchema, idx);
+        return renderNode(child as ComponentSchema, idx, [...currentPath, idx]);
       });
 
       return React.createElement(TagName, elementProps, ...renderedChildren);
