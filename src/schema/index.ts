@@ -19,7 +19,7 @@ export type SchemaComponent = {
     type: 'component';
     name: string;
     props?: Record<string, any>;
-    children?: Node[] | SchemaText[] | SchemaComponent[];
+    children?: any[];
 }
 
 export type Schema = {

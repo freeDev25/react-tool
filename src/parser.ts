@@ -4,6 +4,43 @@ import { Schema } from "./schema";
 export class ComponentGenerator {
     private cssRules: Map<string, string> = new Map();
     private classCounter: number = 0;
+    private static manifestReset: boolean = false;
+
+    /**
+     * Reset the manifest file (call this before starting a generation batch)
+     */
+    public static resetManifest(): void {
+        const fs = require('fs');
+        const path = require('path');
+        const outputDir = path.resolve(__dirname, '../output');
+        const manifestPath = path.join(outputDir, 'manifest.json');
+
+        // Create empty manifest
+        const emptyManifest = { components: [] };
+
+        // Ensure output directory exists
+        if (!fs.existsSync(outputDir)) {
+            fs.mkdirSync(outputDir, { recursive: true });
+        }
+
+        // Write empty manifest
+        fs.writeFileSync(manifestPath, JSON.stringify(emptyManifest, null, 2), 'utf8');
+
+        // Copy to playground
+        const playgroundPublicDir = path.resolve(__dirname, '../playground/public');
+        const playgroundManifestPath = path.join(playgroundPublicDir, 'manifest.json');
+
+        try {
+            if (!fs.existsSync(playgroundPublicDir)) {
+                fs.mkdirSync(playgroundPublicDir, { recursive: true });
+            }
+            fs.copyFileSync(manifestPath, playgroundManifestPath);
+        } catch (err) {
+            console.warn('Failed to copy manifest to playground:', err);
+        }
+
+        ComponentGenerator.manifestReset = true;
+    }
 
     /**
      * Generate a React component from a Schema tree
@@ -263,6 +300,12 @@ export default ${componentName};`;
      */
 
     public run(schema: Schema): void {
+        if (schema.type == 'node' || schema.type == 'text') {
+            console.warn('\x1b[31mComponentGenerator.run() called with non-component schema. Skipping generation.\x1b[0m');
+            console.warn('\x1b[31mSchema details:\x1b[0m', JSON.stringify(schema, null, 2));
+            return;
+        }
+        
         const componentFolderName = schema.name || schema.filename || 'GeneratedComponent';
         this.clearComponentFolder(componentFolderName);
         const componentCode = this.generate(schema);

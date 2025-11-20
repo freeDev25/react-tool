@@ -31,8 +31,8 @@ const ExampleImageNode: Schema = {
     type: 'node',
     nodeType: 'img',
     props: {
-        src: 'https://via.placeholder.com/150',
-        alt: 'Placeholder Image'
+        src: 'https://picsum.photos/150/150',
+        alt: 'Random Image'
     },
     styles: {
         width: '150px',
@@ -84,9 +84,29 @@ const ComponentOne: Schema = {
     }]
 };
 
+const imageComponent: Schema = {
+    type: 'node',
+    nodeType: 'img',
+    props: {
+        src: 'https://via.placeholder.com/300',
+        alt: 'Demo Image'
+    },
+    styles: {
+        width: '300px',
+        height: '300px'
+    }
+};
+
+
+
 
 async function main(): Promise<void> {
     console.log("Generating components...");
+    
+    // Reset manifest before generating components
+    ComponentGenerator.resetManifest();
+    console.log("Manifest reset.");
+    
     const generator = new ComponentGenerator();
     
     // Generate ExampleComponent
