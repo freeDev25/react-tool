@@ -5,47 +5,37 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation()
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+    <div className="flex flex-col h-screen">
       {/* Navigation Bar */}
-      <nav style={{
-        display: 'flex',
-        gap: 0,
-        backgroundColor: '#fff',
-        borderBottom: '1px solid #ddd',
-        padding: 0
-      }}>
+      <nav className="flex bg-white border-b border-slate-200 shadow-sm">
         <Link
           to="/"
-          style={{
-            padding: '16px 24px',
-            textDecoration: 'none',
-            color: location.pathname === '/' ? '#2196f3' : '#666',
-            fontWeight: location.pathname === '/' ? 600 : 400,
-            borderBottom: location.pathname === '/' ? '2px solid #2196f3' : '2px solid transparent',
-            backgroundColor: location.pathname === '/' ? '#f8f9fa' : 'transparent',
-            transition: 'all 0.2s'
-          }}
+          className={`
+            px-6 py-4 transition-all duration-200 border-b-2 font-medium
+            ${location.pathname === '/' 
+              ? 'text-blue-600 border-blue-600 bg-blue-50/50' 
+              : 'text-slate-600 border-transparent hover:text-slate-900 hover:bg-slate-50'
+            }
+          `}
         >
-          Playground
+          🎮 Playground
         </Link>
         <Link
           to="/generate"
-          style={{
-            padding: '16px 24px',
-            textDecoration: 'none',
-            color: location.pathname === '/generate' ? '#2196f3' : '#666',
-            fontWeight: location.pathname === '/generate' ? 600 : 400,
-            borderBottom: location.pathname === '/generate' ? '2px solid #2196f3' : '2px solid transparent',
-            backgroundColor: location.pathname === '/generate' ? '#f8f9fa' : 'transparent',
-            transition: 'all 0.2s'
-          }}
+          className={`
+            px-6 py-4 transition-all duration-200 border-b-2 font-medium
+            ${location.pathname === '/generate' 
+              ? 'text-blue-600 border-blue-600 bg-blue-50/50' 
+              : 'text-slate-600 border-transparent hover:text-slate-900 hover:bg-slate-50'
+            }
+          `}
         >
-          Generate
+          ✨ Generate
         </Link>
       </nav>
 
       {/* Main Content */}
-      <div style={{ flex: 1, overflow: 'hidden' }}>
+      <div className="flex-1 overflow-hidden">
         {children}
       </div>
     </div>
