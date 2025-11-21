@@ -5,233 +5,252 @@ import { PropertiesPanel } from '../components/PropertiesPanel'
 import { PreviewArea } from '../components/PreviewArea'
 
 const defaultSchema: ComponentSchema = {
-  type: 'node',
-  nodeType: 'div',
-  styles: { padding: '20px', backgroundColor: '#f8fafc', borderRadius: '8px' },
-  children: [
-    {
-      type: 'node',
-      nodeType: 'h2',
-      styles: { color: '#1e293b', marginBottom: '12px', fontSize: '24px', fontWeight: 'bold' },
-      children: [{ type: 'text', children: ['Hello from JSON!'] }]
-    },
-    {
-      type: 'node',
-      nodeType: 'p',
-      styles: { color: '#64748b', fontSize: '16px', lineHeight: '1.6' },
-      children: [{ type: 'text', children: ['This component is generated from a JSON schema in real-time. Edit the schema to see changes instantly.'] }]
-    },
-    {
-      type: 'node',
-      nodeType: 'button',
-      styles: { 
-        marginTop: '16px',
-        padding: '10px 20px',
-        backgroundColor: '#3b82f6',
-        color: 'white',
-        border: 'none',
-        borderRadius: '6px',
-        cursor: 'pointer',
-        fontSize: '14px',
-        fontWeight: '500'
-      },
-      props: { onClick: () => alert('Button clicked!') },
-      children: [{ type: 'text', children: ['Click Me'] }]
-    }
-  ]
+    type: 'node',
+    nodeType: 'div',
+    styles: { padding: '20px', backgroundColor: '#f8fafc', borderRadius: '8px' },
+    children: [
+        {
+            type: 'node',
+            nodeType: 'h2',
+            styles: { color: '#1e293b', marginBottom: '12px', fontSize: '24px', fontWeight: 'bold' },
+            children: [{ type: 'text', children: ['Hello from JSON!'] }]
+        },
+        {
+            type: 'node',
+            nodeType: 'p',
+            styles: { color: '#64748b', fontSize: '16px', lineHeight: '1.6' },
+            children: [{ type: 'text', children: ['This component is generated from a JSON schema in real-time. Edit the schema to see changes instantly.'] }]
+        },
+        {
+            type: 'node',
+            nodeType: 'button',
+            styles: {
+                marginTop: '16px',
+                padding: '10px 20px',
+                backgroundColor: '#3b82f6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500'
+            },
+            props: { onClick: () => alert('Button clicked!') },
+            children: [{ type: 'text', children: ['Click Me'] }]
+        }
+    ]
+};
+
+const dropableSchema: ComponentSchema = {
+    type: 'node',
+    nodeType: 'div',
+    styles: { padding: '20px', backgroundColor: '#f0f4f8', borderRadius: '8px', minHeight: '200px' },
+    children: []
 };
 
 export default function Generate() {
-  const [leftCollapsed, setLeftCollapsed] = useState(false)
-  const [rightCollapsed, setRightCollapsed] = useState(false)
-  const [schemaJson, setSchemaJson] = useState(JSON.stringify(defaultSchema, null, 2))
-  const [schema, setSchema] = useState<ComponentSchema>(defaultSchema)
-  const [error, setError] = useState<string | null>(null)
-  const [showJson, setShowJson] = useState(false)
-  const [selectedNodePath, setSelectedNodePath] = useState<number[]>([])
-  const [selectedNode, setSelectedNode] = useState<ComponentSchema | null>(null)
+    const [leftCollapsed, setLeftCollapsed] = useState(false)
+    const [rightCollapsed, setRightCollapsed] = useState(false)
+    const [schemaJson, setSchemaJson] = useState(JSON.stringify(defaultSchema, null, 2))
+    const [schema, setSchema] = useState<ComponentSchema>(defaultSchema)
+    const [error, setError] = useState<string | null>(null)
+    const [showJson, setShowJson] = useState(false)
+    const [selectedNodePath, setSelectedNodePath] = useState<number[]>([])
+    const [selectedNode, setSelectedNode] = useState<ComponentSchema | null>(null);
 
-  // Load schema from localStorage on mount
-  React.useEffect(() => {
-    const saved = localStorage.getItem('component-schema')
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved)
-        setSchema(parsed)
-        setSchemaJson(JSON.stringify(parsed, null, 2))
-      } catch (e) {
-        console.error('Failed to load saved schema:', e)
-      }
+    const makeEditableSchema = (schema: ComponentSchema): ComponentSchema => {
+        const childrenShema = schema.children ? schema.children.map(child => makeEditableSchema(child as ComponentSchema)) : [];
+        return {
+            ...schema,
+            children: [
+                dropableSchema,
+                ...childrenShema,
+                dropableSchema
+            ]
+        };
     }
-  }, [])
 
-  // Helper to get node by path
-  const getNodeByPath = (schema: ComponentSchema, path: number[]): ComponentSchema | null => {
-    let current: any = schema
-    for (const index of path) {
-      if (!current.children || !current.children[index]) return null
-      current = current.children[index]
+    // Load schema from localStorage on mount
+    React.useEffect(() => {
+        const saved = localStorage.getItem('component-schema')
+        if (saved) {
+            try {
+                const parsed = makeEditableSchema(JSON.parse(saved));
+                setSchema(parsed)
+                setSchemaJson(JSON.stringify(parsed, null, 2))
+            } catch (e) {
+                console.error('Failed to load saved schema:', e)
+            }
+        }
+    }, [])
+
+    // Helper to get node by path
+    const getNodeByPath = (schema: ComponentSchema, path: number[]): ComponentSchema | null => {
+        let current: any = schema
+        for (const index of path) {
+            if (!current.children || !current.children[index]) return null
+            current = current.children[index]
+        }
+        return current
     }
-    return current
-  }
 
-  // Helper to update node by path
-  const updateNodeByPath = (schema: ComponentSchema, path: number[], updatedNode: ComponentSchema): ComponentSchema => {
-    const newSchema = JSON.parse(JSON.stringify(schema)) // Deep clone
-    if (path.length === 0) return updatedNode
+    // Helper to update node by path
+    const updateNodeByPath = (schema: ComponentSchema, path: number[], updatedNode: ComponentSchema): ComponentSchema => {
+        const newSchema = JSON.parse(JSON.stringify(schema)) // Deep clone
+        if (path.length === 0) return updatedNode
 
-    let current: any = newSchema
-    for (let i = 0; i < path.length - 1; i++) {
-      current = current.children[path[i]]
+        let current: any = newSchema
+        for (let i = 0; i < path.length - 1; i++) {
+            current = current.children[path[i]]
+        }
+        current.children[path[path.length - 1]] = updatedNode
+        return newSchema
     }
-    current.children[path[path.length - 1]] = updatedNode
-    return newSchema
-  }
 
-  // Helper to get text content from a node
-  const getTextContent = (node: ComponentSchema): string => {
-    if (node.type === 'text' && Array.isArray(node.children)) {
-      return node.children.join('')
+    // Helper to get text content from a node
+    const getTextContent = (node: ComponentSchema): string => {
+        if (node.type === 'text' && Array.isArray(node.children)) {
+            return node.children.join('')
+        }
+        return ''
     }
-    return ''
-  }
 
-  // Helper to update text content
-  const updateTextContent = (node: ComponentSchema, newText: string): ComponentSchema => {
-    if (node.type === 'text') {
-      return { ...node, children: [newText] }
+    // Helper to update text content
+    const updateTextContent = (node: ComponentSchema, newText: string): ComponentSchema => {
+        if (node.type === 'text') {
+            return { ...node, children: [newText] }
+        }
+        return node
     }
-    return node
-  }
 
-  // Handle node selection
-  const handleNodeSelect = (path: number[]) => {
-    setSelectedNodePath(path)
-    const node = getNodeByPath(schema, path)
-    setSelectedNode(node)
-  }
+    // Handle node selection
+    const handleNodeSelect = (path: number[]) => {
+        setSelectedNodePath(path)
+        const node = getNodeByPath(schema, path)
+        setSelectedNode(node)
+    }
 
-  // Handle node update from properties panel
-  const handleNodeUpdate = (updatedNode: ComponentSchema) => {
-    const newSchema = updateNodeByPath(schema, selectedNodePath, updatedNode)
-    setSchema(newSchema)
-    setSchemaJson(JSON.stringify(newSchema, null, 2))
-    setSelectedNode(updatedNode)
-  }
+    // Handle node update from properties panel
+    const handleNodeUpdate = (updatedNode: ComponentSchema) => {
+        const newSchema = updateNodeByPath(schema, selectedNodePath, updatedNode)
+        setSchema(newSchema)
+        setSchemaJson(JSON.stringify(newSchema, null, 2))
+        setSelectedNode(updatedNode)
+    }
 
-  // Save to localStorage
-  const handleSave = () => {
-    localStorage.setItem('component-schema', JSON.stringify(schema))
-    alert('Schema saved successfully!')
-  }
+    // Save to localStorage
+    const handleSave = () => {
+        localStorage.setItem('component-schema', JSON.stringify(schema))
+        alert('Schema saved successfully!')
+    }
 
-  return (
-    <div className="flex h-full bg-linear-to-br from-slate-50 to-blue-50">
-      {/* Left Sidebar */}
-      <div className={`
+    return (
+        <div className="flex h-full bg-linear-to-br from-slate-50 to-blue-50">
+            {/* Left Sidebar */}
+            <div className={`
         ${leftCollapsed ? 'w-0 min-w-0' : 'w-1/5 min-w-[250px]'}
         border-r border-slate-200 flex flex-col overflow-hidden
         bg-white shadow-lg transition-all duration-300 ease-in-out
       `}>
-        {!leftCollapsed && (
-          <>
-            <div className="px-3 py-2 border-b border-slate-200 bg-linear-to-r from-blue-50 to-indigo-50 flex justify-between items-center">
-              <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                <span className="text-blue-600">🔧</span> Tools
-              </h2>
-              <button
-                onClick={() => setLeftCollapsed(true)}
-                className="p-1 hover:bg-white/50 rounded-lg transition-colors text-slate-600 hover:text-slate-900"
-                title="Collapse"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
+                {!leftCollapsed && (
+                    <>
+                        <div className="px-3 py-2 border-b border-slate-200 bg-linear-to-r from-blue-50 to-indigo-50 flex justify-between items-center">
+                            <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <span className="text-blue-600">🔧</span> Tools
+                            </h2>
+                            <button
+                                onClick={() => setLeftCollapsed(true)}
+                                className="p-1 hover:bg-white/50 rounded-lg transition-colors text-slate-600 hover:text-slate-900"
+                                title="Collapse"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div className="flex-1 overflow-y-auto">
+                            <ElementsList />
+                        </div>
+                    </>
+                )}
             </div>
-            <div className="flex-1 overflow-y-auto">
-              <ElementsList />
-            </div>
-          </>
-        )}
-      </div>
 
-      {/* Left Collapse Button */}
-      {leftCollapsed && (
-        <button
-          onClick={() => setLeftCollapsed(false)}
-          className="w-8 border-r border-slate-200 bg-linear-to-b from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 cursor-pointer text-slate-600 hover:text-blue-600 transition-all duration-200 shadow-sm"
-          title="Expand Schema Editor"
-        >
-          <span className="writing-mode-vertical text-xs font-medium">▶</span>
-        </button>
-      )}
+            {/* Left Collapse Button */}
+            {leftCollapsed && (
+                <button
+                    onClick={() => setLeftCollapsed(false)}
+                    className="w-8 border-r border-slate-200 bg-linear-to-b from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 cursor-pointer text-slate-600 hover:text-blue-600 transition-all duration-200 shadow-sm"
+                    title="Expand Schema Editor"
+                >
+                    <span className="writing-mode-vertical text-xs font-medium">▶</span>
+                </button>
+            )}
 
-      {/* Middle Content */}
-      <PreviewArea 
-        schema={schema}
-        schemaJson={schemaJson}
-        showJson={showJson}
-        error={error}
-        selectedNodePath={selectedNodePath}
-        onSchemaJsonChange={setSchemaJson}
-        onToggleJson={() => setShowJson(!showJson)}
-        onApplyJson={() => {
-          try {
-            const parsed = JSON.parse(schemaJson);
-            setSchema(parsed);
-            setError(null);
-            setShowJson(false);
-          } catch (e: any) {
-            setError(e.message);
-          }
-        }}
-        onNodeClick={handleNodeSelect}
-      />
+            {/* Middle Content */}
+            <PreviewArea
+                schema={schema}
+                schemaJson={schemaJson}
+                showJson={showJson}
+                error={error}
+                selectedNodePath={selectedNodePath}
+                onSchemaJsonChange={setSchemaJson}
+                onToggleJson={() => setShowJson(!showJson)}
+                onApplyJson={() => {
+                    try {
+                        const parsed = JSON.parse(schemaJson);
+                        setSchema(parsed);
+                        setError(null);
+                        setShowJson(false);
+                    } catch (e: any) {
+                        setError(e.message);
+                    }
+                }}
+                onNodeClick={handleNodeSelect}
+            />
 
-      {/* Right Collapse Button */}
-      {rightCollapsed && (
-        <button
-          onClick={() => setRightCollapsed(false)}
-          className="w-8 border-l border-slate-200 bg-linear-to-b from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 cursor-pointer text-slate-600 hover:text-purple-600 transition-all duration-200 shadow-sm"
-          title="Expand Properties Panel"
-        >
-          <span className="writing-mode-vertical text-xs font-medium">◀</span>
-        </button>
-      )}
+            {/* Right Collapse Button */}
+            {rightCollapsed && (
+                <button
+                    onClick={() => setRightCollapsed(false)}
+                    className="w-8 border-l border-slate-200 bg-linear-to-b from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 cursor-pointer text-slate-600 hover:text-purple-600 transition-all duration-200 shadow-sm"
+                    title="Expand Properties Panel"
+                >
+                    <span className="writing-mode-vertical text-xs font-medium">◀</span>
+                </button>
+            )}
 
-      {/* Right Sidebar */}
-      <div className={`
+            {/* Right Sidebar */}
+            <div className={`
         ${rightCollapsed ? 'w-0 min-w-0' : 'w-1/5 min-w-[250px]'}
         border-l border-slate-200 flex flex-col overflow-hidden
         bg-white shadow-lg transition-all duration-300 ease-in-out
       `}>
-        {!rightCollapsed && (
-          <>
-            <div className="px-3 py-2 border-b border-slate-200 bg-linear-to-r from-purple-50 to-pink-50 flex justify-between items-center">
-              <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                <span className="text-purple-600">🎯</span> Properties
-              </h2>
-              <button
-                onClick={() => setRightCollapsed(true)}
-                className="p-1 hover:bg-white/50 rounded-lg transition-colors text-slate-600 hover:text-slate-900"
-                title="Collapse"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
+                {!rightCollapsed && (
+                    <>
+                        <div className="px-3 py-2 border-b border-slate-200 bg-linear-to-r from-purple-50 to-pink-50 flex justify-between items-center">
+                            <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <span className="text-purple-600">🎯</span> Properties
+                            </h2>
+                            <button
+                                onClick={() => setRightCollapsed(true)}
+                                className="p-1 hover:bg-white/50 rounded-lg transition-colors text-slate-600 hover:text-slate-900"
+                                title="Collapse"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div className="flex-1 py-2 overflow-y-auto">
+                            <PropertiesPanel
+                                selectedNode={selectedNode}
+                                onNodeUpdate={handleNodeUpdate}
+                                onSave={handleSave}
+                            />
+                        </div>
+                    </>
+                )}
             </div>
-            <div className="flex-1 py-2 overflow-y-auto">
-              <PropertiesPanel 
-                selectedNode={selectedNode}
-                onNodeUpdate={handleNodeUpdate}
-                onSave={handleSave}
-              />
-            </div>
-          </>
-        )}
-      </div>
-    </div>
-  )
+        </div>
+    )
 }
