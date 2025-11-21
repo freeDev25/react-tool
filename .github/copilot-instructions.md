@@ -28,12 +28,20 @@ interface ComponentSchema {
 
 ### Modular Component Architecture
 Recent refactor (Nov 2024) split large monolithic files into focused components:
-- **Generate.tsx** (238 lines) - State orchestrator with helper functions: `getNodeByPath()`, `updateNodeByPath()`, `handleNodeSelect()`
-- **ElementsList.tsx** - Left sidebar with 8 draggable base elements (Text, Div, Button, Image, etc.)
+- **Generate.tsx** (270 lines) - State orchestrator with helper functions: `getNodeByPath()`, `updateNodeByPath()`, `handleNodeSelect()`, `handleDrop()`
+- **ElementsList.tsx** - Left sidebar with 8 draggable base elements (Text, Div, Button, Image, etc.) - implements drag start with schema data transfer
 - **PropertiesPanel.tsx** - Figma-style property editor with collapsible sections: Layout, Fill, Stroke, Text, Spacing
-- **PreviewArea.tsx** - Toggle between component preview and JSON editor
+- **PreviewArea.tsx** - Toggle between component preview and JSON editor, manages drag state (`isDragging`)
 
 **State Management Pattern**: Parent component (Generate.tsx) manages `schema`, `selectedNode`, `selectedNodePath` state and passes callbacks down. localStorage persistence at `'component-schema'` key.
+
+### Drag-and-Drop System
+Elements from left sidebar can be dragged into preview area with precise placement:
+- **ElementsList**: Creates default `ComponentSchema` for each element type on drag start, transfers via `dataTransfer.setData('application/json')`
+- **DynamicComponentRenderer**: Renders drop zones (blue for before/after, green for inside containers) when `isDragging={true}`
+- **Drop zones**: 8px height zones expand to 16px on hover, positioned before/after each element or inside containers
+- **Position types**: `'before'` | `'after'` | `'inside'` - determines where new element inserts in tree
+- **Schema update**: `handleDrop()` in Generate.tsx performs deep clone, navigates path, splices new element at correct index
 
 ## Development Workflows
 
@@ -107,10 +115,14 @@ Two-route app using React Router:
 
 ## Common Tasks
 
-**Adding new element types**: Update `elements` array in `ElementsList.tsx` with icon, name, description, type, nodeType
+**Adding new element types**: 
+1. Update `elements` array in `ElementsList.tsx` with icon, name, description, type, nodeType
+2. Add default schema configuration in `createDefaultSchema()` function (styles, props, children)
 
 **Modifying properties panel**: Edit sections in `PropertiesPanel.tsx` - maintain structure: collapsible button → content div with `px-3 pb-3 space-y-2`
 
 **Updating default schema**: Modify `defaultSchema` constant in `Generate.tsx` (persisted to localStorage)
 
 **Styling changes**: Remember Tailwind 4.x gradient syntax differences and minimal padding/no-rounded-corners design system
+
+**Adjusting drop zones**: Modify `renderNode()` in `DynamicComponentRenderer.tsx` - drop zone divs use `h-2` default, `h-4` on active, with `bg-blue-*` (before/after) or `bg-green-*` (inside)
