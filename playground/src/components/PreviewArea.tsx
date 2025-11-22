@@ -97,6 +97,7 @@ export const PreviewArea: React.FC<PreviewAreaProps> = ({
                   schema={schema}
                   onNodeClick={onNodeClick}
                   selectedPath={selectedNodePath}
+                  isDroppableMode={isDroppable}
                 />
               </div>
             </div>

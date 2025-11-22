@@ -7,13 +7,14 @@ export interface ComponentSchema {
   name?: string;
   props?: Record<string, any>;
   styles?: CSSProperties;
-  children?: ComponentSchema[] | string[];
+  children?: (ComponentSchema | string)[];
 }
 
 interface DynamicComponentRendererProps {
   schema: ComponentSchema;
   onNodeClick?: (path: number[]) => void;
   selectedPath?: number[];
+  isDroppableMode?: boolean;
 }
 
 /**
@@ -38,7 +39,8 @@ const cssPropertiesToString = (styles: CSSProperties): string => {
 export const DynamicComponentRenderer: React.FC<DynamicComponentRendererProps> = ({ 
   schema, 
   onNodeClick,
-  selectedPath = []
+  selectedPath = [],
+  isDroppableMode = false
 }) => {
   let classCounter = 0;
   const cssRules = new Map<string, string>();
@@ -173,14 +175,18 @@ export const DynamicComponentRenderer: React.FC<DynamicComponentRendererProps> =
         className = className ? `${className} ${generatedClass}` : generatedClass;
       }
 
-      // Add selection highlight (skip for droppable nodes and their children)
+      // Add selection highlight (skip for droppable nodes and their children, unless in droppable mode)
       if (isSelected && !isInDroppable) {
         className = className ? `${className} ring-2 ring-blue-500 ring-offset-2` : 'ring-2 ring-blue-500 ring-offset-2';
       }
 
-      // Add hover effect for selectable nodes (skip for droppable nodes and their children)
-      if (onNodeClick && !isInDroppable) {
-        className = className ? `${className} cursor-pointer hover:ring-1 hover:ring-blue-300` : 'cursor-pointer hover:ring-1 hover:ring-blue-300';
+      // Add hover effect for selectable nodes (droppable nodes are clickable in droppable mode)
+      if (onNodeClick) {
+        if (isDroppable && isDroppableMode) {
+          className = className ? `${className} cursor-pointer hover:ring-2 hover:ring-green-400` : 'cursor-pointer hover:ring-2 hover:ring-green-400';
+        } else if (!isInDroppable) {
+          className = className ? `${className} cursor-pointer hover:ring-1 hover:ring-blue-300` : 'cursor-pointer hover:ring-1 hover:ring-blue-300';
+        }
       }
 
       // Create props without inline styles
@@ -188,12 +194,12 @@ export const DynamicComponentRenderer: React.FC<DynamicComponentRendererProps> =
         ...props,
         ...(className && { className }),
         key: index,
-        ...(!isInDroppable && onNodeClick && {
+        ...((isDroppable && isDroppableMode && onNodeClick) || (!isInDroppable && onNodeClick) ? {
           onClick: (e: React.MouseEvent) => {
             e.stopPropagation();
-            onNodeClick(currentPath);
+            onNodeClick!(currentPath);
           }
-        }),
+        } : {}),
       };
 
       // Handle void elements (self-closing tags)

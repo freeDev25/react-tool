@@ -54,6 +54,68 @@ const dropableSchema: ComponentSchema = {
     ]
 };
 
+// Element definitions for modal
+const modalElements = [
+    { id: 'text', icon: '📝', name: 'Text Node', description: 'Plain text content', type: 'text' as const },
+    { id: 'div', icon: '📦', name: 'Div', description: 'Container element', type: 'node' as const, nodeType: 'div' },
+    { id: 'button', icon: '🔘', name: 'Button', description: 'Interactive button', type: 'node' as const, nodeType: 'button' },
+    { id: 'img', icon: '🖼️', name: 'Image', description: 'Image element', type: 'node' as const, nodeType: 'img' },
+    { id: 'heading', icon: '🔤', name: 'Heading', description: 'H1, H2, H3 elements', type: 'node' as const, nodeType: 'h2' },
+    { id: 'paragraph', icon: '📄', name: 'Paragraph', description: 'Text paragraph', type: 'node' as const, nodeType: 'p' },
+    { id: 'input', icon: '✏️', name: 'Input', description: 'Form input field', type: 'node' as const, nodeType: 'input' },
+    { id: 'link', icon: '🔗', name: 'Link', description: 'Anchor tag', type: 'node' as const, nodeType: 'a' },
+];
+
+// Helper to create default schema for each element type
+const createElementSchema = (element: typeof modalElements[0]): ComponentSchema => {
+    if (element.type === 'text') {
+        return { type: 'text', children: ['New text content'] }
+    }
+
+    const baseNode: ComponentSchema = {
+        type: 'node',
+        nodeType: element.nodeType as keyof JSX.IntrinsicElements,
+        styles: {},
+        children: []
+    }
+
+    switch (element.nodeType) {
+        case 'button':
+            baseNode.styles = { padding: '8px 16px', backgroundColor: '#3b82f6', color: 'white', border: 'none', cursor: 'pointer' }
+            baseNode.children = [{ type: 'text', children: ['Button'] }]
+            break
+        case 'img':
+            baseNode.props = { src: 'https://via.placeholder.com/150', alt: 'Image' }
+            baseNode.styles = { width: '150px', height: '150px' }
+            break
+        case 'h2':
+            baseNode.styles = { fontSize: '24px', fontWeight: 'bold', marginBottom: '8px' }
+            baseNode.children = [{ type: 'text', children: ['Heading'] }]
+            break
+        case 'p':
+            baseNode.styles = { fontSize: '14px', lineHeight: '1.6' }
+            baseNode.children = [{ type: 'text', children: ['Paragraph text'] }]
+            break
+        case 'input':
+            baseNode.props = { type: 'text', placeholder: 'Enter text' }
+            baseNode.styles = { padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }
+            break
+        case 'a':
+            baseNode.props = { href: '#' }
+            baseNode.styles = { color: '#3b82f6', textDecoration: 'underline' }
+            baseNode.children = [{ type: 'text', children: ['Link'] }]
+            break
+        case 'div':
+            baseNode.styles = { padding: '16px', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }
+            baseNode.children = [{ type: 'text', children: ['Container'] }]
+            break
+        default:
+            baseNode.children = [{ type: 'text', children: ['Element'] }]
+    }
+
+    return baseNode
+}
+
 export default function Generate() {
     const [leftCollapsed, setLeftCollapsed] = useState(false)
     const [rightCollapsed, setRightCollapsed] = useState(false)
@@ -64,6 +126,8 @@ export default function Generate() {
     const [selectedNodePath, setSelectedNodePath] = useState<number[]>([])
     const [selectedNode, setSelectedNode] = useState<ComponentSchema | null>(null)
     const [isDroppable, setIsDroppable] = useState(false)
+    const [showElementModal, setShowElementModal] = useState(false)
+    const [modalTargetPath, setModalTargetPath] = useState<number[]>([])
 
     /** Except text node each schema children will be traversed, add a droppable schema after every child item recursively */
     const makeEditableSchema = (schema: ComponentSchema): ComponentSchema => {
@@ -128,14 +192,33 @@ export default function Generate() {
             setSchemaJson(JSON.stringify(editableSchema, null, 2))
         } else {
             // Remove droppable schemas (reload from saved or use original)
-            const saved = localStorage.getItem('component-schema')
-            if (saved) {
-                const parsed = JSON.parse(saved)
+                const parsed = removeDropableSchemas(schema)
                 setSchema(parsed)
                 setSchemaJson(JSON.stringify(parsed, null, 2))
-            }
         }
         setIsDroppable(!isDroppable)
+    }
+
+    const removeDropableSchemas = (schema: ComponentSchema): ComponentSchema => {
+        // Leave text nodes unchanged
+        if (schema.type === 'text') {
+            return schema;
+        }
+        const filteredChildren = (schema.children || []).filter((child: string | ComponentSchema) => {
+            // Keep string children as they are
+            if (typeof child === 'string') return true;
+            // Filter out droppable ComponentSchema nodes
+            return !(child as any).dropadble;
+        });
+        return {
+            ...schema,
+            children: filteredChildren.map((child: string | ComponentSchema) => {
+                if (typeof child === 'string') {
+                    return child;
+                }
+                return removeDropableSchemas(child);
+            })
+        }; 
     }
 
     console.log('Current Schema:', schema);
@@ -194,6 +277,14 @@ export default function Generate() {
     // Handle node selection
     const handleNodeSelect = (path: number[]) => {
         const node = getNodeByPath(schema, path)
+        
+        // If droppable mode is active and clicking on a droppable node, show modal
+        if (isDroppable && node && (node as any).dropadble) {
+            setModalTargetPath(path)
+            setShowElementModal(true)
+            return
+        }
+        
         // Don't select droppable schemas or their children
         if (node && isNodeOrParentDroppable(path)) {
             return
@@ -214,6 +305,25 @@ export default function Generate() {
     const handleSave = () => {
         localStorage.setItem('component-schema', JSON.stringify(schema))
         alert('Schema saved successfully!')
+    }
+
+    // Handle element selection from modal
+    const handleElementSelect = (elementSchema: ComponentSchema) => {
+        const newSchema = JSON.parse(JSON.stringify(schema)) as ComponentSchema
+        
+        // Navigate to the parent of the droppable node
+        let parent: any = newSchema
+        for (let i = 0; i < modalTargetPath.length - 1; i++) {
+            parent = parent.children[modalTargetPath[i]]
+        }
+        
+        // Replace the entire droppable node with the new element
+        const targetIndex = modalTargetPath[modalTargetPath.length - 1]
+        parent.children[targetIndex] = elementSchema
+        
+        setSchema(newSchema)
+        setSchemaJson(JSON.stringify(newSchema, null, 2))
+        setShowElementModal(false)
     }
 
     return (
@@ -325,6 +435,44 @@ export default function Generate() {
                     </>
                 )}
             </div>
+
+            {/* Element Selection Modal */}
+            {showElementModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setShowElementModal(false)}>
+                    <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full mx-4" onClick={(e) => e.stopPropagation()}>
+                        <div className="px-6 py-4 border-b border-slate-200 bg-linear-to-r from-blue-50 to-indigo-50">
+                            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                <span className="text-blue-600">🎨</span> Select Element to Add
+                            </h2>
+                        </div>
+                        <div className="p-6 max-h-[70vh] overflow-y-auto">
+                            <div className="grid grid-cols-2 gap-3">
+                                {modalElements.map((element) => (
+                                    <button
+                                        key={element.id}
+                                        onClick={() => handleElementSelect(createElementSchema(element))}
+                                        className="p-4 border-2 border-slate-200 bg-white hover:bg-blue-50 hover:border-blue-400 transition-all flex items-start gap-3 text-left group"
+                                    >
+                                        <span className="text-3xl group-hover:scale-110 transition-transform">{element.icon}</span>
+                                        <div className="flex-1">
+                                            <div className="text-sm font-semibold text-slate-800">{element.name}</div>
+                                            <div className="text-xs text-slate-500 mt-1">{element.description}</div>
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex justify-end">
+                            <button
+                                onClick={() => setShowElementModal(false)}
+                                className="px-4 py-2 bg-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-300 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
