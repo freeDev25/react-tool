@@ -108,13 +108,38 @@ export const DynamicComponentRenderer: React.FC<DynamicComponentRendererProps> =
     return path1.length === path2.length && path1.every((val, idx) => val === path2[idx]);
   };
 
-  const renderNode = (node: ComponentSchema, index: number = 0, currentPath: number[] = []): React.ReactNode => {
+  // Helper to check if current node or any ancestor is droppable
+  const isInsideDroppable = (currentPath: number[], currentNode: ComponentSchema): boolean => {
+    // Check if current node is droppable
+    if ((currentNode as any).dropadble === true) {
+      return true;
+    }
+    
+    // Check all ancestors in the path
+    let testSchema = schema;
+    for (let i = 0; i < currentPath.length; i++) {
+      const pathSegment = currentPath.slice(0, i + 1);
+      let node: any = schema;
+      for (const idx of pathSegment) {
+        if (node.children && node.children[idx]) {
+          node = node.children[idx];
+        }
+      }
+      if (node && (node as any).dropadble === true) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const renderNode = (node: ComponentSchema, index: number = 0, currentPath: number[] = [], isParentDroppable: boolean = false): React.ReactNode => {
     // Handle text nodes
     if (node.type === 'text') {
       const textContent = Array.isArray(node.children) ? node.children.join('') : '';
       const isSelected = isPathEqual(currentPath, selectedPath);
       
-      if (onNodeClick) {
+      // Don't make text nodes clickable if inside droppable
+      if (onNodeClick && !isParentDroppable) {
         return (
           <span
             key={index}
@@ -139,6 +164,7 @@ export const DynamicComponentRenderer: React.FC<DynamicComponentRendererProps> =
       const { props = {}, styles = {}, children = [] } = node;
       const isSelected = isPathEqual(currentPath, selectedPath);
       const isDroppable = (node as any).dropadble === true;
+      const isInDroppable = isParentDroppable || isDroppable;
 
       // Generate class name if styles exist
       let className = props.className || '';
@@ -147,13 +173,13 @@ export const DynamicComponentRenderer: React.FC<DynamicComponentRendererProps> =
         className = className ? `${className} ${generatedClass}` : generatedClass;
       }
 
-      // Add selection highlight (skip for droppable nodes)
-      if (isSelected && !isDroppable) {
+      // Add selection highlight (skip for droppable nodes and their children)
+      if (isSelected && !isInDroppable) {
         className = className ? `${className} ring-2 ring-blue-500 ring-offset-2` : 'ring-2 ring-blue-500 ring-offset-2';
       }
 
-      // Add hover effect for selectable nodes (skip for droppable nodes)
-      if (onNodeClick && !isDroppable) {
+      // Add hover effect for selectable nodes (skip for droppable nodes and their children)
+      if (onNodeClick && !isInDroppable) {
         className = className ? `${className} cursor-pointer hover:ring-1 hover:ring-blue-300` : 'cursor-pointer hover:ring-1 hover:ring-blue-300';
       }
 
@@ -162,7 +188,7 @@ export const DynamicComponentRenderer: React.FC<DynamicComponentRendererProps> =
         ...props,
         ...(className && { className }),
         key: index,
-        ...(!isDroppable && onNodeClick && {
+        ...(!isInDroppable && onNodeClick && {
           onClick: (e: React.MouseEvent) => {
             e.stopPropagation();
             onNodeClick(currentPath);
@@ -176,12 +202,12 @@ export const DynamicComponentRenderer: React.FC<DynamicComponentRendererProps> =
         return React.createElement(TagName, elementProps);
       }
 
-      // Render children
+      // Render children (pass down droppable state)
       const renderedChildren = children.map((child, idx) => {
         if (typeof child === 'string') {
           return child;
         }
-        return renderNode(child as ComponentSchema, idx, [...currentPath, idx]);
+        return renderNode(child as ComponentSchema, idx, [...currentPath, idx], isInDroppable);
       });
 
       return React.createElement(TagName, elementProps, ...renderedChildren);

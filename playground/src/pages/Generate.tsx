@@ -45,8 +45,13 @@ const dropableSchema: ComponentSchema = {
     type: 'node',
     nodeType: 'div',
     dropadble: true,
-    styles: { padding: '10px 0', backgroundColor: '#cde6ff', borderRadius: '8px' },
-    children: []
+    styles: { backgroundColor: '#cde6ff', borderRadius: '8px', fontSize: '12px', color: '#1e3a8a', textAlign: 'center' },
+    children: [
+        {
+            type: 'text',
+            children: ['(Add Here)']
+        }
+    ]
 };
 
 export default function Generate() {
@@ -174,11 +179,23 @@ export default function Generate() {
         return node
     }
 
+    // Helper to check if node or any parent is droppable
+    const isNodeOrParentDroppable = (path: number[]): boolean => {
+        for (let i = 0; i <= path.length; i++) {
+            const currentPath = path.slice(0, i)
+            const node = getNodeByPath(schema, currentPath)
+            if (node && (node as any).dropadble) {
+                return true
+            }
+        }
+        return false
+    }
+
     // Handle node selection
     const handleNodeSelect = (path: number[]) => {
         const node = getNodeByPath(schema, path)
-        // Don't select droppable schemas
-        if (node && (node as any).dropadble) {
+        // Don't select droppable schemas or their children
+        if (node && isNodeOrParentDroppable(path)) {
             return
         }
         setSelectedNodePath(path)
