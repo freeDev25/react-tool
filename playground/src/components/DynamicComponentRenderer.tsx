@@ -3,6 +3,7 @@ import React, { CSSProperties, useMemo, useEffect } from 'react';
 export interface ComponentSchema {
   type: 'node' | 'component' | 'text';
   nodeType?: keyof JSX.IntrinsicElements;
+  dropadble?: boolean;
   name?: string;
   props?: Record<string, any>;
   styles?: CSSProperties;

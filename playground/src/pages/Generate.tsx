@@ -44,7 +44,8 @@ const defaultSchema: ComponentSchema = {
 const dropableSchema: ComponentSchema = {
     type: 'node',
     nodeType: 'div',
-    styles: { padding: '20px', backgroundColor: '#f0f4f8', borderRadius: '8px', minHeight: '200px' },
+    dropadble: true,
+    styles: { padding: '10px 0', backgroundColor: '#cde6ff', borderRadius: '8px' },
     children: []
 };
 
@@ -56,17 +57,46 @@ export default function Generate() {
     const [error, setError] = useState<string | null>(null)
     const [showJson, setShowJson] = useState(false)
     const [selectedNodePath, setSelectedNodePath] = useState<number[]>([])
-    const [selectedNode, setSelectedNode] = useState<ComponentSchema | null>(null);
+    const [selectedNode, setSelectedNode] = useState<ComponentSchema | null>(null)
+    const [isDroppable, setIsDroppable] = useState(false)
 
+    /** Except text node each schema children will be traversed, add a droppable schema after every child item recursively */
     const makeEditableSchema = (schema: ComponentSchema): ComponentSchema => {
-        const childrenShema = schema.children ? schema.children.map(child => makeEditableSchema(child as ComponentSchema)) : [];
+        // Leave text nodes unchanged
+        if (schema.type === 'text') {
+            return schema;
+        }
+
+        // Get children or empty array
+        const childrenSchemas: ComponentSchema[] = (schema.children ? schema.children : []) as ComponentSchema[];
+        const newChildrenSchemas: ComponentSchema[] = [];
+
+        // Add droppable schema at the beginning
+        if (childrenSchemas.length && childrenSchemas[0].type !== 'text') {
+            newChildrenSchemas.push(dropableSchema);
+        }
+
+        // Process each child
+        for (let i = 0; i < childrenSchemas.length; i++) {
+            let currentSchema = childrenSchemas[i] as ComponentSchema;
+
+            // Recursively process non-text children
+            if (currentSchema?.type !== 'text' && currentSchema?.children && currentSchema.children.length > 0) {
+                currentSchema = makeEditableSchema(currentSchema);
+            }
+
+            // Add the child (original or recursively processed)
+            newChildrenSchemas.push(currentSchema);
+
+            // Add droppable schema after each child
+            if(currentSchema.type !== 'text') {
+                newChildrenSchemas.push(dropableSchema);
+            }
+        }
+
         return {
             ...schema,
-            children: [
-                dropableSchema,
-                ...childrenShema,
-                dropableSchema
-            ]
+            children: newChildrenSchemas
         };
     }
 
@@ -75,14 +105,35 @@ export default function Generate() {
         const saved = localStorage.getItem('component-schema')
         if (saved) {
             try {
-                const parsed = makeEditableSchema(JSON.parse(saved));
+                const parsed = JSON.parse(saved);
                 setSchema(parsed)
                 setSchemaJson(JSON.stringify(parsed, null, 2))
             } catch (e) {
                 console.error('Failed to load saved schema:', e)
             }
         }
-    }, [])
+    }, []);
+
+    // Toggle droppable mode
+    const toggleDroppable = () => {
+        if (!isDroppable) {
+            // Apply droppable schemas
+            const editableSchema = makeEditableSchema(schema)
+            setSchema(editableSchema)
+            setSchemaJson(JSON.stringify(editableSchema, null, 2))
+        } else {
+            // Remove droppable schemas (reload from saved or use original)
+            const saved = localStorage.getItem('component-schema')
+            if (saved) {
+                const parsed = JSON.parse(saved)
+                setSchema(parsed)
+                setSchemaJson(JSON.stringify(parsed, null, 2))
+            }
+        }
+        setIsDroppable(!isDroppable)
+    }
+
+    console.log('Current Schema:', schema);
 
     // Helper to get node by path
     const getNodeByPath = (schema: ComponentSchema, path: number[]): ComponentSchema | null => {
@@ -193,6 +244,7 @@ export default function Generate() {
                 showJson={showJson}
                 error={error}
                 selectedNodePath={selectedNodePath}
+                isDroppable={isDroppable}
                 onSchemaJsonChange={setSchemaJson}
                 onToggleJson={() => setShowJson(!showJson)}
                 onApplyJson={() => {
@@ -206,6 +258,7 @@ export default function Generate() {
                     }
                 }}
                 onNodeClick={handleNodeSelect}
+                onToggleDroppable={toggleDroppable}
             />
 
             {/* Right Collapse Button */}

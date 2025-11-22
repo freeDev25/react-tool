@@ -7,10 +7,12 @@ interface PreviewAreaProps {
   showJson: boolean
   error: string | null
   selectedNodePath: number[]
+  isDroppable: boolean
   onSchemaJsonChange: (json: string) => void
   onToggleJson: () => void
   onApplyJson: () => void
   onNodeClick: (path: number[]) => void
+  onToggleDroppable: () => void
 }
 
 export const PreviewArea: React.FC<PreviewAreaProps> = ({
@@ -19,10 +21,12 @@ export const PreviewArea: React.FC<PreviewAreaProps> = ({
   showJson,
   error,
   selectedNodePath,
+  isDroppable,
   onSchemaJsonChange,
   onToggleJson,
   onApplyJson,
   onNodeClick,
+  onToggleDroppable,
 }) => {
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-white">
@@ -30,16 +34,28 @@ export const PreviewArea: React.FC<PreviewAreaProps> = ({
         <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
           <span className="text-indigo-600">🎨</span> Live Preview
         </h2>
-        <button
-          onClick={onToggleJson}
-          className={`px-3 py-1 text-xs font-medium transition-colors ${
-            showJson
-              ? 'bg-indigo-500 text-white'
-              : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-50'
-          }`}
-        >
-          {showJson ? '📋 Hide JSON' : '📝 Show JSON'}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={onToggleDroppable}
+            className={`px-3 py-1 text-xs font-medium transition-colors ${
+              isDroppable
+                ? 'bg-green-500 text-white'
+                : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-50'
+            }`}
+          >
+            {isDroppable ? '✓ Droppable' : '🎯 Make Droppable'}
+          </button>
+          <button
+            onClick={onToggleJson}
+            className={`px-3 py-1 text-xs font-medium transition-colors ${
+              showJson
+                ? 'bg-indigo-500 text-white'
+                : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-50'
+            }`}
+          >
+            {showJson ? '📋 Hide JSON' : '📝 Show JSON'}
+          </button>
+        </div>
       </div>
       <div className="flex-1 p-4 overflow-y-auto bg-slate-50">
         <div className="max-w-4xl mx-auto">
