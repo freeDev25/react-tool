@@ -176,8 +176,12 @@ export default function Generate() {
 
     // Handle node selection
     const handleNodeSelect = (path: number[]) => {
-        setSelectedNodePath(path)
         const node = getNodeByPath(schema, path)
+        // Don't select droppable schemas
+        if (node && (node as any).dropadble) {
+            return
+        }
+        setSelectedNodePath(path)
         setSelectedNode(node)
     }
 

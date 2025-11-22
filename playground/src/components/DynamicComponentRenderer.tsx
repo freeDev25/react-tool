@@ -138,6 +138,7 @@ export const DynamicComponentRenderer: React.FC<DynamicComponentRendererProps> =
       const TagName = node.nodeType;
       const { props = {}, styles = {}, children = [] } = node;
       const isSelected = isPathEqual(currentPath, selectedPath);
+      const isDroppable = (node as any).dropadble === true;
 
       // Generate class name if styles exist
       let className = props.className || '';
@@ -146,13 +147,13 @@ export const DynamicComponentRenderer: React.FC<DynamicComponentRendererProps> =
         className = className ? `${className} ${generatedClass}` : generatedClass;
       }
 
-      // Add selection highlight
-      if (isSelected) {
+      // Add selection highlight (skip for droppable nodes)
+      if (isSelected && !isDroppable) {
         className = className ? `${className} ring-2 ring-blue-500 ring-offset-2` : 'ring-2 ring-blue-500 ring-offset-2';
       }
 
-      // Add hover effect for selectable nodes
-      if (onNodeClick) {
+      // Add hover effect for selectable nodes (skip for droppable nodes)
+      if (onNodeClick && !isDroppable) {
         className = className ? `${className} cursor-pointer hover:ring-1 hover:ring-blue-300` : 'cursor-pointer hover:ring-1 hover:ring-blue-300';
       }
 
@@ -161,7 +162,7 @@ export const DynamicComponentRenderer: React.FC<DynamicComponentRendererProps> =
         ...props,
         ...(className && { className }),
         key: index,
-        ...(onNodeClick && {
+        ...(!isDroppable && onNodeClick && {
           onClick: (e: React.MouseEvent) => {
             e.stopPropagation();
             onNodeClick(currentPath);
