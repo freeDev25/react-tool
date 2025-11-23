@@ -49,6 +49,7 @@ export class ComponentGenerator {
         this.cssRules.clear();
         this.classCounter = 0;
         const componentName = schema.name || schema.filename || 'GeneratedComponent';
+        const props = schema.props ?? {};
 
         if (schema.children) {
             if (schema.children.length > 1){
@@ -62,18 +63,50 @@ export class ComponentGenerator {
             }    
         } 
 
-        const imports = this.generateImports(componentName);
+        const imports = this.generateImports(schema);
         const component = this.generateComponent(schema, componentName);
+        const propsInterface = this.generatePropsInterface(componentName, props);
 
-        return `${imports}\n\n${component}`;
+        return `${imports}\n\n${propsInterface}\n\n${component}`;
     }
 
     /**
      * Generate import statements
      */
-    private generateImports(filename: string): string {
-        return `import React from 'react';
-import './${filename}.css';`;
+    private generateImports(schema: Schema): string {
+        const filename = schema.name || schema.filename || 'GeneratedComponent';
+        const importsArray: string[] = [];
+        if (schema.children) {
+            schema.children.forEach(child => {
+                if (child.type === 'component' && child.name) {
+                    // Add import for child component
+                    // This is a placeholder; in a real scenario, you would determine the correct path
+                    importsArray.push(`import ${child.name} from '../${child.name}';`);
+                }
+            });
+        } 
+        return `import React from 'react';\n${importsArray.join('\n')} \nimport './${filename}.css';`;
+    }
+
+    /**
+     * Generate props interface
+     */
+    private generatePropsInterface(componentName: string, props: Schema['props'] | undefined): string {
+        if (!props || Object.keys(props).length === 0) {
+            return `interface ${componentName}Props {}`;
+        }
+
+        const propsEntries = Object.entries(props)
+            .sort((a, b) => a[0].localeCompare(b[0])) // Sort props alphabetically
+            .map(([key, value]) => {
+                let tsType: string = value.type;
+                const isRequired = value.required ? true : false;
+
+                return `    ${key}${!isRequired ? '?' : ''}: ${tsType};`;
+            })
+            .join('\n');
+
+        return `interface ${componentName}Props {\n${propsEntries}\n}`;
     }
 
     /**
@@ -81,7 +114,8 @@ import './${filename}.css';`;
      */
     private generateComponent(schema: Schema, componentName: string): string {
         const componentTree = this.generateComponentTree(schema, 4);
-        return `const ${componentName}: React.FC = () => {
+        
+        return `const ${componentName}: React.FC = (props : ${componentName}Props) => {
     return (
 ${componentTree}
     );
@@ -192,7 +226,7 @@ export default ${componentName};`;
      * Generate props string
      */
     private generatePropsString(
-        props: Record<string, any> | undefined,
+        props: Schema['props']| undefined,
         className: string
     ): string {
         let propsString = '';
@@ -200,7 +234,11 @@ export default ${componentName};`;
         if (props) {
             for (const [key, value] of Object.entries(props)) {
                 if (key === 'text') continue; // Skip text prop for non-text elements
-                propsString += ` ${key}={${JSON.stringify(value)}}`;
+                if (value?.isPropMapped) {
+                    propsString += ` ${key}={props.${value.mappedTo}}`;
+                    continue;
+                }
+                propsString += ` ${key}={${JSON.stringify(value.default)}}`;
             }
         }
 

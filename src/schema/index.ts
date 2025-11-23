@@ -22,11 +22,19 @@ export type SchemaComponent = {
     children?: any[];
 }
 
+type PropSchema = {
+    type: string;
+    default?: any;
+    required?: boolean;
+    isPropMapped?: boolean;
+    mappedTo?: string;
+}
+
 export type Schema = {
     type: 'node' | 'component' | 'text' | 'fragment';
     nodeType?: keyof HTMLElementTagNameMap;
     name?: string;
-    props?: Record<string, any>;
+    props?: Record<string, PropSchema>;
     styles?: React.CSSProperties;
     children?: any[];
     filename?: string;
