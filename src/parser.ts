@@ -51,8 +51,8 @@ export class ComponentGenerator {
         const componentName = schema.name || schema.filename || 'GeneratedComponent';
         const props = schema.props ?? {};
 
-        if (schema.children) {
-            if (schema.children.length > 1){
+        if (schema.children && schema.children.length > 0) {
+            if (schema.children.length > 1) {
                 schema = {
                     type: 'fragment',
                     children: schema.children
@@ -60,8 +60,8 @@ export class ComponentGenerator {
             }
             else {
                 schema = schema.children[0]
-            }    
-        } 
+            }
+        }
 
         const imports = this.generateImports(schema);
         const component = this.generateComponent(schema, componentName);
@@ -71,21 +71,43 @@ export class ComponentGenerator {
     }
 
     /**
-     * Generate import statements
+     * Generate child component imports in the parent component
      */
-    private generateImports(schema: Schema): string {
-        const filename = schema.name || schema.filename || 'GeneratedComponent';
-        const importsArray: string[] = [];
+
+    private generateChildComponentImports(schema: Schema, importsArray: string[] = []): string {
         if (schema.children) {
             schema.children.forEach(child => {
                 if (child.type === 'component' && child.name) {
                     // Add import for child component
                     // This is a placeholder; in a real scenario, you would determine the correct path
-                    importsArray.push(`import ${child.name} from '../${child.name}';`);
+                    importsArray.push(`import ${child.name} from '../${child.name}/${child.name}';`);
+
+                    if(child.children && child.children.length > 0) {
+                        const childImports = this.generateChildComponentImports(child, importsArray);
+                        if(childImports) {
+                            importsArray.concat(childImports);
+                        }
+                    }
                 }
             });
-        } 
-        return `import React from 'react';\n${importsArray.join('\n')} \nimport './${filename}.css';`;
+        }
+        // console.log('Generated child imports:', {importsArray, schema});
+        return importsArray.join('\n');
+    }
+    
+
+    /**
+     * Generate import statements
+     */
+    private generateImports(schema: Schema): string {
+        const filename = schema.name || schema.filename || 'GeneratedComponent';
+        const importsChildrenString: string = this.generateChildComponentImports(schema);
+        // Generate class names for styles in the root schema
+        let cssStyleFileImportString = `\nimport './style.css';`;
+        if (this.cssRules.size === 0) {
+            cssStyleFileImportString = '';
+        }
+        return `import React from 'react';\n${importsChildrenString}${cssStyleFileImportString}`;
     }
 
     /**
@@ -114,8 +136,8 @@ export class ComponentGenerator {
      */
     private generateComponent(schema: Schema, componentName: string): string {
         const componentTree = this.generateComponentTree(schema, 4);
-        
-        return `const ${componentName}: React.FC = (props : ${componentName}Props) => {
+
+        return `const ${componentName}: React.FC<${componentName}Props> = (props) => {
     return (
 ${componentTree}
     );
@@ -129,7 +151,7 @@ export default ${componentName};`;
      */
     private generateComponentTree(schema: Schema, indent: number = 0): string {
         const indentation = '  '.repeat(indent);
-        const elementType = this.getElementType(schema);
+        let elementType = this.getElementType(schema);
         const className = this.generateClassName(schema);
         const propsString = this.generatePropsString(schema.props, className);
         const children = schema.children || [];
@@ -144,7 +166,7 @@ export default ${componentName};`;
 
         if (schema.type === 'component') {
             if (children.length === 0) {
-                return `${indentation}<${elementType}${propsString} />`;
+                return `${indentation}<${elementType}${propsString}/>`;
             } else {
                 const childrenStrings = children
                     .map(child => this.generateComponentTree(child, indent + 2))
@@ -226,7 +248,7 @@ export default ${componentName};`;
      * Generate props string
      */
     private generatePropsString(
-        props: Schema['props']| undefined,
+        props: Schema['props'] | undefined,
         className: string
     ): string {
         let propsString = '';
@@ -325,7 +347,7 @@ export default ${componentName};`;
             generatedAt: new Date().toISOString(),
             path: {
                 tsx: `${componentName}/${componentName}.tsx`,
-                css: `${componentName}/${componentName}.css`
+                css: `${componentName}/style.css`
             }
         });
 
@@ -364,10 +386,24 @@ export default ${componentName};`;
     }
 
     /**
+     * Function to remove all files from output folder
+     */
+    public clearOutputFolder(): void {
+        const fs = require('fs');
+        const path = require('path');
+        const outputDir = path.resolve(__dirname, '../output');
+
+        if (fs.existsSync(outputDir)) {
+            fs.rmSync(outputDir, { recursive: true, force: true });
+        }
+    }
+
+    /**
      * Run the component generation and save to file
      */
 
     public run(schema: Schema): void {
+
         if (schema.type == 'node' || schema.type == 'text') {
             console.warn('\x1b[31mComponentGenerator.run() called with non-component schema. Skipping generation.\x1b[0m');
             console.warn('\x1b[31mSchema details:\x1b[0m', JSON.stringify(schema, null, 2));
@@ -375,14 +411,14 @@ export default ${componentName};`;
         }
 
         const componentFolderName = schema.name || schema.filename || 'GeneratedComponent';
-        this.clearComponentFolder(componentFolderName);
+        // this.clearComponentFolder(componentFolderName);
         const componentCode = this.generate(schema);
         this.saveToFile(componentCode, `${componentFolderName}.tsx`, componentFolderName);
 
         // Generate and save CSS file
         const cssContent = this.generateCSSContent();
         if (cssContent) {
-            this.saveToFile(cssContent, `${componentFolderName}.css`, componentFolderName);
+            this.saveToFile(cssContent, `style.css`, componentFolderName);
         }
 
         // Update manifest

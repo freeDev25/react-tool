@@ -1,39 +1,66 @@
 {
   "components": [
     {
-      "name": "ExampleComponent",
+      "name": "HeaderComponent",
       "type": "component",
-      "generatedAt": "2025-11-23T15:12:24.680Z",
+      "generatedAt": "2025-11-23T17:45:52.895Z",
       "path": {
-        "tsx": "ExampleComponent/ExampleComponent.tsx",
-        "css": "ExampleComponent/ExampleComponent.css"
+        "tsx": "HeaderComponent/HeaderComponent.tsx",
+        "css": "HeaderComponent/style.css"
       }
     },
     {
-      "name": "ComponentOne",
+      "name": "LeftSideBar",
       "type": "component",
-      "generatedAt": "2025-11-23T15:12:24.685Z",
+      "generatedAt": "2025-11-23T17:45:52.898Z",
       "path": {
-        "tsx": "ComponentOne/ComponentOne.tsx",
-        "css": "ComponentOne/ComponentOne.css"
+        "tsx": "LeftSideBar/LeftSideBar.tsx",
+        "css": "LeftSideBar/style.css"
+      }
+    },
+    {
+      "name": "MainContent",
+      "type": "component",
+      "generatedAt": "2025-11-23T17:45:52.899Z",
+      "path": {
+        "tsx": "MainContent/MainContent.tsx",
+        "css": "MainContent/style.css"
+      }
+    },
+    {
+      "name": "ContentArea",
+      "type": "component",
+      "generatedAt": "2025-11-23T17:45:52.900Z",
+      "path": {
+        "tsx": "ContentArea/ContentArea.tsx",
+        "css": "ContentArea/style.css"
+      }
+    },
+    {
+      "name": "RightSideBar",
+      "type": "component",
+      "generatedAt": "2025-11-23T17:45:52.900Z",
+      "path": {
+        "tsx": "RightSideBar/RightSideBar.tsx",
+        "css": "RightSideBar/style.css"
+      }
+    },
+    {
+      "name": "Footer",
+      "type": "component",
+      "generatedAt": "2025-11-23T17:45:52.901Z",
+      "path": {
+        "tsx": "Footer/Footer.tsx",
+        "css": "Footer/style.css"
       }
     },
     {
       "name": "MainComponent",
       "type": "component",
-      "generatedAt": "2025-11-23T15:12:24.696Z",
+      "generatedAt": "2025-11-23T17:45:52.910Z",
       "path": {
         "tsx": "MainComponent/MainComponent.tsx",
-        "css": "MainComponent/MainComponent.css"
-      }
-    },
-    {
-      "name": "HeaderComponent",
-      "type": "component",
-      "generatedAt": "2025-11-23T15:12:24.702Z",
-      "path": {
-        "tsx": "HeaderComponent/HeaderComponent.tsx",
-        "css": "HeaderComponent/HeaderComponent.css"
+        "css": "MainComponent/style.css"
       }
     }
   ]

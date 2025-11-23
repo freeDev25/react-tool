@@ -97,6 +97,104 @@ const imageComponent: Schema = {
     }
 };
 
+const LeftSideBar: Schema = {
+    type: 'component',
+    name: 'LeftSideBar',
+    props: {
+        width: { type: 'number', default: 250 }
+    },
+    styles: {
+        width: '250px',
+        backgroundColor: '#e0e0e0',
+        padding: '10px',
+        boxSizing: 'border-box'
+    },
+    children: [
+        {
+            type: 'node',
+            nodeType: 'h3',
+            children: [
+                {
+                    type: 'text',
+                    children: ['Left Side Bar']
+                }
+            ]
+        }
+    ]
+};
+
+const RightSideBar: Schema = {
+    type: 'component',
+    name: 'RightSideBar',
+    props: {
+        width: { type: 'number', default: 200 }
+    },
+    styles: {
+        width: '200px',
+        backgroundColor: '#e0e0e0',
+        padding: '10px',
+        boxSizing: 'border-box'
+    },
+    children: [
+        {
+            type: 'node',
+            nodeType: 'h3',
+            children: [
+                {
+                    type: 'text',
+                    children: ['Right Side Bar']
+                }
+            ]
+        }
+    ]
+};
+
+const ContentArea: Schema = {
+    type: 'component',
+    name: 'ContentArea',
+    styles: {
+        display: 'flex',
+        gap: '10px',
+        marginTop: '10px',
+        marginBottom: '10px'
+    },
+    children: []
+};
+
+const MainContent: Schema = {
+    type: 'component',
+    name: 'MainContent',
+    styles: {
+        flex: '1',
+        padding: '10px',
+        backgroundColor: '#ffffff',
+        border: '1px solid #ccc'
+    },
+    children: [
+        {
+            type: 'node',
+            nodeType: 'h2',
+            children: [
+                {
+                    type: 'text',
+                    children: ['Main Content Area']
+                }
+            ]
+        },
+        {
+            type: 'node',
+            nodeType: 'p',
+            children: [
+                {
+                    type: 'text',
+                    children: ['This is the main content area. Here is an image below:']
+                }
+            ]
+        },
+        imageComponent
+    ]
+};
+
 const HeaderComponent: Schema = {
     type: 'component',
     name: 'HeaderComponent',
@@ -121,8 +219,35 @@ const HeaderComponent: Schema = {
     ]
 };
 
+export const Footer: Schema = {
+    type: 'component',
+    name: 'Footer',
+    props: {
+        text: { type: 'string', default: '© 2024 My Company' }
+    },
+    styles: {
+        textAlign: 'center',
+        padding: '10px',
+        backgroundColor: '#f5f5f5',
+        borderTop: '1px solid #ddd',
+        marginTop: '10px'
+    },
+    children: [
+        {
+            type: 'node',
+            nodeType: 'p',
+            children: [
+                {
+                    type: 'text',
+                    children: ['{props.text}']
+                }
+            ]
+        }
+    ]
+};
 
-export const schema: Schema = {
+
+export const MainComponent: Schema = {
     name: "MainComponent",
     type: "component",
     props: {
@@ -185,9 +310,6 @@ export const schema: Schema = {
     ],
 };
 
-
-
-
 async function main(): Promise<void> {
     console.log("Generating components...");
     
@@ -196,21 +318,24 @@ async function main(): Promise<void> {
     console.log("Manifest reset.");
     
     const generator = new ComponentGenerator();
-    
-    // Generate ExampleComponent
-    console.log("\n1. ExampleComponent:");
-    generator.run(ExampleComponent);
-    
-    // Generate ComponentOne
-    console.log("\n2. ComponentOne:");
-    generator.run(ComponentOne);
 
-    // Generate MainComponent
-    console.log("\n2. MainComponent:");
-    generator.run(schema);
+    // Clear output folder before generating new components
+    generator.clearOutputFolder();
 
-    console.log("\n\n HeaderComponent");
-    generator.run(HeaderComponent);
+    const components = [
+        { name: HeaderComponent },
+        { name: LeftSideBar },
+        { name: MainContent },
+        { name: ContentArea },
+        { name: RightSideBar },
+        { name: Footer },
+        { name: MainComponent },
+    ];
+
+    components.forEach((comp, index) => {
+        console.log(`\n${index + 1}. ${comp.name.name}: Generated successfully.`);
+        generator.run(comp.name);
+    });
     
     console.log("\nAll components generated and saved to output folder.");
     console.log("Check output/manifest.json for the generation record.");
