@@ -23,7 +23,7 @@ export type SchemaComponent = {
 }
 
 export type Schema = {
-    type: 'node' | 'component' | 'text';
+    type: 'node' | 'component' | 'text' | 'fragment';
     nodeType?: keyof HTMLElementTagNameMap;
     name?: string;
     props?: Record<string, any>;

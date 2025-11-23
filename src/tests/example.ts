@@ -98,6 +98,70 @@ const imageComponent: Schema = {
 };
 
 
+export const schema: Schema = {
+    name: "MainComponent",
+    type: "component",
+    props: {
+        showLeftSideBar: { type: "boolean", default: true },
+        showRightSideBar: { type: "boolean", default: false },
+        title: { type: "string", default: "Playground Application", required: true },
+    },
+    children: [
+        {
+            type: 'node',
+            styles: { padding: '20px', backgroundColor: '#f0f0f0' },
+            children: [
+                {
+                    name: "Header",
+                    type: "component",
+                    props: {
+                        title: { type: "string", default: undefined },
+                    },
+                    propMapping: {
+                        title: "{parentProps.title}",
+                    }
+                },
+                {
+                    name: "ContentArea",
+                    type: "component",
+                    props: {},
+                    children: [
+                        {
+                            name: "LeftSideBar",
+                            type: "component",
+                            props: {
+                                width: { type: "number", default: 250 },
+                            },
+                        },
+                        {
+                            name: "MainContent",
+                            type: "component",
+                            props: {
+                                text: { type: "string", default: "This is the main content area." },
+                            },
+                        },
+                        {
+                            name: "RightSideBar",
+                            type: "component",
+                            props: {
+                                width: { type: "number", default: 200 },
+                            },
+                        },
+                    ],
+                },
+                {
+                    name: "Footer",
+                    type: "component",
+                    props: {
+                        text: { type: "string", default: "© 2024 Playground Inc." },
+                    },
+                },
+            ]
+        }
+    ],
+};
+
+
 
 
 async function main(): Promise<void> {
@@ -116,6 +180,10 @@ async function main(): Promise<void> {
     // Generate ComponentOne
     console.log("\n2. ComponentOne:");
     generator.run(ComponentOne);
+
+    // Generate ComponentOne
+    console.log("\n2. Complex:");
+    generator.run(schema);
     
     console.log("\nAll components generated and saved to output folder.");
     console.log("Check output/manifest.json for the generation record.");

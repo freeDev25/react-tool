@@ -6,8 +6,9 @@ export interface ComponentSchema {
   dropadble?: boolean;
   name?: string;
   props?: Record<string, any>;
+  propMapping?: Record<string, any>;
   styles?: CSSProperties;
-  children?: (ComponentSchema | string)[];
+  children?: (ComponentSchema | string)[] | string;
 }
 
 interface DynamicComponentRendererProps {

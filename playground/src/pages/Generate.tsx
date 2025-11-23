@@ -10,10 +10,16 @@ const defaultSchema: ComponentSchema = {
     styles: { padding: '20px', backgroundColor: '#f8fafc', borderRadius: '8px' },
     children: [
         {
-            type: 'node',
-            nodeType: 'h2',
+            type: 'component',
+            name: 'Heading',
             styles: { color: '#1e293b', marginBottom: '12px', fontSize: '24px', fontWeight: 'bold' },
-            children: [{ type: 'text', children: ['Hello from JSON!'] }]
+            children: [
+                {
+                    type: 'node',
+                    nodeType: 'h1',
+                    children: [{ type: 'text', children: ['Hello from JSON2!'] }]
+                }
+            ]
         },
         {
             type: 'node',

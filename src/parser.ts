@@ -49,6 +49,19 @@ export class ComponentGenerator {
         this.cssRules.clear();
         this.classCounter = 0;
         const componentName = schema.name || schema.filename || 'GeneratedComponent';
+
+        if (schema.children) {
+            if (schema.children.length > 1){
+                schema = {
+                    type: 'fragment',
+                    children: schema.children
+                }
+            }
+            else {
+                schema = schema.children[0]
+            }    
+        } 
+
         const imports = this.generateImports(componentName);
         const component = this.generateComponent(schema, componentName);
 
@@ -66,22 +79,22 @@ import './${filename}.css';`;
     /**
      * Generate the main component code
      */
-        private generateComponent(schema: Schema, componentName: string): string {
-                const componentTree = this.generateComponentTree(schema, 2);
-                return `const ${componentName}: React.FC = () => {
+    private generateComponent(schema: Schema, componentName: string): string {
+        const componentTree = this.generateComponentTree(schema, 4);
+        return `const ${componentName}: React.FC = () => {
     return (
 ${componentTree}
     );
 };
 
 export default ${componentName};`;
-        }
+    }
 
     /**
      * Generate the component tree recursively
      */
     private generateComponentTree(schema: Schema, indent: number = 0): string {
-        const indentation = ' '.repeat(indent);
+        const indentation = '  '.repeat(indent);
         const elementType = this.getElementType(schema);
         const className = this.generateClassName(schema);
         const propsString = this.generatePropsString(schema.props, className);
@@ -93,6 +106,17 @@ export default ${componentName};`;
                 return `${indentation}${(schema.children as string[]).join('')}`;
             }
             return `${indentation}${schema.props?.text || ''}`;
+        }
+
+        if (schema.type === 'component') {
+            if (children.length === 0) {
+                return `${indentation}<${elementType}${propsString} />`;
+            } else {
+                const childrenStrings = children
+                    .map(child => this.generateComponentTree(child, indent + 2))
+                    .join('\n');
+                return `${indentation}<${elementType}${propsString}>\n${childrenStrings}\n${indentation}</${elementType}>`;
+            }
         }
 
         // Self-close void elements and do not attempt to render children
@@ -107,6 +131,10 @@ export default ${componentName};`;
             return `${openingTag}${closingTag}`;
         }
 
+        if (!Array.isArray(children)) {
+            return `${openingTag}\n${indentation}  ${children}\n${closingTag}`;
+        }
+
         const childrenStrings = children
             .map(child => this.generateComponentTree(child, indent + 2))
             .join('\n');
@@ -116,7 +144,7 @@ export default ${componentName};`;
 
     private isVoidElement(tag: string): boolean {
         const voids = new Set([
-            'area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr'
+            'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'
         ]);
         return voids.has(tag);
     }
@@ -131,7 +159,9 @@ export default ${componentName};`;
             case 'node':
                 return schema.nodeType ?? 'div';
             case 'component':
-                return 'div';
+                return schema.name || 'div';
+            case 'fragment':
+                return '';
             default:
                 return 'span';
         }
@@ -305,7 +335,7 @@ export default ${componentName};`;
             console.warn('\x1b[31mSchema details:\x1b[0m', JSON.stringify(schema, null, 2));
             return;
         }
-        
+
         const componentFolderName = schema.name || schema.filename || 'GeneratedComponent';
         this.clearComponentFolder(componentFolderName);
         const componentCode = this.generate(schema);
