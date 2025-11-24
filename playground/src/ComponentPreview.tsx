@@ -7,8 +7,12 @@ type ComponentPreviewProps = {
 
 // Component map for dynamic imports
 const componentMap: Record<string, () => Promise<any>> = {
-  ExampleComponent: () => import('@output/ExampleComponent/ExampleComponent'),
-  ComponentOne: () => import('@output/ComponentOne/ComponentOne'),
+  StatCard: () => import('@output/StatCard/StatCard'),
+  NavItem: () => import('@output/NavItem/NavItem'),
+  DashboardSidebar: () => import('@output/DashboardSidebar/DashboardSidebar'),
+  DashboardHeader: () => import('@output/DashboardHeader/DashboardHeader'),
+  GridWrapper: () => import('@output/GridWrapper/GridWrapper'),
+  ComplexDashboard: () => import('@output/ComplexDashboard/ComplexDashboard'),
 }
 
 export default function ComponentPreview({ componentName }: ComponentPreviewProps) {
