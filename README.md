@@ -192,13 +192,18 @@ The generated React components include:
 ```
 react-tool/
 ├── src/
-│   ├── index.ts           # Main entry point
-│   ├── types.ts           # TypeScript type definitions
-│   ├── parser.ts          # JSON schema parser
-│   ├── generator.ts       # React component generator
-│   ├── examples.ts        # Example schemas
-│   └── demo.ts            # Demo script
-├── output/                # Generated components
+│   ├── core/
+│   │   ├── Generator.ts       # Pure generation logic
+│   │   └── StyleRegistry.ts   # CSS generation
+│   ├── fs/
+│   │   └── FileWriter.ts      # File system operations
+│   ├── schema/                # Schema definitions
+│   ├── tests/                 # Tests
+│   ├── index.ts               # Main entry point
+│   ├── parser.ts              # Facade for backward compatibility
+│   └── demo.ts                # Demo script
+├── output/                    # Generated components
+├── playground/                # Vite playground
 ├── package.json
 ├── tsconfig.json
 └── README.md

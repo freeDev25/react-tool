@@ -3,7 +3,7 @@
     {
       "name": "HeaderComponent",
       "type": "component",
-      "generatedAt": "2025-11-24T07:06:47.807Z",
+      "generatedAt": "2025-11-24T11:15:07.749Z",
       "path": {
         "tsx": "HeaderComponent/HeaderComponent.tsx",
         "css": "HeaderComponent/style.css"
@@ -12,7 +12,7 @@
     {
       "name": "LeftSideBar",
       "type": "component",
-      "generatedAt": "2025-11-24T07:06:47.809Z",
+      "generatedAt": "2025-11-24T11:15:07.750Z",
       "path": {
         "tsx": "LeftSideBar/LeftSideBar.tsx",
         "css": "LeftSideBar/style.css"
@@ -21,7 +21,7 @@
     {
       "name": "MainContent",
       "type": "component",
-      "generatedAt": "2025-11-24T07:06:47.810Z",
+      "generatedAt": "2025-11-24T11:15:07.750Z",
       "path": {
         "tsx": "MainContent/MainContent.tsx",
         "css": "MainContent/style.css"
@@ -30,7 +30,7 @@
     {
       "name": "ContentArea",
       "type": "component",
-      "generatedAt": "2025-11-24T07:06:47.811Z",
+      "generatedAt": "2025-11-24T11:15:07.751Z",
       "path": {
         "tsx": "ContentArea/ContentArea.tsx",
         "css": "ContentArea/style.css"
@@ -39,7 +39,7 @@
     {
       "name": "RightSideBar",
       "type": "component",
-      "generatedAt": "2025-11-24T07:06:47.811Z",
+      "generatedAt": "2025-11-24T11:15:07.751Z",
       "path": {
         "tsx": "RightSideBar/RightSideBar.tsx",
         "css": "RightSideBar/style.css"
@@ -48,7 +48,7 @@
     {
       "name": "Footer",
       "type": "component",
-      "generatedAt": "2025-11-24T07:06:47.812Z",
+      "generatedAt": "2025-11-24T11:15:07.751Z",
       "path": {
         "tsx": "Footer/Footer.tsx",
         "css": "Footer/style.css"
@@ -57,7 +57,7 @@
     {
       "name": "MainComponent",
       "type": "component",
-      "generatedAt": "2025-11-24T07:06:47.821Z",
+      "generatedAt": "2025-11-24T11:15:07.760Z",
       "path": {
         "tsx": "MainComponent/MainComponent.tsx",
         "css": "MainComponent/style.css"

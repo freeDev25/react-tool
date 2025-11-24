@@ -1,0 +1,45 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ComponentGenerator Regression > should generate ExampleComponent correctly 1`] = `
+"import React from 'react';
+import './style.css';
+
+interface ExampleComponentProps {
+    id?: string;
+}
+
+const ExampleComponent: React.FC<ExampleComponentProps> = (props) => {
+    return (
+        <div className="generated-0">
+            <h1 className="generated-3">
+                Example Heading
+            </h1>
+            <p>
+                Hello, World!
+            </p>
+            <img src={"https://picsum.photos/150/150"} alt={"Random Image"} className="generated-4" />
+        </div>
+    );
+};
+
+export default ExampleComponent;"
+`;
+
+exports[`ComponentGenerator Regression > should generate HeaderComponent correctly 1`] = `
+"import React from 'react';
+import './style.css';
+
+interface HeaderComponentProps {
+    title?: string;
+}
+
+const HeaderComponent: React.FC<HeaderComponentProps> = (props) => {
+    return (
+        <h1 className="generated-0">
+            {props.title}
+        </h1>
+    );
+};
+
+export default HeaderComponent;"
+`;
