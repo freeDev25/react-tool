@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { Schema } from '../schema';
+import { ISchema } from '../schema';
 
 export interface WriterOptions {
     outputDir: string;
@@ -47,7 +47,7 @@ export class FileWriter {
         }
     }
 
-    public updateManifest(componentName: string, schema: Schema): void {
+    public updateManifest(componentName: string, schema: ISchema): void {
         const manifestPath = path.join(this.outputDir, 'manifest.json');
         let manifest: any = { components: [] };
 

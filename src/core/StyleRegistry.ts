@@ -1,4 +1,4 @@
-import { Schema } from '../schema';
+import { SchemaAllowed } from '../schema';
 
 export class StyleRegistry {
     private cssRules: Map<string, string> = new Map();
@@ -9,7 +9,7 @@ export class StyleRegistry {
         this.classCounter = 0;
     }
 
-    public generateClassName(schema: Schema): string {
+    public generateClassName(schema: SchemaAllowed): string {
         if (!schema.styles || Object.keys(schema.styles).length === 0) {
             return '';
         }
@@ -26,7 +26,7 @@ export class StyleRegistry {
 
         // Generate CSS for child nodes recursively
         if (schema.children && Array.isArray(schema.children)) {
-            schema.children.forEach(child => {
+            schema.children.forEach((child: SchemaAllowed) => {
                 if (typeof child === 'object' && child.styles) {
                     this.generateClassName(child);
                 }

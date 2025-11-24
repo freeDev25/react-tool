@@ -1,4 +1,4 @@
-import { Schema } from '../schema';
+import { PropSchema, ISchema, SchemaComponent, SchemaFragment, SchemaNode, SchemaText } from '../schema';
 import { StyleRegistry } from './StyleRegistry';
 
 export interface GeneratedResult {
@@ -14,12 +14,12 @@ export class Generator {
         this.styleRegistry = new StyleRegistry();
     }
 
-    public generate(schema: Schema): GeneratedResult {
+    public generate(schema: SchemaComponent | SchemaNode | SchemaFragment | SchemaText | any): GeneratedResult {
         if (!schema) {
-            throw new Error('Schema is required');
+            throw new Error('ISchema is required');
         }
         if (typeof schema !== 'object') {
-            throw new Error('Schema must be an object');
+            throw new Error('ISchema must be an object');
         }
         if (!schema.type && !schema.children) {
             // Basic validation, though schema might be partial
@@ -63,7 +63,7 @@ export class Generator {
         };
     }
 
-    private generateImports(schema: Schema): string {
+    private generateImports(schema: ISchema): string {
         const importsChildrenString = this.generateChildComponentImports(schema);
         let cssStyleFileImportString = `\nimport './style.css';`;
         if (!this.styleRegistry.hasStyles()) {
@@ -72,21 +72,22 @@ export class Generator {
         return `import React from 'react';${importsChildrenString}${cssStyleFileImportString}`;
     }
 
-    private generateChildComponentImports(schema: Schema, importsArray: string[] = []): string {
+    private generateChildComponentImports(schema: ISchema, importsSet: Set<string> = new Set()): string {
         if (schema.children) {
             schema.children.forEach(child => {
                 if (child.type === 'component' && child.name) {
-                    importsArray.push(`import ${child.name} from '../${child.name}/${child.name}';`);
-                    if (child.children && child.children.length > 0) {
-                        this.generateChildComponentImports(child, importsArray);
-                    }
+                    importsSet.add(`import ${child.name} from '../${child.name}/${child.name}';`);
+                }
+                // Recurse for all children, not just components
+                if (child.children && child.children.length > 0) {
+                    this.generateChildComponentImports(child, importsSet);
                 }
             });
         }
-        return importsArray.join('\n');
+        return Array.from(importsSet).join('\n');
     }
 
-    private generatePropsInterface(componentName: string, props: Schema['props'] | undefined, schema: Schema): string {
+    private generatePropsInterface(componentName: string, props: ISchema['props'] | undefined, schema: ISchema): string {
         const hasChildren = schema.children && schema.children.length > 0;
         const extendsClause = !hasChildren ? ' extends React.PropsWithChildren' : '';
 
@@ -106,7 +107,7 @@ export class Generator {
         return `interface ${componentName}Props${extendsClause} {\n${propsEntries}\n}`;
     }
 
-    private generateComponent(schema: Schema, componentName: string): string {
+    private generateComponent(schema: ISchema, componentName: string): string {
         const componentTree = this.generateComponentTree(schema, 4);
 
         return `const ${componentName}: React.FC<${componentName}Props> = (props) => {
@@ -118,7 +119,7 @@ ${componentTree}
 export default ${componentName};`;
     }
 
-    private generateComponentTree(schema: Schema, indent: number = 0): string {
+    private generateComponentTree(schema: ISchema, indent: number = 0): string {
         const indentation = '  '.repeat(indent);
         let elementType = this.getElementType(schema);
         const className = this.styleRegistry.generateClassName(schema);
@@ -176,7 +177,7 @@ export default ${componentName};`;
         return voids.has(tag);
     }
 
-    private getElementType(schema: Schema): string {
+    private getElementType(schema: ISchema): string {
         const type = schema.type;
         switch (type) {
             case 'node':
@@ -190,13 +191,13 @@ export default ${componentName};`;
         }
     }
 
-    private generatePropsString(props: Schema['props'] | undefined, className: string): string {
+    private generatePropsString(props: Record<string, PropSchema> | undefined, className: string): string {
         let propsString = '';
 
         if (props) {
             for (const [key, value] of Object.entries(props)) {
                 if (key === 'text') continue;
-                if (value?.isPropMapped) {
+                if (value?.mappedTo) {
                     propsString += ` ${key}={props.${value.mappedTo}}`;
                     continue;
                 }

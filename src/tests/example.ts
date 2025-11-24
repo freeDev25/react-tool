@@ -1,4 +1,4 @@
-import { ComponentGenerator } from "../parser";
+import { SchemaParser } from "../parser";
 import { Schema, SchemaText } from "../schema";
 
 const ExampleTextNode: SchemaText = {
@@ -247,8 +247,8 @@ export const MainComponent: Schema = {
         showLeftSideBar: { type: "boolean", default: true },
         showRightSideBar: { type: "boolean", default: false },
         title: { type: "string", default: "Playground Application", required: true },
-        act: { type: "string", default: "active"},
-        border: { type: "string", default: "1px solid black"}
+        act: { type: "string", default: "active" },
+        border: { type: "string", default: "1px solid black" }
     },
     children: [
         {
@@ -260,7 +260,7 @@ export const MainComponent: Schema = {
                     name: "HeaderComponent",
                     type: "component",
                     props: {
-                        title: { isPropMapped: true, mappedTo: 'title'},
+                        title: { isPropMapped: true, mappedTo: 'title' },
                     },
                 },
                 {
@@ -305,12 +305,12 @@ export const MainComponent: Schema = {
 
 async function main(): Promise<void> {
     console.log("Generating components...");
-    
+
     // Reset manifest before generating components
-    ComponentGenerator.resetManifest();
+    SchemaParser.resetManifest();
     console.log("Manifest reset.");
-    
-    const generator = new ComponentGenerator();
+
+    const generator = new SchemaParser();
 
     // Clear output folder before generating new components
     generator.clearOutputFolder();
@@ -329,7 +329,7 @@ async function main(): Promise<void> {
         console.log(`\n${index + 1}. ${comp.name.name}: Generated successfully.`);
         generator.run(comp.name);
     });
-    
+
     console.log("\nAll components generated and saved to output folder.");
     console.log("Check output/manifest.json for the generation record.");
 }

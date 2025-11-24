@@ -1,41 +1,48 @@
-import React, { HTMLAttributes } from "react";
+import React from "react";
 
-export type SchemaText = {
+export interface ISchema {
+    type?: string;
+    name?: string;
+    props?: Record<string, PropSchema>;
+    children?: ISchema[] | any[];
+    nodeType?: keyof HTMLElementTagNameMap;
+    filename?: string;
+}
+
+export interface SchemaText extends ISchema {
     type: 'text';
-    children: string[];
-    props?: Record<string, any>;
+    children: ISchema[];
 }
 
-export type SchemaNode<T> = {
+export interface SchemaNode extends ISchema {
     type: 'node';
-    name: keyof HTMLElementTagNameMap;
-    attributes?: HTMLAttributes<T>;
+    nodeType: keyof HTMLElementTagNameMap;
     styles?: React.CSSProperties;
-    children?: Schema[];
-    props?: Record<string, any>;
+    children?: ISchema[];
 }
 
-export type SchemaComponent = {
-    type: 'component';
-    name: string;
-    props?: Record<string, any>;
-    children?: any[];
-}
-
-type PropSchema = {
-    type: string;
-    default?: any;
-    required?: boolean;
-    isPropMapped?: boolean;
+export interface ComponentPropSchema {
     mappedTo?: string;
 }
 
-export type Schema = {
-    type: 'node' | 'component' | 'text' | 'fragment';
-    nodeType?: keyof HTMLElementTagNameMap;
-    name?: string;
+export interface PropSchema extends ComponentPropSchema {
+    type: string;
+    default?: any;
+    required?: boolean;
+}
+
+export interface SchemaComponent extends ISchema {
+    type: 'component';
+    name: string;
     props?: Record<string, PropSchema>;
-    styles?: React.CSSProperties;
-    children?: any[];
+    children?: ISchema[];
     filename?: string;
 }
+
+export interface SchemaFragment extends ISchema {
+    type: 'fragment';
+    children?: ISchema[];
+    filename?: string;
+}
+
+export type SchemaAllowed = SchemaComponent | SchemaNode | SchemaText | SchemaFragment |;
