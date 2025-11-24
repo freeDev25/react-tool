@@ -61,8 +61,6 @@ class Schema {
             throw new Error('Schema must be a component');
         }
 
-        console.log(JSON.stringify(this.schema, null, 2));
-
         if (!this.schema.name) {
             throw new Error('Component schema must have a name');
         }
