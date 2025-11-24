@@ -7,8 +7,8 @@ interface DashboardSidebarProps {
 
 const DashboardSidebar: React.FC<DashboardSidebarProps> = (props) => {
     return (
-        <div className="generated-0">
-            <h2 className="generated-1">
+        <div className="dashboardsidebar-0">
+            <h2 className="dashboardsidebar-1">
                 Dashboard
             </h2>
             <NavItem label="Overview" isActive/>

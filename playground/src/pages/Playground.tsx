@@ -151,7 +151,7 @@ export default function Playground() {
                     </div>
                   </div>
                 </div>
-                <div className="p-4 min-h-[400px] bg-linear-to-br from-white to-slate-50">
+                <div className="min-h-[400px] bg-linear-to-br from-white to-slate-50">
                   <ComponentPreview componentName={selectedComponent} />
                 </div>
               </div>

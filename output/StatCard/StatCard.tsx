@@ -9,14 +9,14 @@ interface StatCardProps {
 
 const StatCard: React.FC<StatCardProps> = (props) => {
     return (
-        <div className="generated-0">
-            <h4 className="generated-1">
+        <div className="statcard-0">
+            <h4 className="statcard-1">
                 {props.title}
             </h4>
-            <div className="generated-2">
+            <div className="statcard-2">
                 {props.value}
             </div>
-            <span className="generated-3">
+            <span className="statcard-3">
                 Trend: {props.trend}
             </span>
         </div>

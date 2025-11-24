@@ -27,6 +27,7 @@ export class Generator {
 
         this.styleRegistry.clear();
         const componentName = schema.name || schema.filename || 'GeneratedComponent';
+        this.styleRegistry.setComponentPrefix(componentName);
         const props = schema.props ?? {};
 
         // Normalize schema

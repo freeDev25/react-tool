@@ -3,7 +3,7 @@
     {
       "name": "StatCard",
       "type": "component",
-      "generatedAt": "2025-11-24T15:24:03.167Z",
+      "generatedAt": "2025-11-24T15:41:46.603Z",
       "path": {
         "tsx": "StatCard/StatCard.tsx",
         "css": "StatCard/style.css"
@@ -12,7 +12,7 @@
     {
       "name": "NavItem",
       "type": "component",
-      "generatedAt": "2025-11-24T15:24:03.168Z",
+      "generatedAt": "2025-11-24T15:41:46.605Z",
       "path": {
         "tsx": "NavItem/NavItem.tsx",
         "css": "NavItem/style.css"
@@ -21,7 +21,7 @@
     {
       "name": "DashboardSidebar",
       "type": "component",
-      "generatedAt": "2025-11-24T15:24:03.169Z",
+      "generatedAt": "2025-11-24T15:41:46.605Z",
       "path": {
         "tsx": "DashboardSidebar/DashboardSidebar.tsx",
         "css": "DashboardSidebar/style.css"
@@ -30,7 +30,7 @@
     {
       "name": "DashboardHeader",
       "type": "component",
-      "generatedAt": "2025-11-24T15:24:03.169Z",
+      "generatedAt": "2025-11-24T15:41:46.606Z",
       "path": {
         "tsx": "DashboardHeader/DashboardHeader.tsx",
         "css": "DashboardHeader/style.css"
@@ -39,7 +39,7 @@
     {
       "name": "GridWrapper",
       "type": "component",
-      "generatedAt": "2025-11-24T15:24:03.170Z",
+      "generatedAt": "2025-11-24T15:41:46.606Z",
       "path": {
         "tsx": "GridWrapper/GridWrapper.tsx",
         "css": "GridWrapper/style.css"
@@ -48,7 +48,7 @@
     {
       "name": "ComplexDashboard",
       "type": "component",
-      "generatedAt": "2025-11-24T15:24:03.170Z",
+      "generatedAt": "2025-11-24T15:41:46.607Z",
       "path": {
         "tsx": "ComplexDashboard/ComplexDashboard.tsx",
         "css": "ComplexDashboard/style.css"

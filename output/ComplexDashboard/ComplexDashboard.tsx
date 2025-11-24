@@ -10,21 +10,21 @@ interface ComplexDashboardProps {
 
 const ComplexDashboard: React.FC<ComplexDashboardProps> = (props) => {
     return (
-        <div className="generated-0">
+        <div className="complexdashboard-0">
             <DashboardSidebar userName={props.userName}/>
-            <div className="generated-1">
+            <div className="complexdashboard-1">
                 <DashboardHeader userName={props.userName}/>
-                <main className="generated-2">
+                <main className="complexdashboard-2">
                     <GridWrapper>
                         <span>
-                            <div className="generated-3">
+                            <div className="complexdashboard-3">
                                 <StatCard title="Total Users" value="1,234" trend="up"/>
                                 <StatCard title="Revenue" value="$45,678" trend="up"/>
                                 <StatCard title="Bounce Rate" value="23%" trend="down"/>
                             </div>
                         </span>
                     </GridWrapper>
-                    <div className="generated-4">
+                    <div className="complexdashboard-4">
                         <h3>
                             Recent Activity
                         </h3>

@@ -3,10 +3,15 @@ import { SchemaAllowed } from '../schema';
 export class StyleRegistry {
     private cssRules: Map<string, string> = new Map();
     private classCounter: number = 0;
+    private componentPrefix: string = 'generated';
 
     public clear(): void {
         this.cssRules.clear();
         this.classCounter = 0;
+    }
+
+    public setComponentPrefix(componentName: string): void {
+        this.componentPrefix = componentName.toLowerCase();
     }
 
     public generateClassName(schema: SchemaAllowed): string {
@@ -14,7 +19,7 @@ export class StyleRegistry {
             return '';
         }
 
-        const className = `generated-${this.classCounter++}`;
+        const className = `${this.componentPrefix}-${this.classCounter++}`;
         const cssProperties = Object.entries(schema.styles)
             .map(([key, value]) => {
                 const cssKey = key.replace(/([A-Z])/g, '-$1').toLowerCase();

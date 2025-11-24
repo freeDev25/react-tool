@@ -8,7 +8,7 @@ interface NavItemProps {
 
 const NavItem: React.FC<NavItemProps> = (props) => {
     return (
-        <div className="generated-0">
+        <div className="navitem-0">
             {props.label}
         </div>
     );
