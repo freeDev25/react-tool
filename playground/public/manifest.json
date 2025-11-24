@@ -3,10 +3,55 @@
     {
       "name": "StatCard",
       "type": "component",
-      "generatedAt": "2025-11-24T14:32:06.040Z",
+      "generatedAt": "2025-11-24T15:24:03.167Z",
       "path": {
         "tsx": "StatCard/StatCard.tsx",
         "css": "StatCard/style.css"
+      }
+    },
+    {
+      "name": "NavItem",
+      "type": "component",
+      "generatedAt": "2025-11-24T15:24:03.168Z",
+      "path": {
+        "tsx": "NavItem/NavItem.tsx",
+        "css": "NavItem/style.css"
+      }
+    },
+    {
+      "name": "DashboardSidebar",
+      "type": "component",
+      "generatedAt": "2025-11-24T15:24:03.169Z",
+      "path": {
+        "tsx": "DashboardSidebar/DashboardSidebar.tsx",
+        "css": "DashboardSidebar/style.css"
+      }
+    },
+    {
+      "name": "DashboardHeader",
+      "type": "component",
+      "generatedAt": "2025-11-24T15:24:03.169Z",
+      "path": {
+        "tsx": "DashboardHeader/DashboardHeader.tsx",
+        "css": "DashboardHeader/style.css"
+      }
+    },
+    {
+      "name": "GridWrapper",
+      "type": "component",
+      "generatedAt": "2025-11-24T15:24:03.170Z",
+      "path": {
+        "tsx": "GridWrapper/GridWrapper.tsx",
+        "css": "GridWrapper/style.css"
+      }
+    },
+    {
+      "name": "ComplexDashboard",
+      "type": "component",
+      "generatedAt": "2025-11-24T15:24:03.170Z",
+      "path": {
+        "tsx": "ComplexDashboard/ComplexDashboard.tsx",
+        "css": "ComplexDashboard/style.css"
       }
     }
   ]

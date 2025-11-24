@@ -21,6 +21,11 @@ export interface SchemaNode extends ISchema {
     children?: ISchema[];
 }
 
+export type SchemaNodeInternal = {
+    styles?: React.CSSProperties;
+    children?: ISchema[];
+}
+
 export interface ComponentPropSchema {
     mappedTo?: string;
 }

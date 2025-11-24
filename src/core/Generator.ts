@@ -73,6 +73,7 @@ export class Generator {
     }
 
     private generateChildComponentImports(schema: ISchema, importsSet: Set<string> = new Set()): string {
+        // Check children in schema.children
         if (schema.children) {
             schema.children.forEach(child => {
                 if (child.type === 'component' && child.name) {
@@ -82,8 +83,30 @@ export class Generator {
                 if (child.children && child.children.length > 0) {
                     this.generateChildComponentImports(child, importsSet);
                 }
+                // Also check if this child has props.children
+                if (child.props?.children && Array.isArray(child.props.children)) {
+                    this.generateChildComponentImports(child, importsSet);
+                }
             });
         }
+        
+        // Also check children passed as props (for components like GridWrapper)
+        if (schema.props?.children && Array.isArray(schema.props.children)) {
+            schema.props.children.forEach((child: ISchema) => {
+                if (child.type === 'component' && child.name) {
+                    importsSet.add(`import ${child.name} from '../${child.name}/${child.name}';`);
+                }
+                // Recurse
+                if (child.children && child.children.length > 0) {
+                    this.generateChildComponentImports(child, importsSet);
+                }
+                // Also check nested props.children
+                if (child.props?.children && Array.isArray(child.props.children)) {
+                    this.generateChildComponentImports(child, importsSet);
+                }
+            });
+        }
+        
         return Array.from(importsSet).join('\n');
     }
 
@@ -120,6 +143,9 @@ export default ${componentName};`;
     }
 
     private generateComponentTree(schema: ISchema, indent: number = 0): string {
+        if(!schema) {
+            return '';
+        }
         const indentation = '  '.repeat(indent);
         let elementType = this.getElementType(schema);
         const className = this.styleRegistry.generateClassName(schema);
@@ -134,10 +160,19 @@ export default ${componentName};`;
         }
 
         if (schema.type === 'component') {
-            if (children.length === 0) {
+            // Check if children is passed as a prop (not in schema.children)
+            const childrenFromProps = schema.props?.children;
+            const hasChildrenProp = childrenFromProps && Array.isArray(childrenFromProps);
+            
+            // Merge children from both sources
+            const allChildren = hasChildrenProp 
+                ? [...children, ...childrenFromProps]
+                : children;
+            
+            if (allChildren.length === 0) {
                 return `${indentation}<${elementType}${propsString}/>`;
             } else {
-                const childrenStrings = children
+                const childrenStrings = allChildren
                     .map(child => this.generateComponentTree(child, indent + 2))
                     .join('\n');
                 return `${indentation}<${elementType}${propsString}>\n${childrenStrings}\n${indentation}</${elementType}>`;
@@ -191,17 +226,45 @@ export default ${componentName};`;
         }
     }
 
-    private generatePropsString(props: Record<string, PropSchema> | undefined, className: string): string {
+    private generatePropsString(props: Record<string, PropSchema | any> | undefined, className: string): string {
         let propsString = '';
 
         if (props) {
             for (const [key, value] of Object.entries(props)) {
-                if (key === 'text') continue;
-                if (value?.mappedTo) {
+                // Skip special props that should not be rendered
+                if (key === 'text' || key === 'children') continue;
+                
+                // Check if it's a PropSchema object with mappedTo
+                if (value && typeof value === 'object' && value.mappedTo) {
                     propsString += ` ${key}={props.${value.mappedTo}}`;
                     continue;
                 }
-                propsString += ` ${key}={${JSON.stringify(value.default)}}`;
+                
+                // Check if it's a PropSchema object with default property
+                if (value && typeof value === 'object' && 'default' in value) {
+                    const propValue = value.default;
+                    if (typeof propValue === 'string') {
+                        propsString += ` ${key}="${propValue}"`;
+                    } else if (typeof propValue === 'boolean') {
+                        propsString += propValue ? ` ${key}` : '';
+                    } else {
+                        propsString += ` ${key}={${JSON.stringify(propValue)}}`;
+                    }
+                } else {
+                    // It's a direct value (used by Schema.component())
+                    if (typeof value === 'string') {
+                        // Check if it's a prop reference like "{props.userName}"
+                        if (value.startsWith('{props.') && value.endsWith('}')) {
+                            propsString += ` ${key}={${value.slice(1, -1)}}`;
+                        } else {
+                            propsString += ` ${key}="${value}"`;
+                        }
+                    } else if (typeof value === 'boolean') {
+                        propsString += value ? ` ${key}` : '';
+                    } else {
+                        propsString += ` ${key}={${JSON.stringify(value)}}`;
+                    }
+                }
             }
         }
 
