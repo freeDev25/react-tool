@@ -151,14 +151,7 @@ const RightSideBar: Schema = {
 
 const ContentArea: Schema = {
     type: 'component',
-    name: 'ContentArea',
-    styles: {
-        display: 'flex',
-        gap: '10px',
-        marginTop: '10px',
-        marginBottom: '10px'
-    },
-    children: []
+    name: 'ContentArea'
 };
 
 const MainContent: Schema = {
