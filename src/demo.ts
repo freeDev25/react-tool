@@ -4,9 +4,10 @@ import { ComplexSchemas } from "./tests/complex";
 async function main(): Promise<void> {
     console.log("Generating demo components...");
 
-    ComplexSchemas.forEach((comp, index) => {
+    ComplexSchemas.forEach(async (comp, index) => {
         console.log(`\n${index + 1}. ${comp.getName()}: Generated successfully.`);
-        console.log(comp.generate());
+        const result = await comp.generate();
+        console.log(result);
     });
 
     console.log("\nDemo complete. Check output folder.");

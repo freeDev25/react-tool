@@ -54,7 +54,7 @@ class Schema {
         return this.schema.name;
     }
 
-    generate() {
+    async generate() {
         // SchemaParser.resetManifest();
 
         if (this.schema.type !== 'component') {
