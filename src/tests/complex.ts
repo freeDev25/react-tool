@@ -1,48 +1,50 @@
 import Schema from "../schema/Schema";
 
 // 1. Reusable Stat Card Component
-const StatCard = new Schema('StatCard', {
-    props: {
+const StatCard = new Schema('StatCard',
+    {
         title: { type: 'string', default: 'Stat' },
         value: { type: 'string', default: '0' },
         trend: { type: 'string', default: 'neutral' } // up, down, neutral
     },
-    children: [
-        {
-            type: 'node',
-            nodeType: 'div',
-            styles: {
-                backgroundColor: 'white',
-                borderRadius: '8px',
-                padding: '16px',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '8px'
-            },
-            children: [
-                {
-                    type: 'node',
-                    nodeType: 'h4',
-                    styles: { margin: '0', color: '#666', fontSize: '14px' },
-                    children: [{ type: 'text', children: ['{props.title}'] }]
+    Schema.node('div', {
+        styles: {
+            border: '1px solid #ddd',
+            borderRadius: '8px',
+            padding: '15px',
+            textAlign: 'center',
+            boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+            backgroundColor: '#fff'
+        },
+        children: Schema.children(
+            Schema.node('h4', {
+                styles: {
+                    margin: '0 0 10px 0',
+                    fontSize: '18px',
+                    color: '#333'
                 },
-                {
-                    type: 'node',
-                    nodeType: 'div',
-                    styles: { fontSize: '24px', fontWeight: 'bold', color: '#333' },
-                    children: [{ type: 'text', children: ['{props.value}'] }]
+                children: Schema.text('{props.title}')
+            }),
+            Schema.node('div', {
+                styles: {
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000'
                 },
-                {
-                    type: 'node',
-                    nodeType: 'span',
-                    styles: { fontSize: '12px', color: '#888' },
-                    children: [{ type: 'text', children: ['Trend: {props.trend}'] }]
-                }
-            ]
-        }
-    ]
-});
+                children: Schema.text('{props.value}')
+            }),
+            Schema.node('span', {
+                styles: {
+                    display: 'inline-block',
+                    marginTop: '8px',
+                    fontSize: '14px',
+                    color: '#666'
+                },
+                children: Schema.text('Trend: {props.trend}')
+            })
+        )
+    })
+);
 
 // // 2. Navigation Item
 // const NavItem = new SchemaGenerator({

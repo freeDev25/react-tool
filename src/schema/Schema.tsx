@@ -1,12 +1,35 @@
-import { ISchema } from ".";
+import { ISchema, SchemaNode } from ".";
 import { SchemaParser } from "../parser";
 
 class Schema {
     schema: ISchema;
-    constructor(name: string, schema: ISchema) {
-        this.schema = schema;
+    constructor(name: string, props: ISchema['props'] = {}, children: ISchema[] | ISchema    ) {
+        children = Array.isArray(children) ? children : [children];
+        this.schema = {
+            props,
+            children
+        };
         this.schema.type = 'component';
         this.schema.name = name;
+    }
+
+    static node(nodeType: ISchema['nodeType'], schema: Partial<SchemaNode>): ISchema {
+        return {
+            ...schema,
+            type: 'node',
+            nodeType
+        };
+    }
+
+    static text(content: string): ISchema[] {
+        return [{
+            type: 'text',
+            children: content ? [content] : undefined
+        }];
+    }
+
+    static children(...children: ISchema[]): ISchema[] {
+        return children;
     }
 
     getName() {

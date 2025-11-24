@@ -24,15 +24,6 @@ export class StyleRegistry {
 
         this.cssRules.set(className, cssProperties);
 
-        // Generate CSS for child nodes recursively
-        if (schema.children && Array.isArray(schema.children)) {
-            schema.children.forEach((child: SchemaAllowed) => {
-                if (typeof child === 'object' && child.styles) {
-                    this.generateClassName(child);
-                }
-            });
-        }
-
         return className;
     }
 
