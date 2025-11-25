@@ -13,6 +13,11 @@ const componentMap: Record<string, () => Promise<any>> = {
   DashboardHeader: () => import('@output/DashboardHeader/DashboardHeader'),
   GridWrapper: () => import('@output/GridWrapper/GridWrapper'),
   ComplexDashboard: () => import('@output/ComplexDashboard/ComplexDashboard'),
+  Counter: () => import('@output/Counter/Counter'),
+  ToggleMessage: () => import('@output/ToggleMessage/ToggleMessage'),
+  InputForm: () => import('@output/InputForm/InputForm'),
+  TitleUpdater: () => import('@output/TitleUpdater/TitleUpdater'),
+  Timer: () => import('@output/Timer/Timer'),
 }
 
 export default function ComponentPreview({ componentName }: ComponentPreviewProps) {

@@ -1,0 +1,21 @@
+.counter-0 {
+  padding: 20px;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.counter-1 {
+  margin-top: 10px;
+}
+
+.counter-2 {
+  padding: 10px 20px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.counter-3 {
+  padding: 10px 20px;
+  cursor: pointer;
+}

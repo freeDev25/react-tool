@@ -1,0 +1,17 @@
+.togglemessage-0 {
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.togglemessage-1 {
+  padding: 10px 20px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.togglemessage-2 {
+  padding: 10px;
+  background-color: #e3f2fd;
+  border-radius: 4px;
+}

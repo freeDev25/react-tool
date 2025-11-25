@@ -15,12 +15,13 @@ export class StyleRegistry {
     }
 
     public generateClassName(schema: SchemaAllowed): string {
-        if (!schema.styles || Object.keys(schema.styles).length === 0) {
+        const styles = (schema as any).styles;
+        if (!styles || Object.keys(styles).length === 0) {
             return '';
         }
 
         const className = `${this.componentPrefix}-${this.classCounter++}`;
-        const cssProperties = Object.entries(schema.styles)
+        const cssProperties = Object.entries(styles)
             .map(([key, value]) => {
                 const cssKey = key.replace(/([A-Z])/g, '-$1').toLowerCase();
                 return `  ${cssKey}: ${value};`;

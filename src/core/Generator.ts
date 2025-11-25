@@ -50,7 +50,7 @@ export class Generator {
             }
         }
 
-        const component = this.generateComponent(rootSchema, componentName);
+        const component = this.generateComponent(rootSchema, componentName, schema);
         const imports = this.generateImports(rootSchema);
         const propsInterface = this.generatePropsInterface(componentName, props, rootSchema);
         const css = this.styleRegistry.generateCSSContent();
@@ -131,10 +131,13 @@ export class Generator {
         return `interface ${componentName}Props${extendsClause} {\n${propsEntries}\n}`;
     }
 
-    private generateComponent(schema: ISchema, componentName: string): string {
+    private generateComponent(schema: ISchema, componentName: string, originalSchema?: ISchema): string {
         const componentTree = this.generateComponentTree(schema, 4);
+        const schemaForHooks = originalSchema || schema;
+        const hooks = this.generateHooks(schemaForHooks);
+        const logic = (schemaForHooks as any).componentLogic ? `\n    ${(schemaForHooks as any).componentLogic}\n` : '';
 
-        return `const ${componentName}: React.FC<${componentName}Props> = (props) => {
+        return `const ${componentName}: React.FC<${componentName}Props> = (props) => {${hooks}${logic}
     return (
 ${componentTree}
     );
@@ -143,15 +146,68 @@ ${componentTree}
 export default ${componentName};`;
     }
 
+    private generateHooks(schema: ISchema): string {
+        const schemaWithHooks = schema as any;
+        if (!schemaWithHooks.hooks || schemaWithHooks.hooks.length === 0) {
+            return '';
+        }
+
+        const hookStrings = schemaWithHooks.hooks.map((hook: any) => {
+            switch (hook.type) {
+                case 'useState':
+                    const initialVal = typeof hook.initialValue === 'string' 
+                        ? `'${hook.initialValue}'` 
+                        : JSON.stringify(hook.initialValue);
+                    const stateName = hook.name || 'state';
+                    const setterName = `set${stateName.charAt(0).toUpperCase()}${stateName.slice(1)}`;
+                    return `    const [${stateName}, ${setterName}] = React.useState(${initialVal});`;
+                
+                case 'useEffect':
+                    const deps = hook.dependencies ? `[${hook.dependencies.join(', ')}]` : '[]';
+                    return `    React.useEffect(() => {\n        ${hook.body || ''}\n    }, ${deps});`;
+                
+                case 'useCallback':
+                    const cbDeps = hook.dependencies ? `[${hook.dependencies.join(', ')}]` : '[]';
+                    return `    const ${hook.name} = React.useCallback(() => {\n        ${hook.body || ''}\n    }, ${cbDeps});`;
+                
+                case 'useMemo':
+                    const memoDeps = hook.dependencies ? `[${hook.dependencies.join(', ')}]` : '[]';
+                    return `    const ${hook.name} = React.useMemo(() => {\n        ${hook.body || ''}\n    }, ${memoDeps});`;
+                
+                case 'useRef':
+                    const refInit = hook.initialValue !== undefined ? `(${JSON.stringify(hook.initialValue)})` : '(null)';
+                    return `    const ${hook.name} = React.useRef${refInit};`;
+                
+                default:
+                    return '';
+            }
+        }).filter(Boolean);
+
+        return hookStrings.length > 0 ? '\n' + hookStrings.join('\n') : '';
+    }
+
     private generateComponentTree(schema: ISchema, indent: number = 0): string {
         if(!schema) {
             return '';
         }
         const indentation = '  '.repeat(indent);
         let elementType = this.getElementType(schema);
-        const className = this.styleRegistry.generateClassName(schema);
-        const propsString = this.generatePropsString(schema.props, className);
+        const className = this.styleRegistry.generateClassName(schema as any);
+        const propsString = this.generatePropsString(schema.props, className, schema.handlers);
         const children = schema.children || [];
+        
+        // Generate the element tree
+        let elementTree = this.generateElementTree(schema, elementType, propsString, children, indent, indentation);
+        
+        // Wrap with conditional if present
+        if (schema.condition) {
+            return `${indentation}{${schema.condition} && (\n${elementTree}\n${indentation})}`;
+        }
+        
+        return elementTree;
+    }
+
+    private generateElementTree(schema: ISchema, elementType: string, propsString: string, children: any[], indent: number, indentation: string): string {
 
         if (schema.type === 'text') {
             if (Array.isArray(schema.children) && schema.children.every(ch => typeof ch === 'string')) {
@@ -227,7 +283,7 @@ export default ${componentName};`;
         }
     }
 
-    private generatePropsString(props: Record<string, PropSchema | any> | undefined, className: string): string {
+    private generatePropsString(props: Record<string, PropSchema | any> | undefined, className: string, handlers?: Record<string, string>): string {
         let propsString = '';
 
         if (props) {
@@ -271,6 +327,13 @@ export default ${componentName};`;
 
         if (className) {
             propsString += ` className="${className}"`;
+        }
+
+        // Add event handlers
+        if (handlers) {
+            for (const [event, handler] of Object.entries(handlers)) {
+                propsString += ` ${event}={${handler}}`;
+            }
         }
 
         return propsString;
