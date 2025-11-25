@@ -1,5 +1,5 @@
 {
-  "name": "json-schema-to-react",
+  "name": "json-to-react",
   "version": "1.0.0",
   "description": "A tool to convert JSON schema to React components",
   "main": "dist/index.js",
