@@ -6,6 +6,7 @@ type ComponentPreviewProps = {
 }
 
 // Component map for dynamic imports
+// NOTE: Add new components here after generating them with `npm run demo`
 const componentMap: Record<string, () => Promise<any>> = {
   StatCard: () => import('@output/StatCard/StatCard'),
   NavItem: () => import('@output/NavItem/NavItem'),
@@ -13,6 +14,12 @@ const componentMap: Record<string, () => Promise<any>> = {
   DashboardHeader: () => import('@output/DashboardHeader/DashboardHeader'),
   GridWrapper: () => import('@output/GridWrapper/GridWrapper'),
   ComplexDashboard: () => import('@output/ComplexDashboard/ComplexDashboard'),
+  // Uncomment after running `npm run demo:interactive`:
+  // Counter: () => import('@output/Counter/Counter'),
+  // ToggleMessage: () => import('@output/ToggleMessage/ToggleMessage'),
+  // InputForm: () => import('@output/InputForm/InputForm'),
+  // TitleUpdater: () => import('@output/TitleUpdater/TitleUpdater'),
+  // Timer: () => import('@output/Timer/Timer'),
 }
 
 export default function ComponentPreview({ componentName }: ComponentPreviewProps) {

@@ -7,13 +7,17 @@ export default defineConfig({
   plugins: [react()],
   server: {
     fs: {
-      // Allow serving files from the project root so we can import from ../output
-      allow: [path.resolve(__dirname, '..')]
+      // Allow serving files from monorepo root and json-to-react workspace
+      allow: [
+        path.resolve(__dirname, '..'),
+        path.resolve(__dirname, '../json-to-react')
+      ]
     }
   },
   resolve: {
     alias: {
-      '@output': path.resolve(__dirname, '../output')
-    }
+      '@output': path.resolve(__dirname, '../json-to-react/output')
+    },
+    extensions: ['.tsx', '.ts', '.jsx', '.js', '.json']
   }
 })

@@ -1,0 +1,35 @@
+{
+  "name": "react-tool-monorepo",
+  "version": "1.0.0",
+  "description": "Monorepo for React component generator and playground",
+  "private": true,
+  "workspaces": [
+    "json-to-react",
+    "playground"
+  ],
+  "scripts": {
+    "install:all": "npm install && npm install --workspace=json-to-react && npm install --workspace=playground",
+    "build": "npm run build --workspace=json-to-react",
+    "build:all": "npm run build --workspaces --if-present",
+    "dev:generator": "npm run dev --workspace=json-to-react",
+    "dev:playground": "npm run dev --workspace=playground",
+    "demo": "npm run demo --workspace=json-to-react",
+    "demo:interactive": "npm run demo:interactive --workspace=json-to-react",
+    "gen": "npm run gen --workspace=json-to-react",
+    "play:dev": "npm run dev --workspace=playground",
+    "play:build": "npm run build --workspace=playground",
+    "play:preview": "npm run preview --workspace=playground",
+    "clean": "rm -rf node_modules json-to-react/node_modules playground/node_modules",
+    "clean:output": "rm -rf json-to-react/output/*",
+    "clean:dist": "rm -rf json-to-react/dist playground/dist"
+  },
+  "keywords": [
+    "monorepo",
+    "react",
+    "component-generator",
+    "playground"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {}
+}
