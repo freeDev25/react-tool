@@ -1,271 +1,213 @@
-# JSON Schema to React Component Generator
+# React Tool Monorepo
 
-A powerful TypeScript tool that automatically converts JSON Schema definitions into fully-functional React components with built-in validation, TypeScript support, and styling.
+A monorepo containing a React component generator and interactive playground.
 
-## Features
+## 📦 Projects
 
-- ✅ **Automatic Form Generation**: Convert JSON schemas to React form components
-- ✅ **TypeScript Support**: Generate type-safe components with full TypeScript definitions
-- ✅ **Built-in Validation**: Automatic field validation based on schema constraints
-- ✅ **Multiple Input Types**: Support for text, number, email, checkbox, select, textarea, and more
-- ✅ **Responsive Styling**: Pre-built, customizable CSS styles included
-- ✅ **Format Support**: Handle email, date, URL, and other special formats
-- ✅ **Enum Support**: Automatic dropdown generation for enum fields
-- ✅ **Required Fields**: Automatic validation for required fields
-- ✅ **Custom Validation**: Support for min/max length, min/max values, and regex patterns
+### `json-to-react/`
+TypeScript-based CLI tool that converts JSON schemas to fully functional React components with:
+- Automatic TypeScript type generation
+- CSS extraction and scoped styling
+- Component-specific class names
+- Event handlers and state management
+- Conditional rendering support
+- React hooks (useState, useEffect, etc.)
 
-## Installation
+### `playground/`
+Interactive Vite + React application for:
+- Visual component design
+- Real-time JSON-to-React conversion
+- Component preview and testing
+- Drag-and-drop UI builder
+
+## 🚀 Quick Start
+
+### Installation
 
 ```bash
+# Install all dependencies for both projects
 npm install
 ```
 
-## Quick Start
-
-### Basic Usage
-
-```typescript
-import { jsonSchemaToReact } from './src/index';
-
-const schema = {
-  type: 'object',
-  title: 'User Registration',
-  required: ['email', 'password'],
-  properties: {
-    email: {
-      type: 'string',
-      title: 'Email Address',
-      format: 'email'
-    },
-    password: {
-      type: 'string',
-      title: 'Password',
-      minLength: 8
-    },
-    age: {
-      type: 'integer',
-      title: 'Age',
-      minimum: 18,
-      maximum: 120
-    }
-  }
-};
-
-const componentCode = jsonSchemaToReact(schema, {
-  componentName: 'RegistrationForm',
-  useTypeScript: true,
-  includeValidation: true,
-  includeStyles: true
-});
-
-console.log(componentCode);
+Or install individually:
+```bash
+npm run install:all
 ```
 
-### Run the Demo
+### Development
 
-The project includes a demo script that generates several example forms:
+**Run the playground:**
+```bash
+npm run play:dev
+# Opens http://localhost:5173
+```
 
+**Watch generator for changes:**
+```bash
+npm run dev:generator
+```
+
+**Generate demo components:**
 ```bash
 npm run demo
 ```
 
-This will generate the following components in the `output/` directory:
-- `UserProfileForm.tsx` - A complete user profile form
-- `ContactForm.tsx` - A contact/inquiry form
-- `ProductForm.tsx` - A product information form
-- `SimpleForm.jsx` - A JavaScript version without TypeScript
-
-## API Reference
-
-### `jsonSchemaToReact(schema, options)`
-
-Converts a JSON schema to a React component.
-
-#### Parameters
-
-- **schema**: `JSONSchema` - The JSON schema object to convert
-- **options**: `GeneratorOptions` (optional)
-  - `componentName`: `string` - Name of the generated component (default: 'GeneratedForm')
-  - `useTypeScript`: `boolean` - Generate TypeScript code (default: true)
-  - `includeValidation`: `boolean` - Include validation logic (default: true)
-  - `includeStyles`: `boolean` - Include CSS styles (default: true)
-
-#### Returns
-
-A string containing the complete React component code.
-
-## Supported JSON Schema Features
-
-### Field Types
-
-- `string` - Text input, textarea, or select (with enum)
-- `number` / `integer` - Number input
-- `boolean` - Checkbox
-- `array` - Arrays (basic support)
-- `object` - Objects (basic support)
-
-### Formats
-
-- `email` - Email input with validation
-- `uri` / `url` - URL input
-- `date` - Date picker
-- `date-time` - DateTime picker
-- `time` - Time picker
-
-### Validation Constraints
-
-- `required` - Required fields
-- `minLength` / `maxLength` - String length validation
-- `minimum` / `maximum` - Number range validation
-- `pattern` - Regex pattern validation
-- `enum` - Predefined value options (generates dropdown)
-
-## Example Schemas
-
-### User Profile Form
-
-```typescript
-const userProfileSchema = {
-  type: 'object',
-  title: 'User Profile',
-  required: ['firstName', 'lastName', 'email'],
-  properties: {
-    firstName: {
-      type: 'string',
-      title: 'First Name',
-      minLength: 2,
-      maxLength: 50
-    },
-    email: {
-      type: 'string',
-      title: 'Email Address',
-      format: 'email'
-    },
-    country: {
-      type: 'string',
-      title: 'Country',
-      enum: ['United States', 'Canada', 'United Kingdom', 'Australia']
-    }
-  }
-};
+**Generate interactive components:**
+```bash
+npm run demo:interactive
 ```
 
-### Contact Form
+### Building
 
-```typescript
-const contactFormSchema = {
-  type: 'object',
-  title: 'Contact Us',
-  required: ['name', 'email', 'message'],
-  properties: {
-    name: {
-      type: 'string',
-      title: 'Full Name'
-    },
-    email: {
-      type: 'string',
-      format: 'email'
-    },
-    message: {
-      type: 'string',
-      title: 'Message',
-      minLength: 10,
-      maxLength: 1000
-    }
-  }
-};
+**Build all projects:**
+```bash
+npm run build:all
 ```
 
-## Generated Component Features
+**Build specific project:**
+```bash
+# Generator only
+npm run build
 
-The generated React components include:
+# Playground only
+npm run play:build
+```
 
-1. **State Management**: Uses React hooks for form state
-2. **Error Handling**: Real-time validation with error messages
-3. **Event Handlers**: Pre-built onChange and onSubmit handlers
-4. **Accessibility**: Proper labels and form structure
-5. **Styling**: Clean, modern CSS included
-6. **Type Safety**: Full TypeScript interfaces (when enabled)
-
-## Project Structure
+## 📂 Project Structure
 
 ```
 react-tool/
-├── src/
-│   ├── core/
-│   │   ├── Generator.ts       # Pure generation logic
-│   │   └── StyleRegistry.ts   # CSS generation
-│   ├── fs/
-│   │   └── FileWriter.ts      # File system operations
-│   ├── schema/                # Schema definitions
-│   ├── tests/                 # Tests
-│   ├── index.ts               # Main entry point
-│   ├── parser.ts              # Facade for backward compatibility
-│   └── demo.ts                # Demo script
-├── output/                    # Generated components
-├── playground/                # Vite playground
-├── package.json
-├── tsconfig.json
+├── json-to-react/          # Component generator CLI
+│   ├── src/
+│   │   ├── core/           # Generator logic
+│   │   ├── schema/         # Schema definitions
+│   │   └── tests/          # Example schemas
+│   ├── output/             # Generated components
+│   └── package.json
+│
+├── playground/             # Interactive playground
+│   ├── src/
+│   │   ├── components/     # UI components
+│   │   ├── pages/          # Page routes
+│   │   └── main.tsx
+│   ├── public/
+│   │   └── manifest.json   # Component registry
+│   └── package.json
+│
+├── package.json            # Root workspace config
 └── README.md
 ```
 
-## Development
+## 🔧 Available Scripts
 
-### Build the project
+### Root Level
+- `npm run play:dev` - Start playground dev server
+- `npm run demo` - Generate example components
+- `npm run demo:interactive` - Generate interactive components with logic
+- `npm run build` - Build generator
+- `npm run build:all` - Build all projects
+- `npm run clean` - Remove all node_modules
+- `npm run clean:output` - Remove generated components
+- `npm run clean:dist` - Remove build outputs
 
+### Generator (`json-to-react/`)
 ```bash
-npm run build
+cd json-to-react
+npm run build      # Compile TypeScript
+npm run dev        # Watch mode
+npm run demo       # Generate examples
+npm run gen        # Run test examples
 ```
 
-### Watch mode
-
+### Playground (`playground/`)
 ```bash
-npm run dev
+cd playground
+npm run dev        # Dev server
+npm run build      # Production build
+npm run preview    # Preview production build
 ```
 
-## Advanced Usage
+## 🎯 Usage
 
-### Using the Parser and Generator Separately
+### 1. Generate Components
+
+Create component schemas in `json-to-react/src/tests/`:
 
 ```typescript
-import { SchemaParser, ComponentGenerator } from './src/index';
+import Schema from "../schema/Schema";
 
-const parser = new SchemaParser();
-const generator = new ComponentGenerator();
+const MyButton = new Schema('MyButton', 
+    { label: { type: 'string', default: 'Click me' } },
+    Schema.node('button', {
+        handlers: { onClick: 'handleClick' },
+        styles: { padding: '10px 20px' },
+        children: Schema.text('{props.label}')
+    })
+);
 
-// Parse schema
-const parsedSchema = parser.parse(mySchema);
+// Add logic
+(MyButton.schema as any).hooks = [{
+    type: 'useState',
+    name: 'count',
+    initialValue: 0
+}];
 
-// Customize parsed schema if needed
-parsedSchema.fields[0].title = 'Custom Title';
-
-// Generate component
-const code = generator.generate(parsedSchema, options);
+(MyButton.schema as any).componentLogic = `
+    const handleClick = () => setCount(count + 1);
+`;
 ```
 
-## Customization
+Run `npm run demo` to generate components in `output/`.
 
-The generated components use CSS classes that you can override:
+### 2. Preview in Playground
 
-- `.form-container` - Main form wrapper
-- `.form-field` - Individual field wrapper
-- `.form-label` - Field labels
-- `.form-input` - Input elements
-- `.form-checkbox` - Checkboxes
-- `.error-message` - Validation error messages
-- `.submit-button` - Submit button
+1. Update `playground/src/ComponentPreview.tsx` to include new components
+2. Run `npm run play:dev`
+3. View components at http://localhost:5173
 
-## Limitations
+## 🛠️ Monorepo Setup
 
-- Nested objects and arrays have basic support
-- Complex conditional schemas are not yet supported
-- `allOf`, `anyOf`, `oneOf` keywords are not supported
-- `$ref` references are not resolved
+This project uses **npm workspaces** for managing multiple packages:
 
-## Contributing
+- Shared `node_modules` at root level
+- Independent `package.json` for each project
+- Workspace-scoped commands with `--workspace` flag
 
-Contributions are welcome! Feel free to submit issues or pull requests.
+### Adding Dependencies
 
-## License
+**To a specific workspace:**
+```bash
+npm install <package> --workspace=json-to-react
+npm install <package> --workspace=playground
+```
+
+**To root:**
+```bash
+npm install <package> -w
+```
+
+## 📝 Component Features
+
+Generated components support:
+
+✅ **Props & TypeScript interfaces**
+✅ **Scoped CSS with component-specific class names**
+✅ **Event handlers** (onClick, onChange, etc.)
+✅ **React Hooks** (useState, useEffect, useCallback, useMemo, useRef)
+✅ **Conditional rendering**
+✅ **Custom logic and functions**
+✅ **Nested component composition**
+✅ **Automatic imports**
+
+## 🤝 Contributing
+
+This is a monorepo structure, so:
+
+1. Make changes in the appropriate workspace (`json-to-react/` or `playground/`)
+2. Test locally with workspace scripts
+3. Commit changes to the monorepo root
+4. All projects share the same git repository
+
+## 📄 License
 
 MIT

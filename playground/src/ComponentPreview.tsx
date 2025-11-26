@@ -6,6 +6,7 @@ type ComponentPreviewProps = {
 }
 
 // Component map for dynamic imports
+// NOTE: Add new components here after generating them with `npm run demo`
 const componentMap: Record<string, () => Promise<any>> = {
   StatCard: () => import('@output/StatCard/StatCard'),
   NavItem: () => import('@output/NavItem/NavItem'),

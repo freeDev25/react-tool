@@ -12,7 +12,7 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-            '@output': path.resolve(__dirname, '../output')
+            '@output': path.resolve(__dirname, '../json-to-react/output')
         }
     }
 });

@@ -1,36 +1,35 @@
 {
-  "name": "json-schema-to-react",
+  "name": "react-tool-monorepo",
   "version": "1.0.0",
-  "description": "A tool to convert JSON schema to React components",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "description": "Monorepo for React component generator and playground",
+  "private": true,
+  "workspaces": [
+    "json-to-react",
+    "playground"
+  ],
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "demo": "ts-node src/demo.ts",
-    "demo:interactive": "ts-node src/demo-interactive.ts",
-    "gen": "ts-node src/tests/example.ts",
-    "play:dev": "npm --prefix playground run dev",
-    "play:build": "npm --prefix playground run build",
-    "play:preview": "npm --prefix playground run preview",
-    "test": "vitest"
+    "install:all": "npm install && npm install --workspace=json-to-react && npm install --workspace=playground",
+    "build": "npm run build --workspace=json-to-react",
+    "build:all": "npm run build --workspaces --if-present",
+    "dev:generator": "npm run dev --workspace=json-to-react",
+    "dev:playground": "npm run dev --workspace=playground",
+    "demo": "npm run demo --workspace=json-to-react",
+    "demo:interactive": "npm run demo:interactive --workspace=json-to-react",
+    "gen": "npm run gen --workspace=json-to-react",
+    "play:dev": "npm run dev --workspace=playground",
+    "play:build": "npm run build --workspace=playground",
+    "play:preview": "npm run preview --workspace=playground",
+    "clean": "rm -rf node_modules json-to-react/node_modules playground/node_modules",
+    "clean:output": "rm -rf json-to-react/output/*",
+    "clean:dist": "rm -rf json-to-react/dist playground/dist"
   },
   "keywords": [
-    "json-schema",
+    "monorepo",
     "react",
-    "form-generator",
-    "component-generator"
+    "component-generator",
+    "playground"
   ],
   "author": "",
   "license": "MIT",
-  "dependencies": {
-    "react": "^18.2.0"
-  },
-  "devDependencies": {
-    "@types/node": "^20.10.0",
-    "@types/react": "^18.2.0",
-    "ts-node": "^10.9.0",
-    "typescript": "^5.3.0",
-    "vitest": "^4.0.13"
-  }
+  "devDependencies": {}
 }
