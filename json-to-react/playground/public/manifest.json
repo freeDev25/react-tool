@@ -53,6 +53,51 @@
         "tsx": "ComplexDashboard/ComplexDashboard.tsx",
         "css": "ComplexDashboard/style.css"
       }
+    },
+    {
+      "name": "Counter",
+      "type": "component",
+      "generatedAt": "2025-11-26T01:56:39.823Z",
+      "path": {
+        "tsx": "Counter/Counter.tsx",
+        "css": "Counter/style.css"
+      }
+    },
+    {
+      "name": "ToggleMessage",
+      "type": "component",
+      "generatedAt": "2025-11-26T01:56:39.825Z",
+      "path": {
+        "tsx": "ToggleMessage/ToggleMessage.tsx",
+        "css": "ToggleMessage/style.css"
+      }
+    },
+    {
+      "name": "InputForm",
+      "type": "component",
+      "generatedAt": "2025-11-26T01:56:39.825Z",
+      "path": {
+        "tsx": "InputForm/InputForm.tsx",
+        "css": "InputForm/style.css"
+      }
+    },
+    {
+      "name": "TitleUpdater",
+      "type": "component",
+      "generatedAt": "2025-11-26T01:56:39.826Z",
+      "path": {
+        "tsx": "TitleUpdater/TitleUpdater.tsx",
+        "css": "TitleUpdater/style.css"
+      }
+    },
+    {
+      "name": "Timer",
+      "type": "component",
+      "generatedAt": "2025-11-26T01:56:39.827Z",
+      "path": {
+        "tsx": "Timer/Timer.tsx",
+        "css": "Timer/style.css"
+      }
     }
   ]
 }

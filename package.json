@@ -31,5 +31,7 @@
   ],
   "author": "",
   "license": "MIT",
-  "devDependencies": {}
+  "devDependencies": {
+    "@types/node": "^24.10.1"
+  }
 }
