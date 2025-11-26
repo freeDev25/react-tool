@@ -1,11 +1,11 @@
 
 import { HTMLAttributes } from "react";
-import { ISchema, PropSchema, SchemaNode, SchemaNodeInternal } from ".";
+import { ISchema, ISchemaStates, PropSchema, SchemaNode, SchemaNodeInternal } from ".";
 import { SchemaParser } from "../parser";
 
 class Schema {
     schema: ISchema;
-    constructor(name: string, props: ISchema['props'] = {}, children: ISchema[] | ISchema) {
+    constructor(name: string, props: ISchema['props'] = {}, children: ISchema[] | ISchema, states?: ISchemaStates) {
         children = Array.isArray(children) ? children : [children];
         this.schema = {
             props,
@@ -13,6 +13,7 @@ class Schema {
         };
         this.schema.type = 'component';
         this.schema.name = name;
+        this.schema.states = states;
     }
 
     static node(nodeType: ISchema['nodeType'], schema?: SchemaNodeInternal, props?: Record<string, any>): ISchema {
@@ -52,6 +53,16 @@ class Schema {
 
     getName() {
         return this.schema.name;
+    }
+
+    addState(stateName: string, stateType: string, defaultValue: any) {
+        if (!this.schema.states) {
+            this.schema.states = {};
+        }
+        this.schema.states[stateName] = {
+            type: stateType,
+            default: defaultValue
+        };
     }
 
     async generate() {

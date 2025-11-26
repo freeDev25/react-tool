@@ -14,6 +14,7 @@
     "dev:generator": "npm run dev --workspace=json-to-react",
     "dev:playground": "npm run dev --workspace=playground",
     "demo": "npm run demo --workspace=json-to-react",
+    "demo:all": "npm run demo:all --workspace=json-to-react",
     "demo:interactive": "npm run demo:interactive --workspace=json-to-react",
     "gen": "npm run gen --workspace=json-to-react",
     "play:dev": "npm run dev --workspace=playground",

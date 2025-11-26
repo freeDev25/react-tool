@@ -1,4 +1,5 @@
-import React from 'react';import NavItem from '../NavItem/NavItem';
+import React from 'react';
+import NavItem from '../NavItem/NavItem';
 import './style.css';
 
 interface DashboardSidebarProps {

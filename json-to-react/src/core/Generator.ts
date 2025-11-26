@@ -1,5 +1,7 @@
 import { PropSchema, ISchema, SchemaComponent, SchemaFragment, SchemaNode, SchemaText } from '../schema';
+import StateGenerator from './StateGenerator';
 import { StyleRegistry } from './StyleRegistry';
+import { GeneratorConfig, getConfig } from './config';
 
 export interface GeneratedResult {
     componentCode: string;
@@ -9,9 +11,16 @@ export interface GeneratedResult {
 
 export class Generator {
     private styleRegistry: StyleRegistry;
+    private stateGenertor: StateGenerator;
+    private indentSize: number;
+    private imports: Set<string> = new Set();
+    private config: GeneratorConfig;
 
-    constructor() {
+    constructor(userConfig?: Partial<GeneratorConfig>) {
+        this.config = getConfig(userConfig);
+        this.indentSize = this.config.indentSize/2; // Divide by 2 for JSX indentation
         this.styleRegistry = new StyleRegistry();
+        this.stateGenertor = new StateGenerator(this.indentSize);
     }
 
     public generate(schema: SchemaComponent | SchemaNode | SchemaFragment | SchemaText | any): GeneratedResult {
@@ -26,6 +35,7 @@ export class Generator {
         }
 
         this.styleRegistry.clear();
+        this.imports.clear(); // Clear imports for new component generation
         const componentName = schema.name || schema.filename || 'GeneratedComponent';
         this.styleRegistry.setComponentPrefix(componentName);
         const props = schema.props ?? {};
@@ -65,7 +75,8 @@ export class Generator {
     }
 
     private generateImports(schema: ISchema): string {
-        const importsChildrenString = this.generateChildComponentImports(schema);
+        // Use the imports collected during component tree generation
+        const importsChildrenString = this.imports.size > 0 ? '\n' + Array.from(this.imports).join('\n') : '';
         let cssStyleFileImportString = `\nimport './style.css';`;
         if (!this.styleRegistry.hasStyles()) {
             cssStyleFileImportString = '';
@@ -131,13 +142,21 @@ export class Generator {
         return `interface ${componentName}Props${extendsClause} {\n${propsEntries}\n}`;
     }
 
+    /**
+     * 
+     * @param schema 
+     * @param componentName 
+     * @param originalSchema 
+     * @returns The complete component code including hooks and logic and states
+     */
     private generateComponent(schema: ISchema, componentName: string, originalSchema?: ISchema): string {
         const componentTree = this.generateComponentTree(schema, 4);
         const schemaForHooks = originalSchema || schema;
         const hooks = this.generateHooks(schemaForHooks);
         const logic = (schemaForHooks as any).componentLogic ? `\n    ${(schemaForHooks as any).componentLogic}\n` : '';
+        const statesCode = this.stateGenertor.generateStateCode(originalSchema?.states || {});
 
-        return `const ${componentName}: React.FC<${componentName}Props> = (props) => {${hooks}${logic}
+        return `const ${componentName}: React.FC<${componentName}Props> = (props) => {${statesCode}${hooks}${logic}
     return (
 ${componentTree}
     );
@@ -190,7 +209,13 @@ export default ${componentName};`;
         if(!schema) {
             return '';
         }
-        const indentation = '  '.repeat(indent);
+        
+        // Collect imports for component types
+        if (schema.type === 'component' && schema.name) {
+            this.imports.add(`import ${schema.name} from '../${schema.name}/${schema.name}';`);
+        }
+        
+        const indentation = ' '.repeat(this.indentSize * indent);
         let elementType = this.getElementType(schema);
         const className = this.styleRegistry.generateClassName(schema as any);
         const propsString = this.generatePropsString(schema.props, className, schema.handlers);
@@ -246,13 +271,13 @@ export default ${componentName};`;
         if (children.length === 0) {
             // If it's the root component and has no children defined, render {props.children}
             if (indent === 4) { // Root level indentation
-                return `${openingTag}\n${indentation}  {props.children}\n${closingTag}`;
+                return `${openingTag}\n${indentation}${' '.repeat(this.indentSize)}{props.children}\n${closingTag}`;
             }
             return `${openingTag}${closingTag}`;
         }
 
         if (!Array.isArray(children)) {
-            return `${openingTag}\n${indentation}  ${children}\n${closingTag}`;
+            return `${openingTag}\n${indentation}${' '.repeat(this.indentSize)}${children}\n${closingTag}`;
         }
 
         const childrenStrings = children

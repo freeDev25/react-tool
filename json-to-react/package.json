@@ -9,6 +9,7 @@
     "dev": "tsc --watch",
     "demo": "ts-node src/demo.ts",
     "demo:interactive": "ts-node src/demo-interactive.ts",
+    "demo:all": "ts-node src/demo-all.ts",
     "gen": "ts-node src/tests/example.ts",
     "test": "vitest"
   },
