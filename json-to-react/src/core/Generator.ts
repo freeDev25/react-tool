@@ -20,7 +20,7 @@ export class Generator {
 
     constructor(userConfig?: Partial<GeneratorConfig>) {
         this.config = getConfig(userConfig);
-        this.indentSize = this.config.indentSize/2; // Divide by 2 for JSX indentation
+        this.indentSize = this.config.indentSize;
         this.styleRegistry = new StyleRegistry();
         this.stateGenertor = new StateGenerator();
         this.functionGenerator = new FunctionGenerator();
@@ -153,7 +153,12 @@ export class Generator {
      * @returns The complete component code including hooks and logic and states
      */
     private generateComponent(schema: ISchema, componentName: string, originalSchema?: ISchema): string {
-        const componentTree = this.generateComponentTree(schema, 4);
+        /**
+         * Generate the component tree
+         * @return The component tree as a string
+         * initail indent is 2 for the return statement
+         */
+        const componentTree = this.generateComponentTree(schema, 2);
         const schemaForHooks = originalSchema || schema;
         const hooks = this.generateHooks(schemaForHooks);
         const logic = (schemaForHooks as any).componentLogic ? `\n    ${(schemaForHooks as any).componentLogic}\n` : '';
@@ -225,13 +230,15 @@ export default ${componentName};`;
         const propsString = this.generatePropsString(schema.props, className, schema.handlers);
         const children = schema.children || [];
         
-        // Generate the element tree
-        let elementTree = this.generateElementTree(schema, elementType, propsString, children, indent, indentation);
-        
         // Wrap with conditional if present
         if (schema.condition) {
-            return `${indentation}{${schema.condition} && (\n${elementTree}\n${indentation})}`;
+            // Generate element tree with one extra level of indentation for inside the conditional
+            const conditionalElementTree = this.generateElementTree(schema, elementType, propsString, children, indent + 1, ' '.repeat(this.indentSize * (indent + 1)));
+            return `${indentation}{${schema.condition} && (\n${conditionalElementTree}\n${indentation})}`;
         }
+        
+        // Generate the element tree at current indentation level
+        let elementTree = this.generateElementTree(schema, elementType, propsString, children, indent, indentation);
         
         return elementTree;
     }
@@ -259,7 +266,7 @@ export default ${componentName};`;
                 return `${indentation}<${elementType}${propsString}/>`;
             } else {
                 const childrenStrings = allChildren
-                    .map(child => this.generateComponentTree(child, indent + 2))
+                    .map(child => this.generateComponentTree(child, indent + 1))
                     .join('\n');
                 return `${indentation}<${elementType}${propsString}>\n${childrenStrings}\n${indentation}</${elementType}>`;
             }
@@ -274,7 +281,7 @@ export default ${componentName};`;
 
         if (children.length === 0) {
             // If it's the root component and has no children defined, render {props.children}
-            if (indent === 4) { // Root level indentation
+            if (indent === 0) { // Root level indentation
                 return `${openingTag}\n${indentation}${' '.repeat(this.indentSize)}{props.children}\n${closingTag}`;
             }
             return `${openingTag}${closingTag}`;
@@ -285,7 +292,7 @@ export default ${componentName};`;
         }
 
         const childrenStrings = children
-            .map(child => this.generateComponentTree(child, indent + 2))
+            .map(child => this.generateComponentTree(child, indent + 1))
             .join('\n');
 
         return `${openingTag}\n${childrenStrings}\n${closingTag}`;
