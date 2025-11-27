@@ -1,5 +1,16 @@
 import React from "react";
 
+export interface ISchemaVariables {
+    [variableName: string]: {
+        type: string;           // TypeScript type
+        value: any;             // Initial value or computation
+        computed?: boolean;     // Whether this is a computed/derived value
+        memoized?: boolean;     // Whether to wrap in useMemo
+        dependencies?: string[]; // Dependencies for memoized values
+        const?: boolean;        // Whether to use const (true) or let (false), default: true
+    };
+}
+
 export interface ISchema {
     type?: string;
     name?: string;
@@ -11,6 +22,7 @@ export interface ISchema {
     condition?: string; // Conditional rendering expression
     states?: ISchemaStates; // Component state definitions
     functions?: ISchemaFunctions; // Custom functions
+    variables?: ISchemaVariables; // Local variables
 }
 
 export type ISchemaStates = Record<string, {

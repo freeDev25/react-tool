@@ -76,6 +76,27 @@ class Schema {
         };
     }
 
+    addVariable(
+        varName: string, 
+        type: string, 
+        value: any, 
+        options?: { 
+            computed?: boolean; 
+            memoized?: boolean; 
+            dependencies?: string[]; 
+            const?: boolean;
+        }
+    ) {
+        if (!this.schema.variables) {
+            this.schema.variables = {};
+        }
+        this.schema.variables[varName] = {
+            type,
+            value,
+            ...options
+        };
+    }
+
     async generate() {
         // SchemaParser.resetManifest();
 

@@ -1,6 +1,7 @@
 import { PropSchema, ISchema, SchemaComponent, SchemaFragment, SchemaNode, SchemaText } from '../schema';
 import FunctionGenerator from './FunctionGenerator';
 import StateGenerator from './StateGenerator';
+import VariableGenerator from './VariableGenerator';
 import { StyleRegistry } from './StyleRegistry';
 import { GeneratorConfig, getConfig } from './config';
 
@@ -14,6 +15,7 @@ export class Generator {
     private styleRegistry: StyleRegistry;
     private stateGenertor: StateGenerator;
     private functionGenerator: FunctionGenerator;
+    private variableGenerator: VariableGenerator;
     private indentSize: number;
     private imports: Set<string> = new Set();
     private config: GeneratorConfig;
@@ -24,6 +26,7 @@ export class Generator {
         this.styleRegistry = new StyleRegistry();
         this.stateGenertor = new StateGenerator();
         this.functionGenerator = new FunctionGenerator();
+        this.variableGenerator = new VariableGenerator();
     }
 
     public generate(schema: SchemaComponent | SchemaNode | SchemaFragment | SchemaText | any): GeneratedResult {
@@ -162,16 +165,41 @@ export class Generator {
         const schemaForHooks = originalSchema || schema;
         const hooks = this.generateHooks(schemaForHooks);
         const logic = (schemaForHooks as any).componentLogic ? `\n    ${(schemaForHooks as any).componentLogic}\n` : '';
+        const propsDestructuring = this.generatePropsDestructuring(originalSchema?.props || {});
         const statesCode = this.stateGenertor.generateStateCode(originalSchema?.states || {});
+        const variablesCode = this.variableGenerator.generateVariableCode(originalSchema?.variables || {});
         const functionsCode = this.functionGenerator.generateFunctionCode(originalSchema?.functions || {});
 
-        return `const ${componentName}: React.FC<${componentName}Props> = (props) => {${statesCode}\n${functionsCode}\n${hooks}\n${logic}
+        return `const ${componentName}: React.FC<${componentName}Props> = (props) => {${propsDestructuring}${statesCode}${variablesCode}\n${functionsCode}\n${hooks}\n${logic}
     return (
 ${componentTree}
     );
 };
 
 export default ${componentName};`;
+    }
+
+    private generatePropsDestructuring(props: Record<string, PropSchema> | undefined): string {
+        if (!props || Object.keys(props).length === 0) {
+            return '';
+        }
+
+        const indent = ' '.repeat(this.indentSize);
+        const propsList = Object.entries(props)
+            .sort((a, b) => a[0].localeCompare(b[0]))
+            .map(([propName, propDef]) => {
+                // If prop has a default value, use it in destructuring
+                if (propDef.default !== undefined) {
+                    const defaultValue = typeof propDef.default === 'string' 
+                        ? `"${propDef.default}"` 
+                        : JSON.stringify(propDef.default);
+                    return `${propName} = ${defaultValue}`;
+                }
+                return propName;
+            })
+            .join(', ');
+
+        return `\n${indent}const { ${propsList} } = props;`;
     }
 
     private generateHooks(schema: ISchema): string {

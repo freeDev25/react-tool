@@ -16,6 +16,7 @@
     "demo": "npm run demo --workspace=json-to-react",
     "demo:all": "npm run demo:all --workspace=json-to-react",
     "demo:interactive": "npm run demo:interactive --workspace=json-to-react",
+    "demo:variables": "npm run demo:variables --workspace=json-to-react",
     "gen": "npm run gen --workspace=json-to-react",
     "play:dev": "npm run dev --workspace=playground",
     "play:build": "npm run build --workspace=playground",
