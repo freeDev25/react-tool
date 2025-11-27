@@ -1,4 +1,5 @@
 import { PropSchema, ISchema, SchemaComponent, SchemaFragment, SchemaNode, SchemaText } from '../schema';
+import FunctionGenerator from './FunctionGenerator';
 import StateGenerator from './StateGenerator';
 import { StyleRegistry } from './StyleRegistry';
 import { GeneratorConfig, getConfig } from './config';
@@ -12,6 +13,7 @@ export interface GeneratedResult {
 export class Generator {
     private styleRegistry: StyleRegistry;
     private stateGenertor: StateGenerator;
+    private functionGenerator: FunctionGenerator;
     private indentSize: number;
     private imports: Set<string> = new Set();
     private config: GeneratorConfig;
@@ -20,7 +22,8 @@ export class Generator {
         this.config = getConfig(userConfig);
         this.indentSize = this.config.indentSize/2; // Divide by 2 for JSX indentation
         this.styleRegistry = new StyleRegistry();
-        this.stateGenertor = new StateGenerator(this.indentSize);
+        this.stateGenertor = new StateGenerator();
+        this.functionGenerator = new FunctionGenerator();
     }
 
     public generate(schema: SchemaComponent | SchemaNode | SchemaFragment | SchemaText | any): GeneratedResult {
@@ -155,8 +158,9 @@ export class Generator {
         const hooks = this.generateHooks(schemaForHooks);
         const logic = (schemaForHooks as any).componentLogic ? `\n    ${(schemaForHooks as any).componentLogic}\n` : '';
         const statesCode = this.stateGenertor.generateStateCode(originalSchema?.states || {});
+        const functionsCode = this.functionGenerator.generateFunctionCode(originalSchema?.functions || {});
 
-        return `const ${componentName}: React.FC<${componentName}Props> = (props) => {${statesCode}${hooks}${logic}
+        return `const ${componentName}: React.FC<${componentName}Props> = (props) => {${statesCode}\n${functionsCode}\n${hooks}\n${logic}
     return (
 ${componentTree}
     );

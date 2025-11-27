@@ -10,11 +10,17 @@ export interface ISchema {
     handlers?: Record<string, string>; // Event handlers like onClick, onChange
     condition?: string; // Conditional rendering expression
     states?: ISchemaStates; // Component state definitions
+    functions?: ISchemaFunctions; // Custom functions
 }
 
 export type ISchemaStates = Record<string, {
     type: string;
     default: any;
+}>;
+
+export type ISchemaFunctions = Record<string, {
+    params: { name: string; type: string }[];
+    body: string;
 }>;
 
 export interface SchemaText extends ISchema {

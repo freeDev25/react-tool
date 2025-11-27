@@ -65,6 +65,16 @@ class Schema {
         };
     }
 
+    addFunction(fnName: string, params: { name: string; type: string }[], body: string) {
+        if (!this.schema.functions) {
+            this.schema.functions = {};
+        }
+        this.schema.functions[fnName] = {
+            params,
+            body
+        };
+    }
+
     async generate() {
         // SchemaParser.resetManifest();
 

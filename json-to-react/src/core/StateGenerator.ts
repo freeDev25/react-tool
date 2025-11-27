@@ -4,7 +4,9 @@ import { getConfig } from "./config";
 const config = getConfig()
 
 export default class StateGenerator {
-    constructor(private indentSize: number = config.indentSize) {}
+    public indentSize = config.indentSize;
+    
+    constructor() {}
     /**
      * 
      * @param states 

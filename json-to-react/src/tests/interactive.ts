@@ -48,6 +48,26 @@ const Counter = new Schema('Counter', {},
 Counter.addState('count', 'number', 0);
 Counter.addState('step', 'number', 1);
 
+Counter.addFunction('handleIncrement', [
+    {
+        name: 'event',
+        type: 'React.MouseEvent<HTMLButtonElement>'
+    }
+], `
+    event.stopPropagation();
+    setCount(count + step);
+`);
+
+Counter.addFunction('handleDecrement', [
+    {
+        name: 'event',
+        type: 'React.MouseEvent<HTMLButtonElement>'
+    }
+], `
+    event.preventDefault();
+    setCount(count - step);
+`);
+
 // Add hooks and logic to Counter
 // (Counter.schema as any).hooks = [
 //     {
