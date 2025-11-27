@@ -1,7 +1,10 @@
 import { ISchemaStates } from "../schema";
+import { getConfig } from "./config";
+
+const config = getConfig()
 
 export default class StateGenerator {
-    constructor(private indentSize: number = 4) {}
+    constructor(private indentSize: number = config.indentSize) {}
     /**
      * 
      * @param states 

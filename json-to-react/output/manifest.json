@@ -37,15 +37,6 @@
       }
     },
     {
-      "name": "Counter",
-      "type": "component",
-      "generatedAt": "2025-11-26T03:07:44.837Z",
-      "path": {
-        "tsx": "Counter/Counter.tsx",
-        "css": "Counter/style.css"
-      }
-    },
-    {
       "name": "StatCard",
       "type": "component",
       "generatedAt": "2025-11-26T03:07:44.847Z",
@@ -97,6 +88,15 @@
       "path": {
         "tsx": "ComplexDashboard/ComplexDashboard.tsx",
         "css": "ComplexDashboard/style.css"
+      }
+    },
+    {
+      "name": "Counter",
+      "type": "component",
+      "generatedAt": "2025-11-26T03:11:25.141Z",
+      "path": {
+        "tsx": "Counter/Counter.tsx",
+        "css": "Counter/style.css"
       }
     }
   ]

@@ -46,6 +46,7 @@ const Counter = new Schema('Counter', {},
 );
 
 Counter.addState('count', 'number', 0);
+Counter.addState('step', 'number', 1);
 
 // Add hooks and logic to Counter
 // (Counter.schema as any).hooks = [
