@@ -11,6 +11,16 @@ export interface ISchemaVariables {
     };
 }
 
+export interface ISchemaEffects {
+    [effectName: string]: {
+        body: string;               // Effect function body
+        dependencies?: string[];    // Dependency array
+        cleanup?: string;           // Cleanup function body (optional)
+        async?: boolean;            // Whether the effect uses async operations
+        condition?: string;         // Conditional effect execution
+    };
+}
+
 export interface ISchema {
     type?: string;
     name?: string;
@@ -23,6 +33,7 @@ export interface ISchema {
     states?: ISchemaStates; // Component state definitions
     functions?: ISchemaFunctions; // Custom functions
     variables?: ISchemaVariables; // Local variables
+    effects?: ISchemaEffects; // useEffect hooks
 }
 
 export type ISchemaStates = Record<string, {

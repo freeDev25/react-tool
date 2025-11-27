@@ -10,6 +10,7 @@
     "demo": "ts-node src/demo.ts",
     "demo:interactive": "ts-node src/demo-interactive.ts",
     "demo:variables": "ts-node src/demo-variables.ts",
+    "demo:effects": "ts-node src/demo-effects.ts",
     "demo:all": "ts-node src/demo-all.ts",
     "gen": "ts-node src/tests/example.ts",
     "test": "vitest"

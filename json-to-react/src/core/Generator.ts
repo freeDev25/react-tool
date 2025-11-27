@@ -2,6 +2,7 @@ import { PropSchema, ISchema, SchemaComponent, SchemaFragment, SchemaNode, Schem
 import FunctionGenerator from './FunctionGenerator';
 import StateGenerator from './StateGenerator';
 import VariableGenerator from './VariableGenerator';
+import EffectGenerator from './EffectGenerator';
 import { StyleRegistry } from './StyleRegistry';
 import { GeneratorConfig, getConfig } from './config';
 
@@ -16,6 +17,7 @@ export class Generator {
     private stateGenertor: StateGenerator;
     private functionGenerator: FunctionGenerator;
     private variableGenerator: VariableGenerator;
+    private effectGenerator: EffectGenerator;
     private indentSize: number;
     private imports: Set<string> = new Set();
     private config: GeneratorConfig;
@@ -27,6 +29,7 @@ export class Generator {
         this.stateGenertor = new StateGenerator();
         this.functionGenerator = new FunctionGenerator();
         this.variableGenerator = new VariableGenerator();
+        this.effectGenerator = new EffectGenerator();
     }
 
     public generate(schema: SchemaComponent | SchemaNode | SchemaFragment | SchemaText | any): GeneratedResult {
@@ -169,8 +172,9 @@ export class Generator {
         const statesCode = this.stateGenertor.generateStateCode(originalSchema?.states || {});
         const variablesCode = this.variableGenerator.generateVariableCode(originalSchema?.variables || {});
         const functionsCode = this.functionGenerator.generateFunctionCode(originalSchema?.functions || {});
+        const effectsCode = this.effectGenerator.generateEffectCode(originalSchema?.effects || {});
 
-        return `const ${componentName}: React.FC<${componentName}Props> = (props) => {${propsDestructuring}${statesCode}${variablesCode}\n${functionsCode}\n${hooks}\n${logic}
+        return `const ${componentName}: React.FC<${componentName}Props> = (props) => {${propsDestructuring}${statesCode}${variablesCode}\n${functionsCode}${effectsCode}\n${hooks}\n${logic}
     return (
 ${componentTree}
     );

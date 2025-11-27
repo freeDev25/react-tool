@@ -107,6 +107,15 @@
         "tsx": "VariableDemo/VariableDemo.tsx",
         "css": "VariableDemo/style.css"
       }
+    },
+    {
+      "name": "EffectDemo",
+      "type": "component",
+      "generatedAt": "2025-11-27T19:12:36.083Z",
+      "path": {
+        "tsx": "EffectDemo/EffectDemo.tsx",
+        "css": "EffectDemo/style.css"
+      }
     }
   ]
 }

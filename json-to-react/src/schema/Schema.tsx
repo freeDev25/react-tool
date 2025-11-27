@@ -97,6 +97,25 @@ class Schema {
         };
     }
 
+    addEffect(
+        effectName: string,
+        body: string,
+        options?: {
+            dependencies?: string[];
+            cleanup?: string;
+            async?: boolean;
+            condition?: string;
+        }
+    ) {
+        if (!this.schema.effects) {
+            this.schema.effects = {};
+        }
+        this.schema.effects[effectName] = {
+            body,
+            ...options
+        };
+    }
+
     async generate() {
         // SchemaParser.resetManifest();
 
