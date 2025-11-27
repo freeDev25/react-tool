@@ -1,6 +1,6 @@
 
 import { HTMLAttributes } from "react";
-import { ISchema, ISchemaStates, PropSchema, SchemaNode, SchemaNodeInternal } from ".";
+import { ISchema, ISchemaStates, PropSchema, SchemaNode, SchemaNodeInternal, SchemaText } from ".";
 import { SchemaParser } from "../parser";
 
 class Schema {
@@ -25,9 +25,10 @@ class Schema {
         } as any;
     }
 
-    static text(content: string): ISchema[] {
+    static text(content: string, condition?: string): SchemaText[] {
         return [{
             type: 'text',
+            condition,
             children: content ? [content] : undefined
         }];
     }

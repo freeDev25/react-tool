@@ -23,9 +23,10 @@ export type ISchemaFunctions = Record<string, {
     body: string;
 }>;
 
-export interface SchemaText extends ISchema {
+export interface SchemaText  {
     type: 'text';
-    children: ISchema[] | string[];
+    children?: string[];
+    condition?: string; // Conditional rendering expression
 }
 
 export interface SchemaNode extends ISchema {

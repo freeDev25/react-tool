@@ -230,7 +230,12 @@ export default ${componentName};`;
         const propsString = this.generatePropsString(schema.props, className, schema.handlers);
         const children = schema.children || [];
         
-        // Wrap with conditional if present
+        // Text nodes handle their own conditionals inline
+        if (schema.type === 'text') {
+            return this.generateElementTree(schema, elementType, propsString, children, indent, indentation);
+        }
+        
+        // Wrap non-text nodes with conditional if present
         if (schema.condition) {
             // Generate element tree with one extra level of indentation for inside the conditional
             const conditionalElementTree = this.generateElementTree(schema, elementType, propsString, children, indent + 1, ' '.repeat(this.indentSize * (indent + 1)));
@@ -246,10 +251,34 @@ export default ${componentName};`;
     private generateElementTree(schema: ISchema, elementType: string, propsString: string, children: any[], indent: number, indentation: string): string {
 
         if (schema.type === 'text') {
-            if (Array.isArray(schema.children) && schema.children.every(ch => typeof ch === 'string')) {
-                return `${indentation}${(schema.children as string[]).join('')}`;
+            const textSchema = schema as any;
+            const textContent = Array.isArray(schema.children) && schema.children.every(ch => typeof ch === 'string')
+                ? (schema.children as string[]).join('')
+                : (schema.props?.text || '');
+            
+            // Ensure textContent is a string before checking
+            const contentStr = typeof textContent === 'string' ? textContent : '';
+            
+            // Detect if text contains JSX expressions (e.g., {count}, {props.value})
+            const hasJsxExpression = contentStr.includes('{') && contentStr.includes('}');
+            
+            // Handle conditional text rendering
+            if (textSchema.condition) {
+                // If it's plain text with condition, wrap in JSX conditional
+                if (!hasJsxExpression) {
+                    return `${indentation}{${textSchema.condition} && ("${contentStr}")}`;
+                }
+                // If text has JSX expressions with condition, wrap the whole expression
+                return `${indentation}{${textSchema.condition} && (${contentStr})}`;
             }
-            return `${indentation}${schema.props?.text || ''}`;
+            
+            // Text with JSX expressions but no condition - render as-is (already has {})
+            if (hasJsxExpression) {
+                return `${indentation}${contentStr}`;
+            }
+            
+            // Plain text without condition
+            return `${indentation}${contentStr}`;
         }
 
         if (schema.type === 'component') {

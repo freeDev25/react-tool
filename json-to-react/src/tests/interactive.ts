@@ -26,7 +26,8 @@ const Counter = new Schema('Counter', {},
                             marginRight: '10px',
                             cursor: 'pointer'
                         },
-                        children: Schema.text('Increment')
+                        // Text could be conditional like count < 10 ? "Increment" : "Maxed Out" 
+                        children: Schema.text(`Increment`, 'count < 10')
                     }),
                     Schema.node('button', {
                         props: { type: 'button' },
