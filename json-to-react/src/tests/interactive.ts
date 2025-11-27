@@ -33,6 +33,7 @@ const Counter = new Schema('Counter', {},
                         handlers: {
                             onClick: 'handleDecrement'
                         },
+                        condition: 'count > 0',
                         styles: {
                             padding: '10px 20px',
                             cursor: 'pointer'
