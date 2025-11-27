@@ -25,10 +25,10 @@ class Schema {
         } as any;
     }
 
-    static text(content: string, condition?: string): SchemaText[] {
+    static text(content: string, attrs?: { condition?: string, isJsxText?: boolean }): SchemaText[] {
         return [{
             type: 'text',
-            condition,
+            ...attrs,
             children: content ? [content] : undefined
         }];
     }

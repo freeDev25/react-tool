@@ -259,25 +259,25 @@ export default ${componentName};`;
             // Ensure textContent is a string before checking
             const contentStr = typeof textContent === 'string' ? textContent : '';
             
-            // Detect if text contains JSX expressions (e.g., {count}, {props.value})
-            const hasJsxExpression = contentStr.includes('{') && contentStr.includes('}');
+            // Check if explicitly marked as JSX text
+            const isExplicitJsx = textSchema.isJsxText === true;
             
             // Handle conditional text rendering
             if (textSchema.condition) {
-                // If it's plain text with condition, wrap in JSX conditional
-                if (!hasJsxExpression) {
-                    return `${indentation}{${textSchema.condition} && ("${contentStr}")}`;
+                // If it's JSX text with condition, wrap without quotes
+                if (isExplicitJsx) {
+                    return `${indentation}{${textSchema.condition} && (${contentStr})}`;
                 }
-                // If text has JSX expressions with condition, wrap the whole expression
-                return `${indentation}{${textSchema.condition} && (${contentStr})}`;
+                // Plain text with condition, wrap in quotes
+                return `${indentation}{${textSchema.condition} && ("${contentStr}")}`;
             }
             
-            // Text with JSX expressions but no condition - render as-is (already has {})
-            if (hasJsxExpression) {
-                return `${indentation}${contentStr}`;
+            // Text explicitly marked as JSX - wrap in braces
+            if (isExplicitJsx) {
+                return `${indentation}{${contentStr}}`;
             }
             
-            // Plain text without condition
+            // Plain text (may contain JSX expressions like "Counter: {count}" which React handles natively)
             return `${indentation}${contentStr}`;
         }
 

@@ -27,7 +27,9 @@ const Counter = new Schema('Counter', {},
                             cursor: 'pointer'
                         },
                         // Text could be conditional like count < 10 ? "Increment" : "Maxed Out" 
-                        children: Schema.text(`Increment`, 'count < 10')
+                        children: Schema.text(`count < 10 ? "Increment" : "Maxed Out" `, {
+                            isJsxText: true
+                        })
                     }),
                     Schema.node('button', {
                         props: { type: 'button' },

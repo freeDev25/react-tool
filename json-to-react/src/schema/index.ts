@@ -26,6 +26,7 @@ export type ISchemaFunctions = Record<string, {
 export interface SchemaText  {
     type: 'text';
     children?: string[];
+    isJsxText?: boolean; // Whether the text is JSX expression
     condition?: string; // Conditional rendering expression
 }
 
