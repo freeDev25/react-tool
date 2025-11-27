@@ -12,6 +12,8 @@ build/
 json-to-react/output/**/*.tsx
 json-to-react/output/**/*.css
 !json-to-react/output/.gitkeep
+json-to-react/output/manifest.json
+playground/public/manifest.json
 
 # Logs
 *.log
