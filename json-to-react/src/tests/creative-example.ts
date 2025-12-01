@@ -267,8 +267,9 @@ try {
     setWeather(data);
     setLastUpdate(Date.now());
 } catch (err) {
-    setError(err.message || 'Failed to load weather data');
-    console.error('Weather fetch error:', err);
+    const error = err as Error;
+    setError(error?.message || 'Failed to load weather data');
+    console.error('Weather fetch error:', error);
 } finally {
     setIsLoading(false);
 }

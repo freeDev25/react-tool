@@ -104,21 +104,63 @@ export default class EffectGenerator {
 
     /**
      * Generates an async effect body
-     * Pattern: useEffect(() => { async function fn() {...}; fn(); }, [deps])
+     * Pattern: useEffect(() => { const shared; async function fn() {...}; fn(); }, [deps])
+     * When cleanup needs variable access, moves top-level declarations outside async function
      */
     private generateAsyncEffect(
         effectDef: ISchemaEffects[string],
         indent: string,
         hasCleanup: boolean
     ): string {
-        const bodyLines = this.indentLines(effectDef.body, indent, 3);
+        let result = '';
         
-        let result = `\n${indent}${indent}async function fetchData() {${bodyLines}${indent}${indent}}\n`;
-        result += `${indent}${indent}fetchData();`;
-
         if (hasCleanup) {
+            // Split body into top-level declarations and rest
+            const lines = effectDef.body.split('\n').filter(line => line.trim().length > 0);
+            const declarationLines: string[] = [];
+            const bodyStartIndex: number = 0;
+            
+            // Extract only top-level const/let declarations (not inside try/catch/if)
+            let inBlock = 0;
+            for (let i = 0; i < lines.length; i++) {
+                const trimmed = lines[i].trim();
+                
+                // Track blocks
+                if (trimmed.includes('{')) inBlock++;
+                if (trimmed.includes('}')) inBlock--;
+                
+                // Only extract top-level declarations before any control structures
+                if (inBlock === 0 && (trimmed.startsWith('const ') || trimmed.startsWith('let '))) {
+                    declarationLines.push(lines[i]);
+                } else {
+                    break; // Stop at first non-declaration
+                }
+            }
+            
+            // Place top-level declarations outside async function
+            if (declarationLines.length > 0) {
+                const declLines = this.indentLines(declarationLines.join('\n'), indent, 2);
+                result += `\n${declLines}\n`;
+                
+                // Rest goes inside async function
+                const restLines = lines.slice(declarationLines.length).join('\n');
+                const bodyLines = this.indentLines(restLines, indent, 3);
+                result += `${indent}${indent}async function fetchData() {${bodyLines}${indent}${indent}}\n`;
+            } else {
+                // No top-level declarations, everything goes inside
+                const bodyLines = this.indentLines(effectDef.body, indent, 3);
+                result += `\n${indent}${indent}async function fetchData() {${bodyLines}${indent}${indent}}\n`;
+            }
+            
+            result += `${indent}${indent}fetchData();`;
+            
             const cleanupLines = this.indentLines(effectDef.cleanup!, indent, 3);
             result += `\n${indent}${indent}return () => {${cleanupLines}${indent}${indent}};`;
+        } else {
+            // No cleanup, standard async pattern
+            const bodyLines = this.indentLines(effectDef.body, indent, 3);
+            result = `\n${indent}${indent}async function fetchData() {${bodyLines}${indent}${indent}}\n`;
+            result += `${indent}${indent}fetchData();`;
         }
 
         return result + '\n';

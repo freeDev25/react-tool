@@ -115,15 +115,18 @@ console.log('Component rendered at:', new Date().toISOString());
 `);
 
 // Example 8: Complex async effect with abort controller
+// Note: For async effects with cleanup, declare shared variables in the effect body (not inside async function)
 EffectDemo.addEffect('abortableFetch', `
 const controller = new AbortController();
+
 try {
     const response = await fetch(\`/api/data/\${userId}\`, {
         signal: controller.signal
     });
     const result = await response.json();
     console.log('Fetched data:', result);
-} catch (error) {
+} catch (err) {
+    const error = err as Error & { name: string };
     if (error.name !== 'AbortError') {
         console.error('Fetch error:', error);
     }
