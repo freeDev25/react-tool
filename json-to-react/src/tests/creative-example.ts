@@ -197,7 +197,7 @@ const WeatherDashboard = new Schema('WeatherDashboard', {
 WeatherDashboard.addState('weather', 'any', null);
 WeatherDashboard.addState('isLoading', 'boolean', true);
 WeatherDashboard.addState('error', 'string | null', null);
-WeatherDashboard.addState('lastUpdate', 'number', 'Date.now()');
+WeatherDashboard.addState('lastUpdate', 'number', 0);
 WeatherDashboard.addState('isOnline', 'boolean', true);
 WeatherDashboard.addState('autoRefreshEnabled', 'boolean', true);
 
@@ -279,24 +279,29 @@ try {
 
 // Effect 2: Auto-refresh weather data
 WeatherDashboard.addEffect('autoRefresh', `
-const interval = setInterval(async () => {
-    try {
-        const response = await fetch(apiUrl);
-        if (response.ok) {
-            const data = await response.json();
-            setWeather(data);
-            setLastUpdate(Date.now());
+let interval: NodeJS.Timeout | undefined;
+
+if (autoRefreshEnabled) {
+    interval = setInterval(async () => {
+        try {
+            const response = await fetch(apiUrl);
+            if (response.ok) {
+                const data = await response.json();
+                setWeather(data);
+                setLastUpdate(Date.now());
+            }
+        } catch (err) {
+            console.error('Auto-refresh error:', err);
         }
-    } catch (err) {
-        console.error('Auto-refresh error:', err);
-    }
-}, refreshInterval);
+    }, refreshInterval);
+}
 `, {
-    condition: 'autoRefreshEnabled',
     dependencies: ['autoRefreshEnabled', 'apiUrl', 'refreshInterval'],
     cleanup: `
-clearInterval(interval);
-console.log('Auto-refresh stopped');
+if (interval) {
+    clearInterval(interval);
+    console.log('Auto-refresh stopped');
+}
 `
 });
 
