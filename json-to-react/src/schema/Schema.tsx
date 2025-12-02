@@ -5,7 +5,8 @@ import { SchemaParser } from "../parser";
 
 class Schema {
     schema: ISchema;
-    constructor(name: string, props: ISchema['props'] = {}, children: ISchema[] | ISchema, states?: ISchemaStates) {
+    constructor(name: string, schemaProps?: ISchema) {
+        let { children, props, states } = schemaProps || {};
         children = Array.isArray(children) ? children : [children];
         this.schema = {
             props,
@@ -77,13 +78,13 @@ class Schema {
     }
 
     addVariable(
-        varName: string, 
-        type: string, 
-        value: any, 
-        options?: { 
-            computed?: boolean; 
-            memoized?: boolean; 
-            dependencies?: string[]; 
+        varName: string,
+        type: string,
+        value: any,
+        options?: {
+            computed?: boolean;
+            memoized?: boolean;
+            dependencies?: string[];
             const?: boolean;
         }
     ) {

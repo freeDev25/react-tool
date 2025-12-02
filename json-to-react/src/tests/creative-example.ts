@@ -3,195 +3,198 @@ import Schema from "../schema/Schema";
 // Creative Example: Real-time Weather Dashboard
 // Demonstrates the power of combining variables and effects
 const WeatherDashboard = new Schema('WeatherDashboard', {
-    city: { type: 'string', default: 'New York' },
-    units: { type: 'string', default: 'metric' } // metric or imperial
-}, 
-    Schema.node('div', {
-        styles: {
-            padding: '30px',
-            maxWidth: '800px',
-            margin: '0 auto',
-            fontFamily: 'system-ui, -apple-system, sans-serif',
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            minHeight: '100vh',
-            color: 'white'
-        },
-        children: Schema.children(
-            // Header
-            Schema.node('header', {
-                styles: {
-                    textAlign: 'center',
-                    marginBottom: '40px'
-                },
-                children: Schema.children(
-                    Schema.node('h1', {
-                        styles: { fontSize: '2.5rem', marginBottom: '10px' },
-                        children: Schema.text('🌤️ Weather Dashboard')
-                    }),
-                    Schema.node('p', {
-                        styles: { fontSize: '1.2rem', opacity: '0.9' },
-                        children: Schema.text('{displayCity}')
-                    })
-                )
-            }),
+    props: {
+        city: { type: 'string', default: 'New York' },
+        units: { type: 'string', default: 'metric' } // metric or imperial
+    },
+    children: [
+        Schema.node('div', {
+            styles: {
+                padding: '30px',
+                maxWidth: '800px',
+                margin: '0 auto',
+                fontFamily: 'system-ui, -apple-system, sans-serif',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                minHeight: '100vh',
+                color: 'white'
+            },
+            children: Schema.children(
+                // Header
+                Schema.node('header', {
+                    styles: {
+                        textAlign: 'center',
+                        marginBottom: '40px'
+                    },
+                    children: Schema.children(
+                        Schema.node('h1', {
+                            styles: { fontSize: '2.5rem', marginBottom: '10px' },
+                            children: Schema.text('🌤️ Weather Dashboard')
+                        }),
+                        Schema.node('p', {
+                            styles: { fontSize: '1.2rem', opacity: '0.9' },
+                            children: Schema.text('{displayCity}')
+                        })
+                    )
+                }),
 
-            // Status Badge
-            Schema.node('div', {
-                condition: 'isOnline',
-                styles: {
-                    display: 'inline-block',
-                    padding: '8px 16px',
-                    backgroundColor: 'rgba(72, 187, 120, 0.3)',
-                    borderRadius: '20px',
-                    marginBottom: '20px'
-                },
-                children: Schema.text('🟢 Live Data')
-            }),
+                // Status Badge
+                Schema.node('div', {
+                    condition: 'isOnline',
+                    styles: {
+                        display: 'inline-block',
+                        padding: '8px 16px',
+                        backgroundColor: 'rgba(72, 187, 120, 0.3)',
+                        borderRadius: '20px',
+                        marginBottom: '20px'
+                    },
+                    children: Schema.text('🟢 Live Data')
+                }),
 
-            // Main Weather Card
-            Schema.node('div', {
-                styles: {
-                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                    backdropFilter: 'blur(10px)',
-                    borderRadius: '20px',
-                    padding: '30px',
-                    marginBottom: '20px',
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
-                },
-                children: Schema.children(
-                    // Loading State
-                    Schema.node('div', {
-                        condition: 'isLoading',
-                        styles: {
-                            textAlign: 'center',
-                            fontSize: '1.5rem'
-                        },
-                        children: Schema.text('⏳ Loading weather data...')
-                    }),
+                // Main Weather Card
+                Schema.node('div', {
+                    styles: {
+                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                        backdropFilter: 'blur(10px)',
+                        borderRadius: '20px',
+                        padding: '30px',
+                        marginBottom: '20px',
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+                    },
+                    children: Schema.children(
+                        // Loading State
+                        Schema.node('div', {
+                            condition: 'isLoading',
+                            styles: {
+                                textAlign: 'center',
+                                fontSize: '1.5rem'
+                            },
+                            children: Schema.text('⏳ Loading weather data...')
+                        }),
 
-                    // Error State
-                    Schema.node('div', {
-                        condition: 'error',
-                        styles: {
-                            textAlign: 'center',
-                            color: '#fc8181',
-                            fontSize: '1.2rem'
-                        },
-                        children: Schema.text('❌ {error}')
-                    }),
+                        // Error State
+                        Schema.node('div', {
+                            condition: 'error',
+                            styles: {
+                                textAlign: 'center',
+                                color: '#fc8181',
+                                fontSize: '1.2rem'
+                            },
+                            children: Schema.text('❌ {error}')
+                        }),
 
-                    // Weather Data
-                    Schema.node('div', {
-                        condition: '!isLoading && !error && weather',
-                        children: Schema.children(
-                            // Temperature
-                            Schema.node('div', {
-                                styles: {
-                                    fontSize: '4rem',
-                                    fontWeight: 'bold',
-                                    textAlign: 'center',
-                                    marginBottom: '20px'
-                                },
-                                children: Schema.text('{temperatureDisplay}')
-                            }),
+                        // Weather Data
+                        Schema.node('div', {
+                            condition: '!isLoading && !error && weather',
+                            children: Schema.children(
+                                // Temperature
+                                Schema.node('div', {
+                                    styles: {
+                                        fontSize: '4rem',
+                                        fontWeight: 'bold',
+                                        textAlign: 'center',
+                                        marginBottom: '20px'
+                                    },
+                                    children: Schema.text('{temperatureDisplay}')
+                                }),
 
-                            // Description
-                            Schema.node('div', {
-                                styles: {
-                                    textAlign: 'center',
-                                    fontSize: '1.5rem',
-                                    marginBottom: '30px',
-                                    textTransform: 'capitalize'
-                                },
-                                children: Schema.text('{weatherDescription}')
-                            }),
+                                // Description
+                                Schema.node('div', {
+                                    styles: {
+                                        textAlign: 'center',
+                                        fontSize: '1.5rem',
+                                        marginBottom: '30px',
+                                        textTransform: 'capitalize'
+                                    },
+                                    children: Schema.text('{weatherDescription}')
+                                }),
 
-                            // Stats Grid
-                            Schema.node('div', {
-                                styles: {
-                                    display: 'grid',
-                                    gridTemplateColumns: 'repeat(2, 1fr)',
-                                    gap: '20px'
-                                },
-                                children: Schema.children(
-                                    // Humidity
-                                    Schema.node('div', {
-                                        styles: {
-                                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                                            padding: '15px',
-                                            borderRadius: '10px',
-                                            textAlign: 'center'
-                                        },
-                                        children: Schema.children(
-                                            Schema.node('div', {
-                                                styles: { fontSize: '2rem' },
-                                                children: Schema.text('💧')
-                                            }),
-                                            Schema.node('div', {
-                                                styles: { fontSize: '1.5rem', fontWeight: 'bold' },
-                                                children: Schema.text('{humidityDisplay}')
-                                            }),
-                                            Schema.node('div', {
-                                                styles: { fontSize: '0.9rem', opacity: '0.8' },
-                                                children: Schema.text('Humidity')
-                                            })
-                                        )
-                                    }),
+                                // Stats Grid
+                                Schema.node('div', {
+                                    styles: {
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(2, 1fr)',
+                                        gap: '20px'
+                                    },
+                                    children: Schema.children(
+                                        // Humidity
+                                        Schema.node('div', {
+                                            styles: {
+                                                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                                padding: '15px',
+                                                borderRadius: '10px',
+                                                textAlign: 'center'
+                                            },
+                                            children: Schema.children(
+                                                Schema.node('div', {
+                                                    styles: { fontSize: '2rem' },
+                                                    children: Schema.text('💧')
+                                                }),
+                                                Schema.node('div', {
+                                                    styles: { fontSize: '1.5rem', fontWeight: 'bold' },
+                                                    children: Schema.text('{humidityDisplay}')
+                                                }),
+                                                Schema.node('div', {
+                                                    styles: { fontSize: '0.9rem', opacity: '0.8' },
+                                                    children: Schema.text('Humidity')
+                                                })
+                                            )
+                                        }),
 
-                                    // Wind Speed
-                                    Schema.node('div', {
-                                        styles: {
-                                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                                            padding: '15px',
-                                            borderRadius: '10px',
-                                            textAlign: 'center'
-                                        },
-                                        children: Schema.children(
-                                            Schema.node('div', {
-                                                styles: { fontSize: '2rem' },
-                                                children: Schema.text('💨')
-                                            }),
-                                            Schema.node('div', {
-                                                styles: { fontSize: '1.5rem', fontWeight: 'bold' },
-                                                children: Schema.text('{windSpeedDisplay}')
-                                            }),
-                                            Schema.node('div', {
-                                                styles: { fontSize: '0.9rem', opacity: '0.8' },
-                                                children: Schema.text('Wind Speed')
-                                            })
-                                        )
-                                    })
-                                )
-                            })
-                        )
-                    })
-                )
-            }),
+                                        // Wind Speed
+                                        Schema.node('div', {
+                                            styles: {
+                                                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                                padding: '15px',
+                                                borderRadius: '10px',
+                                                textAlign: 'center'
+                                            },
+                                            children: Schema.children(
+                                                Schema.node('div', {
+                                                    styles: { fontSize: '2rem' },
+                                                    children: Schema.text('💨')
+                                                }),
+                                                Schema.node('div', {
+                                                    styles: { fontSize: '1.5rem', fontWeight: 'bold' },
+                                                    children: Schema.text('{windSpeedDisplay}')
+                                                }),
+                                                Schema.node('div', {
+                                                    styles: { fontSize: '0.9rem', opacity: '0.8' },
+                                                    children: Schema.text('Wind Speed')
+                                                })
+                                            )
+                                        })
+                                    )
+                                })
+                            )
+                        })
+                    )
+                }),
 
-            // Refresh Info
-            Schema.node('div', {
-                styles: {
-                    textAlign: 'center',
-                    opacity: '0.8',
-                    fontSize: '0.9rem'
-                },
-                children: Schema.text('Last updated: {lastUpdateTime}')
-            }),
+                // Refresh Info
+                Schema.node('div', {
+                    styles: {
+                        textAlign: 'center',
+                        opacity: '0.8',
+                        fontSize: '0.9rem'
+                    },
+                    children: Schema.text('Last updated: {lastUpdateTime}')
+                }),
 
-            // Auto-refresh indicator
-            Schema.node('div', {
-                condition: 'autoRefreshEnabled',
-                styles: {
-                    textAlign: 'center',
-                    marginTop: '10px',
-                    fontSize: '0.85rem',
-                    opacity: '0.7'
-                },
-                children: Schema.text('🔄 Auto-refreshing every {refreshIntervalSeconds}s')
-            })
-        )
-    })
-);
+                // Auto-refresh indicator
+                Schema.node('div', {
+                    condition: 'autoRefreshEnabled',
+                    styles: {
+                        textAlign: 'center',
+                        marginTop: '10px',
+                        fontSize: '0.85rem',
+                        opacity: '0.7'
+                    },
+                    children: Schema.text('🔄 Auto-refreshing every {refreshIntervalSeconds}s')
+                })
+            )
+        })
+    ]
+});
 
 // ========== STATE ==========
 WeatherDashboard.addState('weather', 'any', null);
