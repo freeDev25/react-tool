@@ -5,7 +5,8 @@
   "private": true,
   "workspaces": [
     "json-to-react",
-    "playground"
+    "playground",
+    "design-to-json"
   ],
   "scripts": {
     "install:all": "npm install && npm install --workspace=json-to-react && npm install --workspace=playground",
@@ -21,6 +22,9 @@
     "play:dev": "npm run dev --workspace=playground",
     "play:build": "npm run build --workspace=playground",
     "play:preview": "npm run preview --workspace=playground",
+    "design:dev": "npm run dev --workspace=design-to-json",
+    "design:build": "npm run build --workspace=design-to-json",
+    "design:preview": "npm run preview --workspace=design-to-json",
     "clean": "rm -rf node_modules json-to-react/node_modules playground/node_modules",
     "clean:output": "rm -rf json-to-react/output/*",
     "clean:dist": "rm -rf json-to-react/dist playground/dist"

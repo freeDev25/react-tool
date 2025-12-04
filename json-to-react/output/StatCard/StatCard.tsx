@@ -1,5 +1,5 @@
 import React from 'react';
-import './StatCard.css';
+import './style.css';
 
 interface StatCardProps {
     title: string;

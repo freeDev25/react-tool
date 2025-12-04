@@ -87,7 +87,7 @@ class ComponentSchema implements ISchema2 {
         
         // Add style import if there are styles
         if (this.styles.size > 0) {
-            this.imports.add(`import './${componentName}.css';`);
+            this.imports.add(`import './style.css';`);
         }
         
         // Generate imports section
