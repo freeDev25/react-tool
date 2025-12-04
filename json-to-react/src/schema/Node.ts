@@ -54,7 +54,7 @@ class NodeSchema implements Schema2 {
     private collectImportsAndStyles(schema: Schema2, imports: Set<string>, styles: Map<string, React.CSSProperties>, path: string = ''): void {
         // If this is a component type, add its import
         if (schema.type === 'component' && schema.name) {
-            imports.add(`import ${schema.name} from './${schema.name}';`);
+            imports.add(`import ${schema.name} from '../${schema.name}/${schema.name}';`);
         }
 
         // Collect styles if present

@@ -82,6 +82,9 @@ class ComponentSchema implements ISchema2 {
         const componentName = this.getName() || 'GeneratedComponent';
         const componentTree = this.generateTree();
         
+        // Add React import by default
+        this.imports.add(`import React from 'react';`);
+        
         // Add style import if there are styles
         if (this.styles.size > 0) {
             this.imports.add(`import './${componentName}.css';`);
