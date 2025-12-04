@@ -1,0 +1,83 @@
+{
+  "type": "component",
+  "name": "StatCard",
+  "props": {
+    "title": {
+      "type": "string",
+      "default": "Stat"
+    },
+    "value": {
+      "type": "string",
+      "default": "0"
+    },
+    "trend": {
+      "type": "string",
+      "default": "neutral"
+    }
+  },
+  "children": [
+    {
+      "type": "node",
+      "nodeType": "div",
+      "styles": {
+        "border": "1px solid #ddd",
+        "borderRadius": "8px",
+        "padding": "15px",
+        "textAlign": "center",
+        "boxShadow": "0 2px 5px rgba(0,0,0,0.1)",
+        "backgroundColor": "#fff"
+      },
+      "children": [
+        {
+          "type": "node",
+          "nodeType": "h4",
+          "styles": {
+            "margin": "0 0 10px 0",
+            "fontSize": "18px",
+            "color": "#333"
+          },
+          "children": [
+            {
+              "type": "text",
+              "children": ["{props.title}"],
+              "isJsxText": true
+            }
+          ]
+        },
+        {
+          "type": "node",
+          "nodeType": "div",
+          "styles": {
+            "fontSize": "24px",
+            "fontWeight": "bold",
+            "color": "#000"
+          },
+          "children": [
+            {
+              "type": "text",
+              "children": ["{props.value}"],
+              "isJsxText": true
+            }
+          ]
+        },
+        {
+          "type": "node",
+          "nodeType": "span",
+          "styles": {
+            "display": "inline-block",
+            "marginTop": "8px",
+            "fontSize": "14px",
+            "color": "#666"
+          },
+          "children": [
+            {
+              "type": "text",
+              "children": ["Trend: {props.trend}"],
+              "isJsxText": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

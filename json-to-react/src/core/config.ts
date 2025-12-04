@@ -11,6 +11,7 @@ export interface GeneratorConfig {
      * @default 4
      */
     indentSize: number;
+    outputDir?: string;
 }
 
 /**
@@ -18,6 +19,7 @@ export interface GeneratorConfig {
  */
 export const defaultConfig: GeneratorConfig = {
     indentSize: 4,
+    outputDir: 'output',
 };
 
 /**

@@ -1,4 +1,27 @@
 import React from "react";
+import { GeneratorConfig } from "../core/config";
+
+export type Schema2Types = 'component' | 'node' | 'text' | 'fragment' | 'reactNode';
+export type Schema2Prop = {
+    type: string;
+    default?: any;
+    required?: boolean;
+}
+export interface Schema2{
+    type: Schema2Types;
+    name?: string | keyof HTMLElementTagNameMap;
+    nodeType?: keyof HTMLElementTagNameMap;
+    props?: Record<string, Schema2Prop>;
+    styles?: React.CSSProperties;
+    children?: Schema2[] | string;
+}
+
+export interface ISchema2 {
+    schema: Schema2;
+    config?: GeneratorConfig;
+
+    getName(): string;
+}
 
 export interface ISchemaVariables {
     [variableName: string]: {
@@ -19,6 +42,16 @@ export interface ISchemaEffects {
         async?: boolean;            // Whether the effect uses async operations
         condition?: string;         // Conditional effect execution
     };
+}
+
+export interface ISchemaNew {
+    name: string;
+    props: Record<string, PropSchema>;
+    children: ISchema[] | any[];
+    states?: ISchemaStates;
+    functions?: ISchemaFunctions;
+    variables?: ISchemaVariables;
+    effects?: ISchemaEffects;
 }
 
 export interface ISchema {

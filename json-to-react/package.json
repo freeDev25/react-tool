@@ -13,7 +13,7 @@
     "demo:effects": "ts-node src/demo-effects.ts",
     "demo:creative": "ts-node src/demo-creative.ts",
     "demo:all": "ts-node src/demo-all.ts",
-    "gen": "ts-node src/tests/example.ts",
+    "gen": "ts-node src/jsonToSchema.ts",
     "test": "vitest"
   },
   "keywords": [

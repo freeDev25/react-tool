@@ -1,27 +1,27 @@
-.statcard-0 {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 15px;
-  text-align: center;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  background-color: #fff;
+.root {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    background-color: #fff;
 }
 
-.statcard-1 {
-  margin: 0 0 10px 0;
-  font-size: 18px;
-  color: #333;
+.node-0 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    color: #333;
 }
 
-.statcard-2 {
-  font-size: 24px;
-  font-weight: bold;
-  color: #000;
+.node-1 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #000;
 }
 
-.statcard-3 {
-  display: inline-block;
-  margin-top: 8px;
-  font-size: 14px;
-  color: #666;
+.node-2 {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 14px;
+    color: #666;
 }
