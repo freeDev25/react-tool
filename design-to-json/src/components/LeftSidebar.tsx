@@ -1,13 +1,9 @@
+import baseSchemas from '../schemas/base.json';
+import SchemaRenderer from './SchemaRenderer';
+
 interface LeftSidebarProps {
   isOpen: boolean;
 }
-
-const elements = [
-  { id: 'text', label: 'Text' },
-  { id: 'button', label: 'Button' },
-  { id: 'input', label: 'Input' },
-  { id: 'container', label: 'Container' },
-];
 
 export default function LeftSidebar({ isOpen }: LeftSidebarProps) {
   return (
@@ -20,12 +16,12 @@ export default function LeftSidebar({ isOpen }: LeftSidebarProps) {
         <div>
           <h2 className="text-sm font-semibold text-gray-700 mb-2">Elements</h2>
           <div className="space-y-1">
-            {elements.map((element) => (
+            {baseSchemas.schemas.map((item, index) => (
               <button
-                key={element.id}
-                className="w-full text-left px-3 py-2 text-sm hover:bg-white rounded transition-colors"
+                key={index}
+                className="w-full text-left px-3 py-2 text-sm bg-white border border-gray-200 rounded hover:border-blue-400 hover:bg-blue-50 cursor-pointer transition-colors"
               >
-                {element.label}
+                {item.title}
               </button>
             ))}
           </div>

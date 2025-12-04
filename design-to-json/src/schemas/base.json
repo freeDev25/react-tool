@@ -1,0 +1,129 @@
+{
+    "schemas" : [
+        {
+            "title": "Text Node",
+            "nodeTypes": ["text", "span", "p", "label"],
+            "schema": {
+                "type": "text",
+                "children": ["Sample Text"],
+                "isJsxText": false
+            }
+        },
+        {
+            "title": "Box",
+            "nodeTypes": ["div", "section", "article", "header", "footer", "main", "aside", "nav"],
+            "schema" : {
+                "type": "node",
+                "nodeType": "div",
+                "styles": {
+                    "padding": "10px",
+                    "border": "1px solid #ccc",
+                    "borderRadius": "4px",
+                    "backgroundColor": "#f9f9f9"
+                },
+                "children": [
+                    {
+                        "type": "text",
+                        "children": ["This is a container"],
+                        "isJsxText": false
+                    }
+                ]
+            }
+        },
+        {
+            "title": "Button",
+            "schema": {
+                "type": "node",
+                "nodeType": "button",
+                "style": {
+                    "padding": "10px 20px",
+                    "backgroundColor": "#007bff",
+                    "color": "#fff",
+                    "border": "none",
+                    "borderRadius": "4px",
+                    "cursor": "pointer"
+                },
+                "children": [
+                    {
+                        "type": "text",
+                        "children": ["Button"],
+                        "isJsxText": false
+                    }
+                ]
+            }   
+        },
+        {
+            "title": "Heading",
+            "nodeTypes": ["h1", "h2", "h3", "h4", "h5", "h6"],
+            "schema": {
+                "type": "node",
+                "nodeType": "h1",
+                "styles": {
+                    "fontSize": "32px",
+                    "fontWeight": "bold",
+                    "margin": "20px 0"
+                },
+                "children": [
+                    {
+                        "type": "text",
+                        "children": ["Heading Text"],
+                        "isJsxText": false  
+                    }
+                ]
+            }   
+        },
+        {
+            "title": "Image",
+            "schema": {
+                "type": "node",
+                "nodeType": "img",
+                "props": {
+                    "src": "https://via.placeholder.com/150",
+                    "alt": "Placeholder Image",
+                    "width": "150",
+                    "height": "150"
+                }
+            }
+        },
+        {
+            "title": "Link",
+            "schema": {
+                "type": "node",
+                "nodeType": "a",
+                "props": {
+                    "href": "https://example.com",
+                    "target": "_blank",
+                    "rel": "noopener noreferrer"
+                },
+                "styles": {
+                    "color": "#007bff",
+                    "textDecoration": "none"
+                },
+                "children": [
+                    {
+                        "type": "text",
+                        "children": ["Example Link"],
+                        "isJsxText": false
+                    }
+                ]
+            }
+        },
+        {
+            "title": "Input Field",
+            "schema": {
+                "type": "node",
+                "nodeType": "input",
+                "props": {
+                    "type": "text",
+                    "placeholder": "Enter text here",
+                    "style": {
+                        "padding": "8px",
+                        "border": "1px solid #ccc",
+                        "borderRadius": "4px",
+                        "width": "200px"
+                    }
+                }
+            }
+        }
+    ]
+}
