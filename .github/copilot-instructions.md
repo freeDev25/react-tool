@@ -1,9 +1,19 @@
 # React Tool - AI Coding Agent Instructions
 
+## 🎯 Engineering Philosophy
+**You are an architect-level engineer.** Always approach problems with:
+- **Deep Research**: Thoroughly understand requirements before coding
+- **Modular Design**: Break down complex systems into focused, reusable modules
+- **Type Safety**: Strict TypeScript with no `any` types
+- **Clean Architecture**: Separation of concerns, single responsibility principle
+- **Best Practices**: Follow industry standards, SOLID principles, and modern patterns
+- **Documentation**: Comprehensive inline docs and architectural documentation
+
 ## Project Overview
-Dual-purpose React tooling project with two distinct parts:
+Multi-purpose React tooling project with three distinct parts:
 1. **CLI Generator** (`/src`, `/output`) - TypeScript tool that converts JSON schemas to React components
 2. **Playground App** (`/playground`) - Interactive Vite+React app for visual component design with runtime JSON-to-React conversion
+3. **Design-to-JSON** (`/design-to-json`) - Drag-and-drop visual builder using @dnd-kit for creating component schemas
 
 ## Architecture Principles
 
@@ -126,3 +136,115 @@ Two-route app using React Router:
 **Styling changes**: Remember Tailwind 4.x gradient syntax differences and minimal padding/no-rounded-corners design system
 
 **Adjusting drop zones**: Modify `renderNode()` in `DynamicComponentRenderer.tsx` - drop zone divs use `h-2` default, `h-4` on active, with `bg-blue-*` (before/after) or `bg-green-*` (inside)
+
+## Design-to-JSON Architecture (Dec 2024)
+
+### Core Architecture Principles
+The design-to-json workspace follows **enterprise-level architectural patterns**:
+
+**Type System** (`/design-to-json/src/types/schema.types.ts`):
+```typescript
+type ComponentSchema = TextNode | ElementNode;
+
+interface ElementNode {
+  type: 'node';
+  nodeType: NodeType;  // keyof React.JSX.IntrinsicElements
+  styles?: React.CSSProperties;
+  props?: Record<string, unknown>;
+  children?: ComponentSchema[];
+}
+
+interface CanvasElement {
+  id: string;
+  schema: ComponentSchema;
+}
+```
+
+**Utility Layer** (`/design-to-json/src/utils/schema.utils.ts`):
+- `addChildToSchema()`: Immutable tree updates with recursion
+- `canAcceptChildren()`: Type checking for container elements
+- `generateElementId()`: Unique ID generation with timestamp + random
+
+**Component Hierarchy**:
+```
+Home (DndContext orchestrator)
+├── Header (sidebar toggles)
+├── LeftSidebar (DraggableElement components)
+├── Canvas (useDroppable canvas)
+│   └── SchemaRenderer (recursive renderer)
+│       └── DroppableNode (nested drop targets)
+└── RightSidebar (properties panel)
+```
+
+### Drag-and-Drop Flow (@dnd-kit)
+1. **LeftSidebar**: `useDraggable` hook on each element, transfers `ComponentSchema` via data prop
+2. **Canvas**: `useDroppable` with id='canvas' for top-level drops
+3. **DroppableNode**: Nested `useDroppable` for each container element (div, section, etc.)
+4. **Home.handleDragEnd**: Determines drop location and updates state immutably
+5. **SchemaRenderer**: Recursive React.createElement() for dynamic rendering
+
+### Key Design Decisions
+- **@dnd-kit over HTML5 DnD**: Better performance, accessibility, TypeScript support
+- **React.createElement()**: Dynamic tag names from schema, no switch statements
+- **Immutable Updates**: All schema changes create new objects for predictability
+- **Type-Only Imports**: `import type` for better tree-shaking
+- **No `any` Types**: Full TypeScript strictness for maintainability
+
+### Development Workflows
+
+#### Design-to-JSON Development
+```bash
+# From project root
+npm run design:dev      # Vite dev server on http://localhost:5175
+npm run design:build    # Production build
+npm run design:preview  # Preview production build
+```
+
+### Code Standards
+
+**TypeScript**:
+- Strict mode enabled, no implicit any
+- Type-only imports: `import type { Type } from '...'`
+- Comprehensive interfaces for all props
+- JSDoc comments for utility functions
+
+**React**:
+- Functional components only
+- Custom hooks for shared logic
+- Props interfaces with explicit types
+- React.Fragment to avoid extra DOM nodes
+
+**File Organization**:
+```
+src/
+├── types/          # Type definitions (single source of truth)
+├── utils/          # Pure functions (testable, side-effect free)
+├── components/     # UI components (single responsibility)
+├── pages/          # Layout & state orchestration
+└── schemas/        # JSON data files
+```
+
+### Adding Features to Design-to-JSON
+
+**New Element Types**:
+1. Add schema to `src/schemas/base.json`
+2. Update `canAcceptChildren()` in utils if it's a container
+3. No code changes needed - fully schema-driven
+
+**New Properties**:
+1. Extend types in `src/types/schema.types.ts`
+2. Add UI in `RightSidebar.tsx`
+3. Update `SchemaRenderer` if custom rendering needed
+
+**State Management**:
+- Current: Lifting state pattern in Home.tsx
+- Future: Consider Zustand/Jotai for complex state
+- Maintain immutability for all updates
+
+### Reference Documentation
+See `/design-to-json/ARCHITECTURE.md` for comprehensive architectural documentation including:
+- System overview and design decisions
+- Component responsibilities
+- Performance considerations
+- Future enhancement roadmap
+- Testing strategies

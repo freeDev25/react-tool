@@ -1,5 +1,6 @@
 import baseSchemas from '../schemas/base.json';
-import SchemaRenderer from './SchemaRenderer';
+import type { ComponentSchema } from '../types/schema.types';
+import DraggableSchema from './DragableSchema';
 
 interface LeftSidebarProps {
   isOpen: boolean;
@@ -12,17 +13,17 @@ export default function LeftSidebar({ isOpen }: LeftSidebarProps) {
         isOpen ? 'w-64' : 'w-0'
       } overflow-hidden`}
     >
-      <div className="p-4 space-y-4">
+      <div className="p-2 space-y-4">
         <div>
           <h2 className="text-sm font-semibold text-gray-700 mb-2">Elements</h2>
           <div className="space-y-1">
             {baseSchemas.schemas.map((item, index) => (
-              <button
+                <DraggableSchema
                 key={index}
-                className="w-full text-left px-3 py-2 text-sm bg-white border border-gray-200 rounded hover:border-blue-400 hover:bg-blue-50 cursor-pointer transition-colors"
-              >
-                {item.title}
-              </button>
+                id={`sidebar-${index}`}
+                title={item.title}
+                schema={item.schema as ComponentSchema}
+              />
             ))}
           </div>
         </div>

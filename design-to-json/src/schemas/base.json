@@ -4,9 +4,15 @@
             "title": "Text Node",
             "nodeTypes": ["text", "span", "p", "label"],
             "schema": {
-                "type": "text",
-                "children": ["Sample Text"],
-                "isJsxText": false
+                "type": "node",
+                "nodeType": "span",
+                "children": [
+                    {
+                        "type": "text",
+                        "children": ["Sample Text"],
+                        "isJsxText": false
+                    }
+                ]
             }
         },
         {
@@ -19,15 +25,10 @@
                     "padding": "10px",
                     "border": "1px solid #ccc",
                     "borderRadius": "4px",
-                    "backgroundColor": "#f9f9f9"
+                    "backgroundColor": "#f9f9f9",
+                    "height": "auto"
                 },
-                "children": [
-                    {
-                        "type": "text",
-                        "children": ["This is a container"],
-                        "isJsxText": false
-                    }
-                ]
+                "children": []
             }
         },
         {
@@ -61,7 +62,7 @@
                 "styles": {
                     "fontSize": "32px",
                     "fontWeight": "bold",
-                    "margin": "20px 0"
+                    "margin-bottom": "20px"
                 },
                 "children": [
                     {
