@@ -3,7 +3,7 @@ import { DndContext, DragOverlay, defaultDropAnimationSideEffects } from '@dnd-k
 import type { DragEndEvent, DragStartEvent, DropAnimation } from '@dnd-kit/core';
 import Header from '../components/Header';
 import LeftSidebar from '../components/LeftSidebar';
-import RightSidebar from '../components/RightSidebar';
+import RightSidebar from '../components/RightSidebar/RightSidebar';
 import Canvas from '../components/Canvas';
 import type { CanvasElement, ComponentSchema } from '../types/schema.types';
 import { generateElementId, insertSchemaAtPosition, type DropPosition } from '../utils/schema.utils';

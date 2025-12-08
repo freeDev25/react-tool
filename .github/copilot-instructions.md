@@ -220,6 +220,10 @@ src/
 ├── types/          # Type definitions (single source of truth)
 ├── utils/          # Pure functions (testable, side-effect free)
 ├── components/     # UI components (single responsibility)
+│   └── [Component]/ # Complex components with sub-components
+│       ├── index.tsx
+│       ├── SubComponent.tsx
+│       └── types.ts
 ├── pages/          # Layout & state orchestration
 └── schemas/        # JSON data files
 ```
