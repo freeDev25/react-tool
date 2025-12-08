@@ -4,7 +4,12 @@ import type { StyleSectionProps } from './types';
 
 export function LayoutSection({ currentStyles, onStyleChange }: StyleSectionProps) {
   const handleChange = (key: string, value: string) => {
-    onStyleChange({ [key]: value });
+    // If value is empty or 'auto', pass undefined to remove it from styles
+    if (value === '' || value === 'auto') {
+      onStyleChange({ [key]: undefined } as any);
+    } else {
+      onStyleChange({ [key]: value });
+    }
   };
 
   const getStyle = (key: keyof React.CSSProperties, defaultValue: string = '') => {

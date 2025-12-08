@@ -158,9 +158,20 @@ export function updateNodeStyle(
 ): ComponentSchema {
   if (path.length === 0) {
     if (node.type === 'text') return node;
+    
+    // Create a new styles object by merging existing with new
+    const updatedStyles = { ...node.styles, ...newStyles };
+    
+    // Remove keys that are explicitly undefined
+    Object.keys(newStyles).forEach(key => {
+      if (newStyles[key] === undefined) {
+        delete (updatedStyles as any)[key];
+      }
+    });
+
     return {
       ...node,
-      styles: { ...node.styles, ...newStyles }
+      styles: updatedStyles
     };
   }
 

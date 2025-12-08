@@ -17,9 +17,13 @@ export function DimensionInput({ value, onChange, placeholder }: DimensionInputP
   const { num, unit } = getParts(value);
 
   const handleNumChange = (newNum: string) => {
+    if (newNum === '') {
+      onChange('');
+      return;
+    }
+    
     if (unit === 'auto') {
-       if (newNum) onChange(`${newNum}px`);
-       else onChange('');
+       onChange(`${newNum}px`);
     } else {
        onChange(`${newNum}${unit}`);
     }
