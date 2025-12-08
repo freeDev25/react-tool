@@ -10,3 +10,8 @@ export interface SpacingInputProps {
   values: Record<string, any>;
   onChange: (key: string, value: string) => void;
 }
+
+export interface StyleSectionProps {
+  currentStyles: React.CSSProperties;
+  onStyleChange: (styles: React.CSSProperties) => void;
+}
