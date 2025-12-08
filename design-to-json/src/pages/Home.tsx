@@ -13,8 +13,15 @@ export default function Home() {
   const [rightOpen, setRightOpen] = useState(true);
   const [elements, setElements] = useState<CanvasElement[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
+  const [selectedPath, setSelectedPath] = useState<number[] | null>(null);
 
   const [activeSchema, setActiveSchema] = useState<ComponentSchema | null>(null);
+
+  const handleSelect = (elementId: string | null, path: number[] | null) => {
+    setSelectedElementId(elementId);
+    setSelectedPath(path);
+  };
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
@@ -102,7 +109,13 @@ export default function Home() {
 
         <div className="flex flex-1 overflow-hidden">
           <LeftSidebar isOpen={leftOpen} />
-          <Canvas elements={elements} onElementsChange={setElements} />
+          <Canvas 
+            elements={elements} 
+            onElementsChange={setElements}
+            selectedElementId={selectedElementId}
+            selectedPath={selectedPath}
+            onSelect={handleSelect}
+          />
           <RightSidebar isOpen={rightOpen} />
         </div>
       </div>
