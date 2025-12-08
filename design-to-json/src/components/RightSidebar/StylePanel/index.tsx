@@ -1,25 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { DimensionInput } from './DimensionInput';
 import { SpacingInput } from './SpacingInput';
 
-export default function StylePanel() {
-  const [styles, setStyles] = useState<Record<string, any>>({
-    width: '',
-    height: '',
-    display: 'block',
-    flexDirection: 'row',
-    alignItems: 'start',
-    justifyContent: 'start',
-    gap: '0px',
-    backgroundColor: '#FFFFFF',
-    borderColor: '#000000',
-    borderWidth: '',
-    borderRadius: '',
-    borderStyle: 'solid'
-  });
+interface StylePanelProps {
+  currentStyles: React.CSSProperties;
+  onStyleChange: (styles: React.CSSProperties) => void;
+}
 
+export default function StylePanel({ currentStyles, onStyleChange }: StylePanelProps) {
   const handleChange = (key: string, value: string) => {
-    setStyles(prev => ({ ...prev, [key]: value }));
+    onStyleChange({ [key]: value });
+  };
+
+  // Helper to safely get style values
+  const getStyle = (key: keyof React.CSSProperties, defaultValue: string = '') => {
+    return (currentStyles[key] as string) || defaultValue;
   };
 
   return (
@@ -30,7 +25,7 @@ export default function StylePanel() {
           <label className="text-xs text-gray-500 block mb-1">Width</label>
           <DimensionInput
             placeholder="auto"
-            value={styles.width}
+            value={getStyle('width')}
             onChange={(val) => handleChange('width', val)}
           />
         </div>
@@ -38,7 +33,7 @@ export default function StylePanel() {
           <label className="text-xs text-gray-500 block mb-1">Height</label>
           <DimensionInput
             placeholder="auto"
-            value={styles.height}
+            value={getStyle('height')}
             onChange={(val) => handleChange('height', val)}
           />
         </div>
@@ -48,7 +43,7 @@ export default function StylePanel() {
       <div>
         <label className="text-xs text-gray-500 block mb-1">Display</label>
         <select 
-          value={styles.display}
+          value={getStyle('display', 'block')}
           onChange={(e) => handleChange('display', e.target.value)}
           className="w-full px-2 py-1 text-xs border border-gray-200 rounded focus:outline-none focus:border-blue-500 bg-white"
         >
@@ -61,14 +56,14 @@ export default function StylePanel() {
       </div>
 
       {/* Flex Settings */}
-      {styles.display === 'flex' && (
+      {getStyle('display') === 'flex' && (
         <div className="space-y-2 pt-2 border-t border-gray-100">
           <label className="text-xs text-gray-500 block font-medium">Flex Layout</label>
           <div className="grid grid-cols-2 gap-2">
             <div>
               <label className="text-[10px] text-gray-400 block mb-0.5">Direction</label>
               <select 
-                value={styles.flexDirection}
+                value={getStyle('flexDirection', 'row')}
                 onChange={(e) => handleChange('flexDirection', e.target.value)}
                 className="w-full px-2 py-1 text-xs border border-gray-200 rounded focus:outline-none focus:border-blue-500 bg-white"
               >
@@ -79,7 +74,7 @@ export default function StylePanel() {
             <div>
               <label className="text-[10px] text-gray-400 block mb-0.5">Align</label>
               <select 
-                value={styles.alignItems}
+                value={getStyle('alignItems', 'start')}
                 onChange={(e) => handleChange('alignItems', e.target.value)}
                 className="w-full px-2 py-1 text-xs border border-gray-200 rounded focus:outline-none focus:border-blue-500 bg-white"
               >
@@ -92,22 +87,22 @@ export default function StylePanel() {
             <div className="col-span-2">
               <label className="text-[10px] text-gray-400 block mb-0.5">Justify</label>
               <select 
-                value={styles.justifyContent}
+                value={getStyle('justifyContent', 'start')}
                 onChange={(e) => handleChange('justifyContent', e.target.value)}
                 className="w-full px-2 py-1 text-xs border border-gray-200 rounded focus:outline-none focus:border-blue-500 bg-white"
               >
                 <option value="start">Start</option>
                 <option value="center">Center</option>
-                <option value="end">End</option>
-                <option value="between">Space Between</option>
-                <option value="around">Space Around</option>
+                <option value="space-between">Space Between</option>
+                <option value="space-around">Space Around</option>
+                <option value="space-evenly">Space Evenly</option>
               </select>
             </div>
-            <div className="col-span-2">
+             <div className="col-span-2">
               <label className="text-[10px] text-gray-400 block mb-0.5">Gap</label>
               <DimensionInput
                 placeholder="0px"
-                value={styles.gap}
+                value={getStyle('gap', '0px')}
                 onChange={(val) => handleChange('gap', val)}
               />
             </div>
@@ -119,8 +114,8 @@ export default function StylePanel() {
       <div className="space-y-2">
         <label className="text-xs text-gray-500 block font-medium">Spacing</label>
         <div className="space-y-2">
-          <SpacingInput label="Margin" prefix="margin" values={styles} onChange={handleChange} />
-          <SpacingInput label="Padding" prefix="padding" values={styles} onChange={handleChange} />
+          <SpacingInput label="Margin" prefix="margin" values={currentStyles as Record<string, any>} onChange={handleChange} />
+          <SpacingInput label="Padding" prefix="padding" values={currentStyles as Record<string, any>} onChange={handleChange} />
         </div>
       </div>
 
@@ -132,7 +127,7 @@ export default function StylePanel() {
              <input 
                type="color" 
                className="w-[150%] h-[150%] -m-[25%] p-0 border-0 cursor-pointer"
-               value={styles.backgroundColor}
+               value={getStyle('backgroundColor', '#FFFFFF')}
                onChange={(e) => handleChange('backgroundColor', e.target.value)}
              />
            </div>
@@ -140,7 +135,7 @@ export default function StylePanel() {
              type="text" 
              className="flex-1 px-2 py-1 text-xs border border-gray-200 rounded focus:outline-none focus:border-blue-500"
              placeholder="#FFFFFF"
-             value={styles.backgroundColor}
+             value={getStyle('backgroundColor')}
              onChange={(e) => handleChange('backgroundColor', e.target.value)}
            />
         </div>
@@ -154,7 +149,7 @@ export default function StylePanel() {
             <label className="text-[10px] text-gray-400 block mb-0.5">Width</label>
              <DimensionInput
                placeholder="0px"
-               value={styles.borderWidth}
+               value={getStyle('borderWidth')}
                onChange={(val) => handleChange('borderWidth', val)}
              />
           </div>
@@ -162,7 +157,7 @@ export default function StylePanel() {
             <label className="text-[10px] text-gray-400 block mb-0.5">Radius</label>
              <DimensionInput
                placeholder="0px"
-               value={styles.borderRadius}
+               value={getStyle('borderRadius')}
                onChange={(val) => handleChange('borderRadius', val)}
              />
           </div>
@@ -173,7 +168,7 @@ export default function StylePanel() {
                 <input 
                   type="color" 
                   className="w-[150%] h-[150%] -m-[25%] p-0 border-0 cursor-pointer"
-                  value={styles.borderColor}
+                  value={getStyle('borderColor', '#000000')}
                   onChange={(e) => handleChange('borderColor', e.target.value)}
                 />
               </div>
@@ -181,7 +176,7 @@ export default function StylePanel() {
                 type="text" 
                 className="flex-1 px-2 py-1 text-xs border border-gray-200 rounded focus:outline-none focus:border-blue-500"
                 placeholder="#000000"
-                value={styles.borderColor}
+                value={getStyle('borderColor')}
                 onChange={(e) => handleChange('borderColor', e.target.value)}
               />
             </div>
@@ -189,7 +184,7 @@ export default function StylePanel() {
            <div className="col-span-2">
             <label className="text-[10px] text-gray-400 block mb-0.5">Style</label>
             <select 
-              value={styles.borderStyle}
+              value={getStyle('borderStyle', 'solid')}
               onChange={(e) => handleChange('borderStyle', e.target.value)}
               className="w-full px-2 py-1 text-xs border border-gray-200 rounded focus:outline-none focus:border-blue-500 bg-white"
             >

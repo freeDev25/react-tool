@@ -126,3 +126,55 @@ export function insertSchemaAtPosition(
 
   return insertIntoParent(node, parentPath);
 }
+
+/**
+ * Retrieves a node from the schema at the specified path
+ * @param node - The root schema node
+ * @param path - Array of indices representing the path to the target node
+ * @returns The node at the path, or null if not found
+ */
+export function getNodeByPath(node: ComponentSchema, path: number[]): ComponentSchema | null {
+  let current = node;
+  for (const index of path) {
+    if (current.type === 'text' || !current.children || !current.children[index]) {
+      return null;
+    }
+    current = current.children[index];
+  }
+  return current;
+}
+
+/**
+ * Updates the styles of a node at the specified path
+ * @param node - The root schema node
+ * @param path - Array of indices representing the path to the target node
+ * @param newStyles - The new styles to apply (merged with existing)
+ * @returns A new schema with the updated styles
+ */
+export function updateNodeStyle(
+  node: ComponentSchema,
+  path: number[],
+  newStyles: Record<string, any>
+): ComponentSchema {
+  if (path.length === 0) {
+    if (node.type === 'text') return node;
+    return {
+      ...node,
+      styles: { ...node.styles, ...newStyles }
+    };
+  }
+
+  if (node.type === 'text') return node;
+
+  const [currentIndex, ...restPath] = path;
+  const children = node.children ? [...node.children] : [];
+
+  if (children[currentIndex]) {
+    children[currentIndex] = updateNodeStyle(children[currentIndex], restPath, newStyles);
+  }
+
+  return {
+    ...node,
+    children
+  };
+}

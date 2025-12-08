@@ -6,7 +6,7 @@ import LeftSidebar from '../components/LeftSidebar';
 import RightSidebar from '../components/RightSidebar/RightSidebar';
 import Canvas from '../components/Canvas';
 import type { CanvasElement, ComponentSchema } from '../types/schema.types';
-import { generateElementId, insertSchemaAtPosition, type DropPosition } from '../utils/schema.utils';
+import { generateElementId, insertSchemaAtPosition, type DropPosition, getNodeByPath, updateNodeStyle } from '../utils/schema.utils';
 
 export default function Home() {
   const [leftOpen, setLeftOpen] = useState(true);
@@ -18,9 +18,31 @@ export default function Home() {
 
   const [activeSchema, setActiveSchema] = useState<ComponentSchema | null>(null);
 
+  // Derive selected node
+  const selectedElement = selectedElementId ? elements.find(el => el.id === selectedElementId) : null;
+  const selectedNode = selectedElement && selectedPath 
+    ? getNodeByPath(selectedElement.schema, selectedPath)
+    : null;
+
   const handleSelect = (elementId: string | null, path: number[] | null) => {
     setSelectedElementId(elementId);
     setSelectedPath(path);
+  };
+
+  const handleStyleChange = (newStyles: React.CSSProperties) => {
+    if (!selectedElementId || !selectedPath) return;
+
+    setElements(prevElements => 
+      prevElements.map(el => {
+        if (el.id === selectedElementId) {
+          return {
+            ...el,
+            schema: updateNodeStyle(el.schema, selectedPath, newStyles)
+          };
+        }
+        return el;
+      })
+    );
   };
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -116,7 +138,11 @@ export default function Home() {
             selectedPath={selectedPath}
             onSelect={handleSelect}
           />
-          <RightSidebar isOpen={rightOpen} />
+          <RightSidebar 
+            isOpen={rightOpen} 
+            selectedNode={selectedNode}
+            onStyleChange={handleStyleChange}
+          />
         </div>
       </div>
       <DragOverlay dropAnimation={dropAnimation}>

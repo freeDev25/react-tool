@@ -1,4 +1,3 @@
-import React from 'react';
 import type { DimensionInputProps } from './types';
 
 export const UNITS = ['px', '%', 'rem', 'em', 'vh', 'vw', 'auto'];
