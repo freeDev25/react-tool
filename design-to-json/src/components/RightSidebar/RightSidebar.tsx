@@ -1,11 +1,15 @@
 import { useState } from 'react';
 import { LayoutSection, SpacingSection, BackgroundSection, BorderSection, TypographySection } from './StylePanel';
-import type { ComponentSchema } from '../../types/schema.types';
+import type { ComponentSchema, NodeType } from '../../types/schema.types';
+import baseSchemas from '../../schemas/base.json';
 
 interface RightSidebarProps {
   isOpen: boolean;
   selectedNode?: ComponentSchema | null;
   onStyleChange?: (styles: React.CSSProperties) => void;
+  onContentChange?: (content: string) => void;
+  onNodeTypeChange?: (nodeType: NodeType) => void;
+  onPropChange?: (props: Record<string, any>) => void;
 }
 
 interface AccordionItemProps {
@@ -43,8 +47,17 @@ function AccordionItem({ title, children, isOpen, onToggle }: AccordionItemProps
   );
 }
 
-export default function RightSidebar({ isOpen, selectedNode, onStyleChange }: RightSidebarProps) {
-  const [activeSection, setActiveSection] = useState<string | null>('layoutAndStyles');
+export default function RightSidebar({ isOpen, selectedNode, onStyleChange, onContentChange, onNodeTypeChange, onPropChange }: RightSidebarProps) {
+  const [activeSection, setActiveSection] = useState<string | null>(() => {
+    if (!selectedNode || selectedNode.type === 'text') return 'layoutAndStyles';
+    
+    const matchingSchema = baseSchemas.schemas.find(s => 
+      s.nodeTypes?.includes(selectedNode.nodeType as string)
+    );
+    const availableNodeTypes = matchingSchema?.nodeTypes || [];
+    
+    return availableNodeTypes.length > 0 ? 'element' : 'layoutAndStyles';
+  });
 
   const toggleSection = (section: string) => {
     setActiveSection(prev => prev === section ? null : section);
@@ -63,8 +76,37 @@ export default function RightSidebar({ isOpen, selectedNode, onStyleChange }: Ri
     );
   }
 
+  // Handle Text Node Selection
+  if (selectedNode.type === 'text') {
+    return (
+      <div className="w-80 bg-white border-l border-gray-200 flex flex-col h-full">
+        <div className="p-4 border-b border-gray-200 flex items-center justify-between shrink-0">
+          <h2 className="font-semibold text-gray-800">Text Content</h2>
+          <div className="text-xs text-gray-500">Text Node</div>
+        </div>
+        <div className="p-4">
+          <label className="block text-xs font-medium text-gray-700 mb-2">
+            Content
+          </label>
+          <textarea
+            value={selectedNode.children?.[0] || ''}
+            onChange={(e) => onContentChange?.(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500 min-h-[100px]"
+            placeholder="Enter text content..."
+          />
+        </div>
+      </div>
+    );
+  }
+
   const currentStyles = selectedNode.type === 'node' ? selectedNode.styles || {} : {};
   const handleStyleChange = onStyleChange || (() => {});
+
+  // Find matching schema definition to get available node types
+  const matchingSchema = baseSchemas.schemas.find(s => 
+    s.nodeTypes?.includes(selectedNode.nodeType as string)
+  );
+  const availableNodeTypes = matchingSchema?.nodeTypes || [];
 
   return (
     <div className="w-80 bg-white border-l border-gray-200 flex flex-col h-full">
@@ -75,6 +117,31 @@ export default function RightSidebar({ isOpen, selectedNode, onStyleChange }: Ri
         </div>
       </div>
       
+      {availableNodeTypes.length > 0 && (
+        <AccordionItem 
+          title="Element" 
+          isOpen={activeSection === 'element'} 
+          onToggle={() => toggleSection('element')}
+        >
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-2">
+                Html Tag
+              </label>
+              <select
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500 bg-white"
+                value={selectedNode.nodeType}
+                onChange={(e) => onNodeTypeChange?.(e.target.value as NodeType)}
+              >
+                {availableNodeTypes.map(type => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </AccordionItem>
+      )}
+
       <AccordionItem 
         title="Layout and Styles" 
         isOpen={activeSection === 'layoutAndStyles'} 
@@ -106,6 +173,32 @@ export default function RightSidebar({ isOpen, selectedNode, onStyleChange }: Ri
         onToggle={() => toggleSection('typography')}
       >
         <TypographySection currentStyles={currentStyles} onStyleChange={handleStyleChange} />
+      </AccordionItem>
+
+      <AccordionItem 
+        title="Props" 
+        isOpen={activeSection === 'props'} 
+        onToggle={() => toggleSection('props')}
+      >
+        <div className="space-y-3">
+          {selectedNode.type === 'node' && selectedNode.props && Object.keys(selectedNode.props).length > 0 ? (
+            Object.entries(selectedNode.props).map(([key, value]) => (
+              <div key={key} className="flex flex-col space-y-1">
+                <label className="text-xs font-medium text-gray-600">{key}</label>
+                <input
+                  type="text"
+                  value={String(value)}
+                  onChange={(e) => onPropChange?.({ [key]: e.target.value })}
+                  className="w-full px-2 py-1.5 text-xs border border-gray-200 rounded bg-white text-gray-800 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                />
+              </div>
+            ))
+          ) : (
+            <div className="text-xs text-gray-400 italic p-2 text-center">
+              No properties available
+            </div>
+          )}
+        </div>
       </AccordionItem>
     </div>
   );

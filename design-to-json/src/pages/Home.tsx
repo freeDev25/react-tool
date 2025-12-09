@@ -5,8 +5,8 @@ import Header from '../components/Header';
 import LeftSidebar from '../components/LeftSidebar';
 import RightSidebar from '../components/RightSidebar/RightSidebar';
 import Canvas from '../components/Canvas';
-import type { CanvasElement, ComponentSchema } from '../types/schema.types';
-import { generateElementId, insertSchemaAtPosition, type DropPosition, getNodeByPath, updateNodeStyle } from '../utils/schema.utils';
+import type { CanvasElement, ComponentSchema, NodeType } from '../types/schema.types';
+import { generateElementId, insertSchemaAtPosition, type DropPosition, getNodeByPath, updateNodeStyle, updateTextNodeContent, updateNodeType, updateNodeProps } from '../utils/schema.utils';
 
 export default function Home() {
   const [leftOpen, setLeftOpen] = useState(true);
@@ -38,6 +38,54 @@ export default function Home() {
           return {
             ...el,
             schema: updateNodeStyle(el.schema, selectedPath, newStyles)
+          };
+        }
+        return el;
+      })
+    );
+  };
+
+  const handleContentChange = (newContent: string) => {
+    if (!selectedElementId || !selectedPath) return;
+
+    setElements(prevElements => 
+      prevElements.map(el => {
+        if (el.id === selectedElementId) {
+          return {
+            ...el,
+            schema: updateTextNodeContent(el.schema, selectedPath, newContent)
+          };
+        }
+        return el;
+      })
+    );
+  };
+
+  const handleNodeTypeChange = (newNodeType: NodeType) => {
+    if (!selectedElementId || !selectedPath) return;
+
+    setElements(prevElements => 
+      prevElements.map(el => {
+        if (el.id === selectedElementId) {
+          return {
+            ...el,
+            schema: updateNodeType(el.schema, selectedPath, newNodeType)
+          };
+        }
+        return el;
+      })
+    );
+  };
+
+  const handlePropChange = (newProps: Record<string, any>) => {
+    if (!selectedElementId || !selectedPath) return;
+
+    setElements(prevElements => 
+      prevElements.map(el => {
+        if (el.id === selectedElementId) {
+          return {
+            ...el,
+            schema: updateNodeProps(el.schema, selectedPath, newProps)
           };
         }
         return el;
@@ -139,9 +187,13 @@ export default function Home() {
             onSelect={handleSelect}
           />
           <RightSidebar 
+            key={selectedElementId && selectedPath ? `${selectedElementId}-${selectedPath.join('-')}` : 'no-selection'}
             isOpen={rightOpen} 
             selectedNode={selectedNode}
             onStyleChange={handleStyleChange}
+            onContentChange={handleContentChange}
+            onNodeTypeChange={handleNodeTypeChange}
+            onPropChange={handlePropChange}
           />
         </div>
       </div>

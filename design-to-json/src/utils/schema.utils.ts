@@ -2,7 +2,7 @@
  * Utility functions for schema manipulation
  */
 
-import type { ComponentSchema } from '../types/schema.types';
+import type { ComponentSchema, NodeType } from '../types/schema.types';
 
 export type DropPosition = 'before' | 'after' | 'inside';
 
@@ -182,6 +182,122 @@ export function updateNodeStyle(
 
   if (children[currentIndex]) {
     children[currentIndex] = updateNodeStyle(children[currentIndex], restPath, newStyles);
+  }
+
+  return {
+    ...node,
+    children
+  };
+}
+
+/**
+ * Updates the content of a text node at the specified path
+ * @param node - The root schema node
+ * @param path - Array of indices representing the path to the target node
+ * @param newContent - The new text content
+ * @returns A new schema with the updated content
+ */
+export function updateTextNodeContent(
+  node: ComponentSchema,
+  path: number[],
+  newContent: string
+): ComponentSchema {
+  if (path.length === 0) {
+    if (node.type !== 'text') return node;
+    return {
+      ...node,
+      children: [newContent]
+    };
+  }
+
+  if (node.type === 'text') return node;
+
+  const [currentIndex, ...restPath] = path;
+  const children = node.children ? [...node.children] : [];
+
+  if (children[currentIndex]) {
+    children[currentIndex] = updateTextNodeContent(children[currentIndex], restPath, newContent);
+  }
+
+  return {
+    ...node,
+    children
+  };
+}
+
+/**
+ * Updates the nodeType of a node at the specified path
+ * @param node - The root schema node
+ * @param path - Array of indices representing the path to the target node
+ * @param newNodeType - The new node type
+ * @returns A new schema with the updated nodeType
+ */
+export function updateNodeType(
+  node: ComponentSchema,
+  path: number[],
+  newNodeType: NodeType
+): ComponentSchema {
+  if (path.length === 0) {
+    if (node.type === 'text') return node;
+    return {
+      ...node,
+      nodeType: newNodeType
+    };
+  }
+
+  if (node.type === 'text') return node;
+
+  const [currentIndex, ...restPath] = path;
+  const children = node.children ? [...node.children] : [];
+
+  if (children[currentIndex]) {
+    children[currentIndex] = updateNodeType(children[currentIndex], restPath, newNodeType);
+  }
+
+  return {
+    ...node,
+    children
+  };
+}
+
+/**
+ * Updates the props of a node at the specified path
+ * @param node - The root schema node
+ * @param path - Array of indices representing the path to the target node
+ * @param newProps - The new props to apply (merged with existing)
+ * @returns A new schema with the updated props
+ */
+export function updateNodeProps(
+  node: ComponentSchema,
+  path: number[],
+  newProps: Record<string, any>
+): ComponentSchema {
+  if (path.length === 0) {
+    if (node.type === 'text') return node;
+    
+    // Create a new props object by merging existing with new
+    const updatedProps = { ...node.props, ...newProps };
+    
+    // Remove keys that are explicitly undefined
+    Object.keys(newProps).forEach(key => {
+      if (newProps[key] === undefined) {
+        delete (updatedProps as any)[key];
+      }
+    });
+
+    return {
+      ...node,
+      props: updatedProps
+    };
+  }
+
+  if (node.type === 'text') return node;
+
+  const [currentIndex, ...restPath] = path;
+  const children = node.children ? [...node.children] : [];
+
+  if (children[currentIndex]) {
+    children[currentIndex] = updateNodeProps(children[currentIndex], restPath, newProps);
   }
 
   return {

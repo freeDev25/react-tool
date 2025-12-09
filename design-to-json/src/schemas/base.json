@@ -2,14 +2,29 @@
     "schemas" : [
         {
             "title": "Text Node",
-            "nodeTypes": ["text", "span", "p", "label"],
+            "schema": {
+                "type": "text",
+                "children": [
+                    "Sample Text"
+                ],
+                "isJsxText": false
+            }
+        },
+        {
+            "title": "Paragraph",
             "schema": {
                 "type": "node",
-                "nodeType": "span",
+                "nodeType": "p",
+                "styles": {
+                    "marginBottom": "16px",
+                    "lineHeight": "1.5",
+                    "fontSize": "16px",
+                    "color": "#333"
+                },
                 "children": [
                     {
                         "type": "text",
-                        "children": ["Sample Text"],
+                        "children": ["paragraph text"],
                         "isJsxText": false
                     }
                 ]
@@ -23,10 +38,7 @@
                 "nodeType": "div",
                 "styles": {
                     "padding": "10px",
-                    "border": "1px solid #ccc",
-                    "borderRadius": "4px",
-                    "backgroundColor": "#f9f9f9",
-                    "height": "auto"
+                    "border": "1px solid #ccc"
                 },
                 "children": []
             }
@@ -79,7 +91,7 @@
                 "type": "node",
                 "nodeType": "img",
                 "props": {
-                    "src": "https://via.placeholder.com/150",
+                    "src": "https://fastly.picsum.photos/id/1/5000/3333.jpg?hmac=Asv2DU3rA_5D1xSe22xZK47WEAN0wjWeFOhzd13ujW4",
                     "alt": "Placeholder Image",
                     "width": "150",
                     "height": "150"
@@ -114,15 +126,15 @@
             "schema": {
                 "type": "node",
                 "nodeType": "input",
+                "styles": {
+                    "padding": "8px",
+                    "border": "1px solid #ccc",
+                    "borderRadius": "4px",
+                    "width": "200px"
+                },
                 "props": {
                     "type": "text",
-                    "placeholder": "Enter text here",
-                    "style": {
-                        "padding": "8px",
-                        "border": "1px solid #ccc",
-                        "borderRadius": "4px",
-                        "width": "200px"
-                    }
+                    "placeholder": "Enter text here"
                 }
             }
         }
