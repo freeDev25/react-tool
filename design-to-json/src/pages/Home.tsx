@@ -6,6 +6,8 @@ import LeftSidebar from '../components/LeftSidebar';
 import RightSidebar from '../components/RightSidebar/RightSidebar';
 import Canvas from '../components/Canvas';
 import NameModal from '../components/NameModal';
+import LoadSchemaModal from '../components/LoadSchemaModal';
+import SelectionOverlay from '../components/SelectionOverlay';
 import type { CanvasElement, ComponentSchema, NodeType } from '../types/schema.types';
 import { generateElementId, insertSchemaAtPosition, type DropPosition, getNodeByPath, updateNodeStyle, updateTextNodeContent, updateNodeType, updateNodeProps, deleteNodeFromSchema } from '../utils/schema.utils';
 
@@ -19,8 +21,15 @@ export default function Home() {
   
   const [componentName, setComponentName] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoadModalOpen, setIsLoadModalOpen] = useState(false);
+  const [savedSchemas, setSavedSchemas] = useState<Record<string, CanvasElement[]>>({});
 
   const [activeSchema, setActiveSchema] = useState<ComponentSchema | null>(null);
+
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem('saved-schemas') || '{}');
+    setSavedSchemas(saved);
+  }, []);
 
   // Derive selected node
   const selectedElement = selectedElementId ? elements.find(el => el.id === selectedElementId) : null;
@@ -47,11 +56,20 @@ export default function Home() {
   const handleSaveSchema = () => {
     if (!componentName) return;
     
-    const savedSchemas = JSON.parse(localStorage.getItem('saved-schemas') || '{}');
-    savedSchemas[componentName] = elements;
-    localStorage.setItem('saved-schemas', JSON.stringify(savedSchemas));
+    const newSavedSchemas = { ...savedSchemas, [componentName]: elements };
+    localStorage.setItem('saved-schemas', JSON.stringify(newSavedSchemas));
+    setSavedSchemas(newSavedSchemas);
     
     alert(`Schema for "${componentName}" saved successfully!`);
+  };
+
+  const handleLoadSchema = (name: string) => {
+    const schema = savedSchemas[name];
+    if (schema) {
+      setElements(schema);
+      setComponentName(name);
+      setIsLoadModalOpen(false);
+    }
   };
 
   const handleStyleChange = (newStyles: React.CSSProperties) => {
@@ -245,12 +263,22 @@ export default function Home() {
           componentName={componentName}
           onNewComponent={handleNewComponent}
           onSaveSchema={handleSaveSchema}
+          onLoadSchema={() => setIsLoadModalOpen(true)}
         />
 
         <div className="flex flex-1 overflow-hidden">
-          <LeftSidebar isOpen={leftOpen} disabled={!componentName} />
+          <LeftSidebar 
+            isOpen={leftOpen} 
+            disabled={!componentName} 
+            savedSchemas={
+              // Filter out the currently active component from the saved list
+              Object.fromEntries(
+                Object.entries(savedSchemas).filter(([name]) => name !== componentName)
+              )
+            } 
+          />
           <Canvas 
-            elements={elements} 
+            elements={elements}  
             onElementsChange={setElements}
             selectedElementId={selectedElementId}
             selectedPath={selectedPath}
@@ -281,6 +309,18 @@ export default function Home() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveName}
+      />
+
+      <LoadSchemaModal
+        isOpen={isLoadModalOpen}
+        onClose={() => setIsLoadModalOpen(false)}
+        onLoad={handleLoadSchema}
+        savedSchemas={Object.keys(savedSchemas)}
+      />
+      
+      <SelectionOverlay 
+        selectedElementId={selectedElementId}
+        selectedPath={selectedPath}
       />
     </DndContext>
   );

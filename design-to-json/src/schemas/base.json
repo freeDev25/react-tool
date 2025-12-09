@@ -37,8 +37,7 @@
                 "type": "node",
                 "nodeType": "div",
                 "styles": {
-                    "padding": "10px",
-                    "border": "1px solid #ccc"
+                    "padding": "10px"
                 },
                 "children": []
             }
@@ -136,6 +135,52 @@
                     "type": "text",
                     "placeholder": "Enter text here"
                 }
+            }
+        },
+        {
+            "title": "Unordered List",
+            "schema": {
+                "type": "node",
+                "nodeType": "ul",
+                "styles": {
+                    "listStyleType": "disc",
+                    "paddingLeft": "20px"
+                },
+                "children": [
+                    {
+                        "type": "node",
+                        "nodeType": "li",
+                        "children": [
+                            {
+                                "type": "text",
+                                "children": ["List Item 1"],
+                                "isJsxText": false
+                            }
+                        ]
+                    },
+                    {
+                        "type": "node",
+                        "nodeType": "li",
+                        "children": [
+                            {
+                                "type": "text",
+                                "children": ["List Item 2"],
+                                "isJsxText": false
+                            }
+                        ]
+                    },
+                    {
+                        "type": "node",
+                        "nodeType": "li",
+                        "children": [
+                            {
+                                "type": "text",
+                                "children": ["List Item 3"],
+                                "isJsxText": false
+                            }
+                        ]
+                    }
+                ]
             }
         }
     ]

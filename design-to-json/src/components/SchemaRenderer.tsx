@@ -34,17 +34,16 @@ export default function SchemaRenderer({
       return (
         <span 
           key={currentPath.join('-')}
+          data-element-id={elementId}
+          data-path={currentPath.join('-')}
           onClick={(e) => {
+            e.preventDefault();
             e.stopPropagation();
             onSelect(elementId, currentPath);
           }}
           style={{
             cursor: 'pointer',
-            ...(selectedElementId === elementId && 
-               selectedPath?.length === currentPath.length &&
-               selectedPath.every((val, index) => val === currentPath[index])
-               ? { outline: '2px solid #3b82f6', outlineOffset: '2px' } 
-               : {})
+            // Outline handled by SelectionOverlay
           }}
         >
           {node.children.join('')}
@@ -60,16 +59,24 @@ export default function SchemaRenderer({
       selectedPath?.length === currentPath.length &&
       selectedPath.every((val, index) => val === currentPath[index]);
 
-    const props: React.HTMLAttributes<HTMLElement> & { style?: React.CSSProperties } = {
+    const existingClassName = (elementNode.props?.className as string) || '';
+    // Add visual aid for all elements: dashed outline and min-height
+    const visualAidClass = 'min-h-[20px] outline outline-1 outline-dashed outline-gray-300/50';
+
+    const props: React.HTMLAttributes<HTMLElement> & { style?: React.CSSProperties, 'data-element-id'?: string, 'data-path'?: string } = {
       style: {
         ...(elementNode.styles || elementNode.style || {}),
         ...(isSelected ? {
-          outline: '2px solid #3b82f6',
-          outlineOffset: '2px',
+          // outline: '2px solid #3b82f6', // Handled by SelectionOverlay now
+          // outlineOffset: '2px',
         } : {})
       },
       ...elementNode.props,
+      className: `${existingClassName} ${visualAidClass}`.trim(),
+      'data-element-id': elementId,
+      'data-path': currentPath.join('-'),
       onClick: (e) => {
+        e.preventDefault();
         e.stopPropagation();
         onSelect(elementId, currentPath);
       }
