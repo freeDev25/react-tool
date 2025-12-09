@@ -10,6 +10,7 @@ interface RightSidebarProps {
   onContentChange?: (content: string) => void;
   onNodeTypeChange?: (nodeType: NodeType) => void;
   onPropChange?: (props: Record<string, any>) => void;
+  onDelete?: () => void;
 }
 
 interface AccordionItemProps {
@@ -47,7 +48,7 @@ function AccordionItem({ title, children, isOpen, onToggle }: AccordionItemProps
   );
 }
 
-export default function RightSidebar({ isOpen, selectedNode, onStyleChange, onContentChange, onNodeTypeChange, onPropChange }: RightSidebarProps) {
+export default function RightSidebar({ isOpen, selectedNode, onStyleChange, onContentChange, onNodeTypeChange, onPropChange, onDelete }: RightSidebarProps) {
   const [activeSection, setActiveSection] = useState<string | null>(() => {
     if (!selectedNode || selectedNode.type === 'text') return 'layoutAndStyles';
     
@@ -82,7 +83,18 @@ export default function RightSidebar({ isOpen, selectedNode, onStyleChange, onCo
       <div className="w-80 bg-white border-l border-gray-200 flex flex-col h-full">
         <div className="p-4 border-b border-gray-200 flex items-center justify-between shrink-0">
           <h2 className="font-semibold text-gray-800">Text Content</h2>
-          <div className="text-xs text-gray-500">Text Node</div>
+          <div className="flex items-center gap-2">
+            <div className="text-xs text-gray-500">Text Node</div>
+            <button 
+              onClick={onDelete}
+              className="p-1 text-gray-400 hover:text-red-500 rounded hover:bg-red-50 transition-colors"
+              title="Delete Element"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
         </div>
         <div className="p-4">
           <label className="block text-xs font-medium text-gray-700 mb-2">
@@ -112,8 +124,19 @@ export default function RightSidebar({ isOpen, selectedNode, onStyleChange, onCo
     <div className="w-80 bg-white border-l border-gray-200 flex flex-col h-full">
       <div className="p-4 border-b border-gray-200 flex items-center justify-between shrink-0">
         <h2 className="font-semibold text-gray-800">Properties</h2>
-        <div className="text-xs text-gray-500">
-          {selectedNode.type === 'node' ? selectedNode.nodeType : 'Text Node'}
+        <div className="flex items-center gap-2">
+          <div className="text-xs text-gray-500">
+            {selectedNode.type === 'node' ? selectedNode.nodeType : 'Text Node'}
+          </div>
+          <button 
+            onClick={onDelete}
+            className="p-1 text-gray-400 hover:text-red-500 rounded hover:bg-red-50 transition-colors"
+            title="Delete Element"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
         </div>
       </div>
       

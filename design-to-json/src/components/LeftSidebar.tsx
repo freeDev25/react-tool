@@ -4,9 +4,10 @@ import DraggableSchema from './DragableSchema';
 
 interface LeftSidebarProps {
   isOpen: boolean;
+  disabled?: boolean;
 }
 
-export default function LeftSidebar({ isOpen }: LeftSidebarProps) {
+export default function LeftSidebar({ isOpen, disabled = false }: LeftSidebarProps) {
   return (
     <aside
       className={`bg-gray-50 border-r border-gray-200 transition-all duration-300 ease-in-out ${
@@ -23,6 +24,7 @@ export default function LeftSidebar({ isOpen }: LeftSidebarProps) {
                 id={`sidebar-${index}`}
                 title={item.title}
                 schema={item.schema as ComponentSchema}
+                disabled={disabled}
               />
             ))}
           </div>

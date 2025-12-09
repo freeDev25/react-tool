@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DndContext, DragOverlay, defaultDropAnimationSideEffects } from '@dnd-kit/core';
 import type { DragEndEvent, DragStartEvent, DropAnimation } from '@dnd-kit/core';
 import Header from '../components/Header';
 import LeftSidebar from '../components/LeftSidebar';
 import RightSidebar from '../components/RightSidebar/RightSidebar';
 import Canvas from '../components/Canvas';
+import NameModal from '../components/NameModal';
 import type { CanvasElement, ComponentSchema, NodeType } from '../types/schema.types';
-import { generateElementId, insertSchemaAtPosition, type DropPosition, getNodeByPath, updateNodeStyle, updateTextNodeContent, updateNodeType, updateNodeProps } from '../utils/schema.utils';
+import { generateElementId, insertSchemaAtPosition, type DropPosition, getNodeByPath, updateNodeStyle, updateTextNodeContent, updateNodeType, updateNodeProps, deleteNodeFromSchema } from '../utils/schema.utils';
 
 export default function Home() {
   const [leftOpen, setLeftOpen] = useState(true);
@@ -15,6 +16,9 @@ export default function Home() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
   const [selectedPath, setSelectedPath] = useState<number[] | null>(null);
+  
+  const [componentName, setComponentName] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [activeSchema, setActiveSchema] = useState<ComponentSchema | null>(null);
 
@@ -27,6 +31,27 @@ export default function Home() {
   const handleSelect = (elementId: string | null, path: number[] | null) => {
     setSelectedElementId(elementId);
     setSelectedPath(path);
+  };
+
+  const handleNewComponent = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleSaveName = (name: string) => {
+    setComponentName(name);
+    setIsModalOpen(false);
+    // Optionally clear canvas when starting new component
+    // setElements([]); 
+  };
+
+  const handleSaveSchema = () => {
+    if (!componentName) return;
+    
+    const savedSchemas = JSON.parse(localStorage.getItem('saved-schemas') || '{}');
+    savedSchemas[componentName] = elements;
+    localStorage.setItem('saved-schemas', JSON.stringify(savedSchemas));
+    
+    alert(`Schema for "${componentName}" saved successfully!`);
   };
 
   const handleStyleChange = (newStyles: React.CSSProperties) => {
@@ -93,7 +118,31 @@ export default function Home() {
     );
   };
 
+  const handleDelete = () => {
+    if (!selectedElementId) return;
+
+    // If no path or empty path, delete the whole element
+    if (!selectedPath || selectedPath.length === 0) {
+      setElements(prev => prev.filter(el => el.id !== selectedElementId));
+      handleSelect(null, null);
+      return;
+    }
+
+    // Otherwise delete nested node
+    setElements(prev => prev.map(el => {
+      if (el.id === selectedElementId) {
+        return {
+          ...el,
+          schema: deleteNodeFromSchema(el.schema, selectedPath)
+        };
+      }
+      return el;
+    }));
+    handleSelect(null, null); // Clear selection after delete
+  };
+
   const handleDragStart = (event: DragStartEvent) => {
+    if (!componentName) return; // Prevent dragging if no component name set
     setActiveId(event.active.id as string);
     setActiveSchema(event.active.data.current?.schema as ComponentSchema || null);
   };
@@ -163,6 +212,24 @@ export default function Home() {
     }
   };
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Check if user is typing in an input or textarea
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        if (selectedElementId) {
+          handleDelete();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedElementId, selectedPath]);
+
   console.log('Canvas Elements:', elements);
 
   return (
@@ -175,16 +242,20 @@ export default function Home() {
         <Header
           onLeftToggle={() => setLeftOpen(!leftOpen)}
           onRightToggle={() => setRightOpen(!rightOpen)}
+          componentName={componentName}
+          onNewComponent={handleNewComponent}
+          onSaveSchema={handleSaveSchema}
         />
 
         <div className="flex flex-1 overflow-hidden">
-          <LeftSidebar isOpen={leftOpen} />
+          <LeftSidebar isOpen={leftOpen} disabled={!componentName} />
           <Canvas 
             elements={elements} 
             onElementsChange={setElements}
             selectedElementId={selectedElementId}
             selectedPath={selectedPath}
             onSelect={handleSelect}
+            disabled={!componentName}
           />
           <RightSidebar 
             key={selectedElementId && selectedPath ? `${selectedElementId}-${selectedPath.join('-')}` : 'no-selection'}
@@ -194,6 +265,7 @@ export default function Home() {
             onContentChange={handleContentChange}
             onNodeTypeChange={handleNodeTypeChange}
             onPropChange={handlePropChange}
+            onDelete={handleDelete}
           />
         </div>
       </div>
@@ -204,6 +276,12 @@ export default function Home() {
           </div>
         ) : null}
       </DragOverlay>
+      
+      <NameModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={handleSaveName}
+      />
     </DndContext>
   );
 }

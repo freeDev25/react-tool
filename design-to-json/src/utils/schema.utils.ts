@@ -305,3 +305,41 @@ export function updateNodeProps(
     children
   };
 }
+
+/**
+ * Deletes a node from the schema at the specified path
+ * @param node - The root schema node
+ * @param path - Array of indices representing the path to the node to delete
+ * @returns A new schema with the node removed
+ */
+export function deleteNodeFromSchema(
+  node: ComponentSchema,
+  path: number[]
+): ComponentSchema {
+  if (path.length === 0) {
+    throw new Error("Cannot delete root node using this function");
+  }
+
+  const [currentIndex, ...restPath] = path;
+  
+  if (node.type === 'text' || !node.children) {
+    return node;
+  }
+
+  const children = [...node.children];
+
+  if (restPath.length === 0) {
+    // We found the parent, remove the child at currentIndex
+    children.splice(currentIndex, 1);
+  } else {
+    // Recurse
+    if (children[currentIndex]) {
+      children[currentIndex] = deleteNodeFromSchema(children[currentIndex], restPath);
+    }
+  }
+
+  return {
+    ...node,
+    children
+  };
+}
