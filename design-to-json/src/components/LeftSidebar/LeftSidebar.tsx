@@ -1,6 +1,6 @@
-import baseSchemas from '../schemas/base.json';
-import type { ComponentSchema, CanvasElement } from '../types/schema.types';
-import DraggableSchema from './DragableSchema';
+import baseSchemas from '../../schemas/base.json';
+import type { ComponentSchema, CanvasElement } from '../../types/schema.types';
+import DraggableSchema from '../DragableSchema';
 
 interface LeftSidebarProps {
   isOpen: boolean;

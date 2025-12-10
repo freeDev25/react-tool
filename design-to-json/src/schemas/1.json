@@ -1,0 +1,89 @@
+{
+    "ROOT": {
+        "type": {
+            "resolvedName": "Container"
+        },
+        "isCanvas": true,
+        "props": {
+            "background": "#ffffff",
+            "padding": "40px"
+        },
+        "displayName": "Container",
+        "custom": {},
+        "hidden": false,
+        "nodes": [
+            "JD7rurmvv7",
+            "s5s0h8b2ic",
+            "T15yvVMFoF"
+        ],
+        "linkedNodes": {}
+    },
+    "JD7rurmvv7": {
+        "type": {
+            "resolvedName": "Text"
+        },
+        "isCanvas": false,
+        "props": {
+            "text": "Welcome to the new builder!",
+            "fontSize": "24px",
+            "color": "#333"
+        },
+        "displayName": "Text",
+        "custom": {},
+        "parent": "ROOT",
+        "hidden": false,
+        "nodes": [],
+        "linkedNodes": {}
+    },
+    "s5s0h8b2ic": {
+        "type": {
+            "resolvedName": "Text"
+        },
+        "isCanvas": false,
+        "props": {
+            "text": "New Text",
+            "fontSize": "16px",
+            "color": "#333"
+        },
+        "displayName": "Text",
+        "custom": {},
+        "parent": "ROOT",
+        "hidden": false,
+        "nodes": [],
+        "linkedNodes": {}
+    },
+    "T15yvVMFoF": {
+        "type": {
+            "resolvedName": "Container"
+        },
+        "isCanvas": true,
+        "props": {
+            "background": "#ffffff",
+            "padding": "20px"
+        },
+        "displayName": "Container",
+        "custom": {},
+        "parent": "ROOT",
+        "hidden": false,
+        "nodes": [
+            "pJhA5xUe_Z"
+        ],
+        "linkedNodes": {}
+    },
+    "pJhA5xUe_Z": {
+        "type": {
+            "resolvedName": "Button"
+        },
+        "isCanvas": false,
+        "props": {
+            "text": "Click Me",
+            "variant": "primary"
+        },
+        "displayName": "Button",
+        "custom": {},
+        "parent": "T15yvVMFoF",
+        "hidden": false,
+        "nodes": [],
+        "linkedNodes": {}
+    }
+}

@@ -1,3 +1,5 @@
+import { Link, useLocation } from 'react-router-dom';
+
 export type ViewMode = 'design' | 'preview' | 'json';
 
 interface HeaderProps {
@@ -21,6 +23,9 @@ export default function Header({
   viewMode,
   onViewModeChange
 }: HeaderProps) {
+  const location = useLocation();
+  const isCraft = location.pathname === '/craft';
+
   return (
     <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
       <div className="flex items-center gap-3">
@@ -33,6 +38,22 @@ export default function Header({
           </svg>
         </button>
         <h1 className="text-lg font-semibold">Design to JSON</h1>
+        
+        <div className="flex bg-gray-100 rounded-lg p-1 ml-2">
+            <Link 
+            to="/" 
+            className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${!isCraft ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+            >
+            Standard
+            </Link>
+            <Link 
+            to="/craft" 
+            className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${isCraft ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+            >
+            Craft POC
+            </Link>
+        </div>
+
         {componentName && (
           <span className="ml-4 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium border border-blue-100">
             {componentName}
