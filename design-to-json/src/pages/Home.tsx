@@ -14,12 +14,24 @@ import { useToast } from '../context/ToastContext';
 import { generateElementId, insertSchemaAtPosition, type DropPosition, getNodeByPath, updateNodeStyle, updateTextNodeContent, updateNodeType, updateNodeProps, deleteNodeFromSchema } from '../utils/schema.utils';
 import SchemaEditor from '../components/SchemaEditor';
 import type { ViewMode } from '../components/Header';
+import { useHistory } from '../hooks/useHistory';
 
 export default function Home() {
   const { showToast } = useToast();
   const [leftOpen, setLeftOpen] = useState(true);
   const [rightOpen, setRightOpen] = useState(true);
-  const [elements, setElements] = useState<CanvasElement[]>([]);
+  
+  // Use history hook for elements state
+  const { 
+    state: elements, 
+    set: setElements, 
+    undo, 
+    redo, 
+    canUndo, 
+    canRedo,
+    reset: resetElements
+  } = useHistory<CanvasElement[]>([]);
+
   const [activeId, setActiveId] = useState<string | null>(null);
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
   const [selectedPath, setSelectedPath] = useState<number[] | null>(null);
@@ -63,7 +75,7 @@ export default function Home() {
   const handleSaveName = (name: string) => {
     setComponentName(name);
     setIsModalOpen(false);
-    setElements([]); 
+    resetElements([]); 
     setIsDirty(false);
   };
 
@@ -81,7 +93,7 @@ export default function Home() {
   const handleLoadSchema = (name: string) => {
     const schema = savedSchemas[name];
     if (schema) {
-      setElements(schema);
+      resetElements(schema);
       setComponentName(name);
       setIsLoadModalOpen(false);
       setIsDirty(false);
@@ -296,6 +308,17 @@ export default function Home() {
         return;
       }
 
+      // Undo/Redo
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+        e.preventDefault();
+        if (e.shiftKey) {
+          if (canRedo) redo();
+        } else {
+          if (canUndo) undo();
+        }
+        return;
+      }
+
       // Deletion
       if (e.key === 'Delete' || e.key === 'Backspace') {
         if (selectedElementId) {
@@ -412,6 +435,10 @@ export default function Home() {
                 onSelect={handleSelect}
                 disabled={!componentName}
                 isPreviewMode={viewMode === 'preview'}
+                onUndo={undo}
+                onRedo={redo}
+                canUndo={canUndo}
+                canRedo={canRedo}
               />
               <RightSidebar 
                 key={selectedElementId && selectedPath ? `${selectedElementId}-${selectedPath.join('-')}` : 'no-selection'}
