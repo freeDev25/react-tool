@@ -11,6 +11,7 @@ interface SchemaRendererProps {
   selectedElementId: string | null;
   selectedPath: number[] | null;
   onSelect: (elementId: string, path: number[]) => void;
+  isPreviewMode?: boolean;
 }
 
 export default function SchemaRenderer({ 
@@ -19,10 +20,11 @@ export default function SchemaRenderer({
   path = [],
   selectedElementId,
   selectedPath,
-  onSelect
+  onSelect,
+  isPreviewMode = false
 }: SchemaRendererProps) {
   const { active } = useDndContext();
-  const isDragging = Boolean(active);
+  const isDragging = Boolean(active) && !isPreviewMode;
 
   const renderNode = (node: ComponentSchema, currentPath: number[] = []): React.ReactNode => {
     if (!node) return null;
@@ -34,15 +36,17 @@ export default function SchemaRenderer({
       return (
         <span 
           key={currentPath.join('-')}
-          data-element-id={elementId}
-          data-path={currentPath.join('-')}
+          data-element-id={!isPreviewMode ? elementId : undefined}
+          data-path={!isPreviewMode ? currentPath.join('-') : undefined}
           onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onSelect(elementId, currentPath);
+            if (!isPreviewMode) {
+              e.preventDefault();
+              e.stopPropagation();
+              onSelect(elementId, currentPath);
+            }
           }}
           style={{
-            cursor: 'pointer',
+            cursor: isPreviewMode ? 'default' : 'pointer',
             // Outline handled by SelectionOverlay
           }}
         >
@@ -61,24 +65,26 @@ export default function SchemaRenderer({
 
     const existingClassName = (elementNode.props?.className as string) || '';
     // Add visual aid for all elements: dashed outline and min-height
-    const visualAidClass = 'min-h-[20px] outline outline-1 outline-dashed outline-gray-300/50';
+    const visualAidClass = !isPreviewMode ? 'min-h-[20px] outline outline-1 outline-dashed outline-gray-300/50' : '';
 
     const props: React.HTMLAttributes<HTMLElement> & { style?: React.CSSProperties, 'data-element-id'?: string, 'data-path'?: string } = {
       style: {
         ...(elementNode.styles || elementNode.style || {}),
-        ...(isSelected ? {
+        ...(isSelected && !isPreviewMode ? {
           // outline: '2px solid #3b82f6', // Handled by SelectionOverlay now
           // outlineOffset: '2px',
         } : {})
       },
       ...elementNode.props,
       className: `${existingClassName} ${visualAidClass}`.trim(),
-      'data-element-id': elementId,
-      'data-path': currentPath.join('-'),
+      'data-element-id': !isPreviewMode ? elementId : undefined,
+      'data-path': !isPreviewMode ? currentPath.join('-') : undefined,
       onClick: (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        onSelect(elementId, currentPath);
+        if (!isPreviewMode) {
+          e.preventDefault();
+          e.stopPropagation();
+          onSelect(elementId, currentPath);
+        }
       }
     };
 
@@ -94,7 +100,7 @@ export default function SchemaRenderer({
 
     const renderContent = () => {
       // Wrap in droppable for container elements that can accept children
-      if (canAcceptChildren(elementNode)) {
+      if (canAcceptChildren(elementNode) && !isPreviewMode) {
         return (
           <DroppableNode 
             elementId={elementId} 
@@ -117,27 +123,27 @@ export default function SchemaRenderer({
       return React.createElement(Tag as string, props, children);
     };
 
-    if (isRoot) {
-      return renderContent();
+    if (isRoot && !isPreviewMode) {
+      return (
+        <>
+          <DropZone
+            elementId={elementId}
+            path={currentPath}
+            position="before"
+            isActive={isDragging}
+          />
+          {renderContent()}
+          <DropZone
+            elementId={elementId}
+            path={currentPath}
+            position="after"
+            isActive={isDragging}
+          />
+        </>
+      );
     }
 
-    return (
-      <>
-        <DropZone
-          elementId={elementId}
-          path={currentPath}
-          position="before"
-          isActive={isDragging}
-        />
-        {renderContent()}
-        <DropZone
-          elementId={elementId}
-          path={currentPath}
-          position="after"
-          isActive={isDragging}
-        />
-      </>
-    );
+    return renderContent();
   };
 
   return <>{renderNode(schema, path)}</>;

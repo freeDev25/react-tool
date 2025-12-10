@@ -8,10 +8,13 @@ import Canvas from '../components/Canvas';
 import NameModal from '../components/NameModal';
 import LoadSchemaModal from '../components/LoadSchemaModal';
 import SelectionOverlay from '../components/SelectionOverlay';
+import UnsavedChangesModal from '../components/UnsavedChangesModal';
 import type { CanvasElement, ComponentSchema, NodeType } from '../types/schema.types';
+import { useToast } from '../context/ToastContext';
 import { generateElementId, insertSchemaAtPosition, type DropPosition, getNodeByPath, updateNodeStyle, updateTextNodeContent, updateNodeType, updateNodeProps, deleteNodeFromSchema } from '../utils/schema.utils';
 
 export default function Home() {
+  const { showToast } = useToast();
   const [leftOpen, setLeftOpen] = useState(true);
   const [rightOpen, setRightOpen] = useState(true);
   const [elements, setElements] = useState<CanvasElement[]>([]);
@@ -23,6 +26,10 @@ export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoadModalOpen, setIsLoadModalOpen] = useState(false);
   const [savedSchemas, setSavedSchemas] = useState<Record<string, CanvasElement[]>>({});
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [isUnsavedModalOpen, setIsUnsavedModalOpen] = useState(false);
+  const [pendingAction, setPendingAction] = useState<'load' | 'new' | null>(null);
 
   const [activeSchema, setActiveSchema] = useState<ComponentSchema | null>(null);
 
@@ -43,14 +50,19 @@ export default function Home() {
   };
 
   const handleNewComponent = () => {
-    setIsModalOpen(true);
+    if (isDirty) {
+      setPendingAction('new');
+      setIsUnsavedModalOpen(true);
+    } else {
+      setIsModalOpen(true);
+    }
   };
 
   const handleSaveName = (name: string) => {
     setComponentName(name);
     setIsModalOpen(false);
-    // Optionally clear canvas when starting new component
-    // setElements([]); 
+    setElements([]); 
+    setIsDirty(false);
   };
 
   const handleSaveSchema = () => {
@@ -59,8 +71,9 @@ export default function Home() {
     const newSavedSchemas = { ...savedSchemas, [componentName]: elements };
     localStorage.setItem('saved-schemas', JSON.stringify(newSavedSchemas));
     setSavedSchemas(newSavedSchemas);
+    setIsDirty(false);
     
-    alert(`Schema for "${componentName}" saved successfully!`);
+    showToast(`Schema for "${componentName}" saved successfully!`, 'success');
   };
 
   const handleLoadSchema = (name: string) => {
@@ -69,7 +82,43 @@ export default function Home() {
       setElements(schema);
       setComponentName(name);
       setIsLoadModalOpen(false);
+      setIsDirty(false);
     }
+  };
+
+  const handleLoadSchemaClick = () => {
+    if (isDirty) {
+      setPendingAction('load');
+      setIsUnsavedModalOpen(true);
+    } else {
+      setIsLoadModalOpen(true);
+    }
+  };
+
+  const executePendingAction = () => {
+    if (pendingAction === 'load') {
+      setIsLoadModalOpen(true);
+    } else if (pendingAction === 'new') {
+      setIsModalOpen(true);
+    }
+    setPendingAction(null);
+  };
+
+  const handleUnsavedSave = () => {
+    handleSaveSchema();
+    setIsUnsavedModalOpen(false);
+    executePendingAction();
+  };
+
+  const handleUnsavedDiscard = () => {
+    setIsUnsavedModalOpen(false);
+    setIsDirty(false);
+    executePendingAction();
+  };
+
+  const handleUnsavedCancel = () => {
+    setIsUnsavedModalOpen(false);
+    setPendingAction(null);
   };
 
   const handleStyleChange = (newStyles: React.CSSProperties) => {
@@ -86,6 +135,7 @@ export default function Home() {
         return el;
       })
     );
+    setIsDirty(true);
   };
 
   const handleContentChange = (newContent: string) => {
@@ -102,6 +152,7 @@ export default function Home() {
         return el;
       })
     );
+    setIsDirty(true);
   };
 
   const handleNodeTypeChange = (newNodeType: NodeType) => {
@@ -118,6 +169,7 @@ export default function Home() {
         return el;
       })
     );
+    setIsDirty(true);
   };
 
   const handlePropChange = (newProps: Record<string, any>) => {
@@ -134,6 +186,7 @@ export default function Home() {
         return el;
       })
     );
+    setIsDirty(true);
   };
 
   const handleDelete = () => {
@@ -143,6 +196,7 @@ export default function Home() {
     if (!selectedPath || selectedPath.length === 0) {
       setElements(prev => prev.filter(el => el.id !== selectedElementId));
       handleSelect(null, null);
+      setIsDirty(true);
       return;
     }
 
@@ -157,6 +211,7 @@ export default function Home() {
       return el;
     }));
     handleSelect(null, null); // Clear selection after delete
+    setIsDirty(true);
   };
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -205,6 +260,7 @@ export default function Home() {
         schema
       };
       setElements([...elements, newElement]);
+      setIsDirty(true);
       return;
     }
 
@@ -227,6 +283,7 @@ export default function Home() {
           return el;
         })
       );
+      setIsDirty(true);
     }
   };
 
@@ -237,16 +294,69 @@ export default function Home() {
         return;
       }
 
+      // Deletion
       if (e.key === 'Delete' || e.key === 'Backspace') {
         if (selectedElementId) {
           handleDelete();
+        }
+        return;
+      }
+
+      // Navigation
+      if (selectedElementId && selectedPath) {
+        const element = elements.find(el => el.id === selectedElementId);
+        if (!element) return;
+
+        const currentPath = [...selectedPath];
+        const parentPath = currentPath.slice(0, -1);
+        const currentIndex = currentPath[currentPath.length - 1];
+        let newPath: number[] | null = null;
+
+        // Hierarchy Navigation (Ctrl/Cmd + Arrow)
+        if (e.ctrlKey || e.metaKey) {
+          if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+            // Go to first child
+            const currentNode = getNodeByPath(element.schema, currentPath);
+            if (currentNode && currentNode.type === 'node' && currentNode.children && currentNode.children.length > 0) {
+              newPath = [...currentPath, 0];
+            }
+          } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+            // Go to parent
+            if (currentPath.length > 0) {
+              newPath = parentPath;
+            }
+          }
+        } 
+        // Sibling Navigation (Arrow Keys)
+        else {
+          if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+            // Next sibling
+            if (currentPath.length > 0) {
+              const parentNode = getNodeByPath(element.schema, parentPath);
+              if (parentNode && parentNode.type === 'node' && parentNode.children) {
+                if (currentIndex + 1 < parentNode.children.length) {
+                  newPath = [...parentPath, currentIndex + 1];
+                }
+              }
+            }
+          } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+            // Previous sibling
+            if (currentPath.length > 0 && currentIndex > 0) {
+              newPath = [...parentPath, currentIndex - 1];
+            }
+          }
+        }
+
+        if (newPath) {
+          e.preventDefault();
+          handleSelect(selectedElementId, newPath);
         }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedElementId, selectedPath]);
+  }, [selectedElementId, selectedPath, elements]);
 
   console.log('Canvas Elements:', elements);
 
@@ -263,13 +373,21 @@ export default function Home() {
           componentName={componentName}
           onNewComponent={handleNewComponent}
           onSaveSchema={handleSaveSchema}
-          onLoadSchema={() => setIsLoadModalOpen(true)}
+          onLoadSchema={handleLoadSchemaClick}
+          isPreviewMode={isPreviewMode}
+          onTogglePreview={() => {
+            setIsPreviewMode(!isPreviewMode);
+            if (!isPreviewMode) {
+              // Clear selection when entering preview mode
+              handleSelect(null, null);
+            }
+          }}
         />
 
         <div className="flex flex-1 overflow-hidden">
           <LeftSidebar 
             isOpen={leftOpen} 
-            disabled={!componentName} 
+            disabled={!componentName || isPreviewMode} 
             savedSchemas={
               // Filter out the currently active component from the saved list
               Object.fromEntries(
@@ -278,12 +396,13 @@ export default function Home() {
             } 
           />
           <Canvas 
-            elements={elements}  
-            onElementsChange={setElements}
+            elements={elements} 
+            onElementsChange={(els) => { setElements(els); setIsDirty(true); }}
             selectedElementId={selectedElementId}
             selectedPath={selectedPath}
             onSelect={handleSelect}
             disabled={!componentName}
+            isPreviewMode={isPreviewMode}
           />
           <RightSidebar 
             key={selectedElementId && selectedPath ? `${selectedElementId}-${selectedPath.join('-')}` : 'no-selection'}
@@ -294,16 +413,19 @@ export default function Home() {
             onNodeTypeChange={handleNodeTypeChange}
             onPropChange={handlePropChange}
             onDelete={handleDelete}
+            disabled={isPreviewMode}
           />
         </div>
       </div>
-      <DragOverlay dropAnimation={dropAnimation}>
-        {activeId && activeSchema ? (
-          <div className="bg-white border-2 border-blue-500 px-4 py-2 rounded shadow-2xl opacity-90">
-            {activeSchema.type === 'node' && activeSchema.nodeType}
-          </div>
-        ) : null}
-      </DragOverlay>
+      {!isPreviewMode && (
+        <DragOverlay dropAnimation={dropAnimation}>
+          {activeId && activeSchema ? (
+            <div className="bg-white border-2 border-blue-500 px-4 py-2 rounded shadow-2xl opacity-90">
+              {activeSchema.type === 'node' && activeSchema.nodeType}
+            </div>
+          ) : null}
+        </DragOverlay>
+      )}
       
       <NameModal 
         isOpen={isModalOpen}
@@ -318,10 +440,19 @@ export default function Home() {
         savedSchemas={Object.keys(savedSchemas)}
       />
       
-      <SelectionOverlay 
-        selectedElementId={selectedElementId}
-        selectedPath={selectedPath}
+      <UnsavedChangesModal
+        isOpen={isUnsavedModalOpen}
+        onSave={handleUnsavedSave}
+        onDiscard={handleUnsavedDiscard}
+        onCancel={handleUnsavedCancel}
       />
+      
+      {!isPreviewMode && (
+        <SelectionOverlay 
+          selectedElementId={selectedElementId}
+          selectedPath={selectedPath}
+        />
+      )}
     </DndContext>
   );
 }

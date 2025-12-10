@@ -5,6 +5,8 @@ interface HeaderProps {
   onNewComponent: () => void;
   onSaveSchema: () => void;
   onLoadSchema: () => void;
+  isPreviewMode: boolean;
+  onTogglePreview: () => void;
 }
 
 export default function Header({ 
@@ -13,7 +15,9 @@ export default function Header({
   componentName, 
   onNewComponent, 
   onSaveSchema,
-  onLoadSchema
+  onLoadSchema,
+  isPreviewMode,
+  onTogglePreview
 }: HeaderProps) {
   return (
     <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
@@ -35,17 +39,40 @@ export default function Header({
       </div>
       
       <div className="flex items-center gap-2">
-        {!componentName && (
-          <button
-            onClick={onLoadSchema}
-            className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors flex items-center gap-2"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-            </svg>
-            Load Schema
-          </button>
+        {componentName && (
+          <div className="flex bg-gray-100 p-1 rounded-lg mr-2">
+            <button
+              onClick={() => isPreviewMode && onTogglePreview()}
+              className={`px-3 py-1 text-sm font-medium rounded-md transition-all ${
+                !isPreviewMode 
+                  ? 'bg-white text-gray-900 shadow-sm' 
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Design
+            </button>
+            <button
+              onClick={() => !isPreviewMode && onTogglePreview()}
+              className={`px-3 py-1 text-sm font-medium rounded-md transition-all ${
+                isPreviewMode 
+                  ? 'bg-white text-gray-900 shadow-sm' 
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Preview
+            </button>
+          </div>
         )}
+
+        <button
+          onClick={onLoadSchema}
+          className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors flex items-center gap-2"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+          </svg>
+          Load Schema
+        </button>
 
         <button
           onClick={onNewComponent}

@@ -24,7 +24,7 @@ function DraggableSchema({ id, title, schema, disabled }: DraggableElementProps)
                 opacity: isDragging ? 0.3 : (disabled ? 0.5 : 1),
                 cursor: disabled ? 'not-allowed' : 'grab'
             }}
-            className={`w-full text-left px-3 py-2 text-sm bg-white border border-gray-200 rounded transition-all ${
+            className={`px-3 py-2 text-sm bg-white border border-gray-200 rounded transition-all ${
                 disabled 
                     ? 'bg-gray-50 text-gray-400' 
                     : 'hover:border-blue-400 hover:bg-blue-50 active:cursor-grabbing'

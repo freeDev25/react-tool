@@ -1,6 +1,17 @@
 {
     "schemas" : [
         {
+            "title": "Box",
+            "nodeTypes": ["div", "section", "article", "header", "footer", "main", "aside", "nav"],
+            "schema" : {
+                "type": "node",
+                "nodeType": "div",
+                "styles": {
+                },
+                "children": []
+            }
+        },
+        {
             "title": "Text Node",
             "schema": {
                 "type": "text",
@@ -28,18 +39,6 @@
                         "isJsxText": false
                     }
                 ]
-            }
-        },
-        {
-            "title": "Box",
-            "nodeTypes": ["div", "section", "article", "header", "footer", "main", "aside", "nav"],
-            "schema" : {
-                "type": "node",
-                "nodeType": "div",
-                "styles": {
-                    "padding": "10px"
-                },
-                "children": []
             }
         },
         {

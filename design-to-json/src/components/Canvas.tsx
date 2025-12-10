@@ -10,6 +10,7 @@ interface CanvasProps {
     selectedPath: number[] | null;
     onSelect: (elementId: string | null, path: number[] | null) => void;
     disabled?: boolean;
+    isPreviewMode?: boolean;
 }
 
 export default function Canvas({
@@ -17,11 +18,12 @@ export default function Canvas({
     selectedElementId,
     selectedPath,
     onSelect,
-    disabled = false
+    disabled = false,
+    isPreviewMode = false
 }: CanvasProps) {
     const { setNodeRef, isOver } = useDroppable({
         id: 'canvas',
-        disabled
+        disabled: disabled || isPreviewMode
     });
 
     const handleBackgroundClick = (e: React.MouseEvent) => {
@@ -48,14 +50,15 @@ export default function Canvas({
     } else {
         content = (
             <div className="space-y-2">
-                {elements.map((element) => (
+                {elements.map(element => (
                     <SchemaRenderer
                         key={element.id}
-                        elementId={element.id}
                         schema={element.schema}
+                        elementId={element.id}
                         selectedElementId={selectedElementId}
                         selectedPath={selectedPath}
                         onSelect={onSelect}
+                        isPreviewMode={isPreviewMode}
                     />
                 ))}
             </div>

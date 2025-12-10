@@ -13,12 +13,15 @@ export default function LeftSidebar({ isOpen, disabled = false, savedSchemas = {
     <aside
       className={`bg-gray-50 border-r border-gray-200 transition-all duration-300 ease-in-out ${
         isOpen ? 'w-64' : 'w-0'
-      } overflow-hidden flex flex-col`}
+      } overflow-hidden flex flex-col relative`}
     >
+      {disabled && (
+        <div className="absolute inset-0 bg-white/50 z-10 cursor-not-allowed" />
+      )}
       <div className="p-2 space-y-4 overflow-y-auto flex-1">
         <div>
           <h2 className="text-sm font-semibold text-gray-700 mb-2">Elements</h2>
-          <div className="space-y-1">
+          <div className="flex flex-wrap gap-2">
             {baseSchemas.schemas.map((item, index) => (
                 <DraggableSchema
                 key={index}
@@ -34,7 +37,7 @@ export default function LeftSidebar({ isOpen, disabled = false, savedSchemas = {
         {Object.keys(savedSchemas).length > 0 && (
           <div>
             <h2 className="text-sm font-semibold text-gray-700 mb-2 pt-4 border-t border-gray-200">Saved Components</h2>
-            <div className="space-y-1">
+            <div className="flex flex-wrap gap-2">
               {Object.entries(savedSchemas).map(([name, elements]) => {
                 // Convert elements to a single schema
                 let schema: ComponentSchema;
