@@ -12,6 +12,8 @@ import UnsavedChangesModal from '../components/UnsavedChangesModal';
 import type { CanvasElement, ComponentSchema, NodeType } from '../types/schema.types';
 import { useToast } from '../context/ToastContext';
 import { generateElementId, insertSchemaAtPosition, type DropPosition, getNodeByPath, updateNodeStyle, updateTextNodeContent, updateNodeType, updateNodeProps, deleteNodeFromSchema } from '../utils/schema.utils';
+import SchemaEditor from '../components/SchemaEditor';
+import type { ViewMode } from '../components/Header';
 
 export default function Home() {
   const { showToast } = useToast();
@@ -26,7 +28,7 @@ export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoadModalOpen, setIsLoadModalOpen] = useState(false);
   const [savedSchemas, setSavedSchemas] = useState<Record<string, CanvasElement[]>>({});
-  const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>('design');
   const [isDirty, setIsDirty] = useState(false);
   const [isUnsavedModalOpen, setIsUnsavedModalOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<'load' | 'new' | null>(null);
@@ -374,50 +376,59 @@ export default function Home() {
           onNewComponent={handleNewComponent}
           onSaveSchema={handleSaveSchema}
           onLoadSchema={handleLoadSchemaClick}
-          isPreviewMode={isPreviewMode}
-          onTogglePreview={() => {
-            setIsPreviewMode(!isPreviewMode);
-            if (!isPreviewMode) {
-              // Clear selection when entering preview mode
+          viewMode={viewMode}
+          onViewModeChange={(mode) => {
+            setViewMode(mode);
+            if (mode !== 'design') {
+              // Clear selection when leaving design mode
               handleSelect(null, null);
             }
           }}
         />
 
         <div className="flex flex-1 overflow-hidden">
-          <LeftSidebar 
-            isOpen={leftOpen} 
-            disabled={!componentName || isPreviewMode} 
-            savedSchemas={
-              // Filter out the currently active component from the saved list
-              Object.fromEntries(
-                Object.entries(savedSchemas).filter(([name]) => name !== componentName)
-              )
-            } 
-          />
-          <Canvas 
-            elements={elements} 
-            onElementsChange={(els) => { setElements(els); setIsDirty(true); }}
-            selectedElementId={selectedElementId}
-            selectedPath={selectedPath}
-            onSelect={handleSelect}
-            disabled={!componentName}
-            isPreviewMode={isPreviewMode}
-          />
-          <RightSidebar 
-            key={selectedElementId && selectedPath ? `${selectedElementId}-${selectedPath.join('-')}` : 'no-selection'}
-            isOpen={rightOpen} 
-            selectedNode={selectedNode}
-            onStyleChange={handleStyleChange}
-            onContentChange={handleContentChange}
-            onNodeTypeChange={handleNodeTypeChange}
-            onPropChange={handlePropChange}
-            onDelete={handleDelete}
-            disabled={isPreviewMode}
-          />
+          {viewMode === 'json' ? (
+            <SchemaEditor 
+              elements={elements} 
+              onElementsChange={(els) => { setElements(els); setIsDirty(true); }} 
+            />
+          ) : (
+            <>
+              <LeftSidebar 
+                isOpen={leftOpen} 
+                disabled={!componentName || viewMode === 'preview'} 
+                savedSchemas={
+                  // Filter out the currently active component from the saved list
+                  Object.fromEntries(
+                    Object.entries(savedSchemas).filter(([name]) => name !== componentName)
+                  )
+                } 
+              />
+              <Canvas 
+                elements={elements} 
+                onElementsChange={(els) => { setElements(els); setIsDirty(true); }}
+                selectedElementId={selectedElementId}
+                selectedPath={selectedPath}
+                onSelect={handleSelect}
+                disabled={!componentName}
+                isPreviewMode={viewMode === 'preview'}
+              />
+              <RightSidebar 
+                key={selectedElementId && selectedPath ? `${selectedElementId}-${selectedPath.join('-')}` : 'no-selection'}
+                isOpen={rightOpen} 
+                selectedNode={selectedNode}
+                onStyleChange={handleStyleChange}
+                onContentChange={handleContentChange}
+                onNodeTypeChange={handleNodeTypeChange}
+                onPropChange={handlePropChange}
+                onDelete={handleDelete}
+                disabled={viewMode === 'preview'}
+              />
+            </>
+          )}
         </div>
       </div>
-      {!isPreviewMode && (
+      {viewMode === 'design' && (
         <DragOverlay dropAnimation={dropAnimation}>
           {activeId && activeSchema ? (
             <div className="bg-white border-2 border-blue-500 px-4 py-2 rounded shadow-2xl opacity-90">
@@ -447,7 +458,7 @@ export default function Home() {
         onCancel={handleUnsavedCancel}
       />
       
-      {!isPreviewMode && (
+      {viewMode === 'design' && (
         <SelectionOverlay 
           selectedElementId={selectedElementId}
           selectedPath={selectedPath}

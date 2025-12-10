@@ -1,3 +1,5 @@
+export type ViewMode = 'design' | 'preview' | 'json';
+
 interface HeaderProps {
   onLeftToggle: () => void;
   onRightToggle: () => void;
@@ -5,8 +7,8 @@ interface HeaderProps {
   onNewComponent: () => void;
   onSaveSchema: () => void;
   onLoadSchema: () => void;
-  isPreviewMode: boolean;
-  onTogglePreview: () => void;
+  viewMode: ViewMode;
+  onViewModeChange: (mode: ViewMode) => void;
 }
 
 export default function Header({ 
@@ -16,8 +18,8 @@ export default function Header({
   onNewComponent, 
   onSaveSchema,
   onLoadSchema,
-  isPreviewMode,
-  onTogglePreview
+  viewMode,
+  onViewModeChange
 }: HeaderProps) {
   return (
     <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
@@ -42,9 +44,9 @@ export default function Header({
         {componentName && (
           <div className="flex bg-gray-100 p-1 rounded-lg mr-2">
             <button
-              onClick={() => isPreviewMode && onTogglePreview()}
+              onClick={() => onViewModeChange('design')}
               className={`px-3 py-1 text-sm font-medium rounded-md transition-all ${
-                !isPreviewMode 
+                viewMode === 'design'
                   ? 'bg-white text-gray-900 shadow-sm' 
                   : 'text-gray-500 hover:text-gray-700'
               }`}
@@ -52,14 +54,24 @@ export default function Header({
               Design
             </button>
             <button
-              onClick={() => !isPreviewMode && onTogglePreview()}
+              onClick={() => onViewModeChange('preview')}
               className={`px-3 py-1 text-sm font-medium rounded-md transition-all ${
-                isPreviewMode 
+                viewMode === 'preview'
                   ? 'bg-white text-gray-900 shadow-sm' 
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
               Preview
+            </button>
+            <button
+              onClick={() => onViewModeChange('json')}
+              className={`px-3 py-1 text-sm font-medium rounded-md transition-all ${
+                viewMode === 'json'
+                  ? 'bg-white text-gray-900 shadow-sm' 
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              JSON
             </button>
           </div>
         )}
