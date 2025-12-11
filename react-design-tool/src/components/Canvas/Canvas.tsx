@@ -13,7 +13,7 @@ export const Canvas = () => {
             />
             
             <div className="min-h-full w-full flex items-center justify-center p-8 relative z-10">
-                <div className="bg-white w-full max-w-[800px] min-h-[600px] shadow-2xl shadow-black/50 overflow-hidden transition-all">
+                <div className="bg-white w-full min-h-[600px] shadow-2xl shadow-black/50 overflow-hidden transition-all">
                     <Frame>
                         <Element is={Container} canvas />
                     </Frame>

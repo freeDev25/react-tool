@@ -11,6 +11,12 @@ export const LeftSidebar = () => {
 
   return (
     <aside className="w-64 bg-[#2c2c2c] border-r border-black flex flex-col h-full text-white">
+      <div className="px-4 py-3 border-b border-black flex items-center gap-3">
+        <div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center shrink-0">
+           <span className="text-black font-bold text-xs">F</span>
+        </div>
+        <h1 className="font-medium text-sm truncate">Untitled Design</h1>
+      </div>
       <div className="flex border-b border-black">
         <button
           onClick={() => setActiveTab('layers')}
