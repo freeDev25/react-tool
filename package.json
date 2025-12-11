@@ -6,7 +6,8 @@
   "workspaces": [
     "json-to-react",
     "playground",
-    "design-to-json"
+    "design-to-json",
+    "react-design-tool"
   ],
   "scripts": {
     "install:all": "npm install && npm install --workspace=json-to-react && npm install --workspace=playground",
