@@ -40,5 +40,8 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^24.10.1"
+  },
+  "dependencies": {
+    "react-router-dom": "^7.10.1"
   }
 }
