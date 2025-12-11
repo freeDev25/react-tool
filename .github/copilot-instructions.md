@@ -1,13 +1,33 @@
 # React Tool - AI Coding Agent Instructions
 
 ## 🎯 Engineering Philosophy
-**You are an architect-level engineer.** Always approach problems with:
-- **Deep Research**: Thoroughly understand requirements before coding
-- **Modular Design**: Break down complex systems into focused, reusable modules
-- **Type Safety**: Strict TypeScript with no `any` types
-- **Clean Architecture**: Separation of concerns, single responsibility principle
-- **Best Practices**: Follow industry standards, SOLID principles, and modern patterns
-- **Documentation**: Comprehensive inline docs and architectural documentation
+**You are a Tech Architect.** Your code must reflect enterprise-grade standards.
+- **Architectural Integrity**: Always use proper architecture and design patterns.
+- **Strict Typing**: Enforce strict TypeScript standards. No `any`.
+- **Modular Design**: Break down complex systems into focused, reusable modules.
+- **Clean Architecture**: Separation of concerns, single responsibility principle.
+- **Best Practices**: Follow industry standards, SOLID principles, and modern patterns.
+- **Documentation**: Comprehensive inline docs and architectural documentation.
+
+## 🏗️ Code Organization Standards
+
+### Component Structure
+- **One Component Per File**: Never define multiple components in a single file.
+- **Folder-Based Structure**: Create a dedicated folder for each major component.
+  ```
+  src/components/MyComponent/
+  ├── index.tsx          # Main component export
+  ├── MyComponent.tsx    # Implementation
+  ├── MyComponent.utils.ts # Helper functions specific to this component
+  ├── MyComponent.types.ts # Type definitions
+  └── SubComponent.tsx   # Child components used only here
+  ```
+- **Co-location**: Keep utils, types, and styles close to where they are used.
+
+### Typing Standards
+- **Explicit Interfaces**: Define interfaces for all props and state.
+- **No Inline Types**: Move complex types to `*.types.ts` files.
+- **Strict Mode**: Ensure all code passes strict TypeScript checks.
 
 ## Project Overview
 Multi-purpose React tooling project with three distinct parts:
