@@ -1,5 +1,5 @@
 import { Frame, Element } from '@craftjs/core';
-import { Container } from '../user/Container';
+import { Container } from '../../user/Container';
 
 export const Canvas = () => {
     return (

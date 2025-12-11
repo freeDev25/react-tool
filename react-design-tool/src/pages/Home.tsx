@@ -3,9 +3,9 @@ import { Header } from '../components/Header';
 import { LeftSidebar } from '../components/LeftSidebar';
 import { RightSidebar } from '../components/RightSidebar';
 import { Canvas } from '../components/Canvas';
-import { Container } from '../components/user/Container';
-import { Text } from '../components/user/Text';
-import { Button } from '../components/user/Button';
+import { Container } from '../user/Container';
+import { Text } from '../user/Text';
+import { Button } from '../user/Button';
 
 export const Home = () => {
   return (

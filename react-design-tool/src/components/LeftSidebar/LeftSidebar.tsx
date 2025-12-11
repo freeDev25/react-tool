@@ -1,7 +1,7 @@
 import { useEditor, Element } from '@craftjs/core';
-import { Container } from '../user/Container';
-import { Text } from '../user/Text';
-import { Button } from '../user/Button';
+import { Container } from '../../user/Container';
+import { Text } from '../../user/Text';
+import { Button } from '../../user/Button';
 
 export const LeftSidebar = () => {
   const { connectors } = useEditor();
@@ -11,16 +11,16 @@ export const LeftSidebar = () => {
       <div className="p-2 border-b border-gray-200">
         <h2 className="font-semibold text-gray-700">Components</h2>
       </div>
-      <div className="flex-1 p-2 flex flex-col gap-2">
+      <div className="flex-1 p-2 grid grid-cols-2 gap-2">
         <button
           ref={(ref: HTMLButtonElement | null) => {
             if (ref) {
               connectors.create(ref, <Element is={Container} canvas />);
             }
           }}
-          className="p-2 bg-white border border-gray-200 rounded cursor-move hover:bg-gray-50 text-left"
+          className="p-3 bg-white border border-gray-200 rounded cursor-move hover:bg-gray-50 flex flex-col items-center justify-center gap-2"
         >
-          Container
+          <span className="text-sm font-medium">Container</span>
         </button>
         <button
           ref={(ref: HTMLButtonElement | null) => {
@@ -28,9 +28,9 @@ export const LeftSidebar = () => {
               connectors.create(ref, <Text text="Hi world" />);
             }
           }}
-          className="p-2 bg-white border border-gray-200 rounded cursor-move hover:bg-gray-50 text-left"
+          className="p-3 bg-white border border-gray-200 rounded cursor-move hover:bg-gray-50 flex flex-col items-center justify-center gap-2"
         >
-          Text
+          <span className="text-sm font-medium">Text</span>
         </button>
         <button
           ref={(ref: HTMLButtonElement | null) => {
@@ -38,9 +38,9 @@ export const LeftSidebar = () => {
               connectors.create(ref, <Button text="Click me" />);
             }
           }}
-          className="p-2 bg-white border border-gray-200 rounded cursor-move hover:bg-gray-50 text-left"
+          className="p-3 bg-white border border-gray-200 rounded cursor-move hover:bg-gray-50 flex flex-col items-center justify-center gap-2"
         >
-          Button
+          <span className="text-sm font-medium">Button</span>
         </button>
       </div>
     </aside>
