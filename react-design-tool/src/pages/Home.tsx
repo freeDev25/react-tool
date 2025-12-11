@@ -9,7 +9,7 @@ import { Button } from '../user/Button';
 
 export const Home = () => {
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-white">
+    <div className="h-screen flex flex-col overflow-hidden bg-[#1e1e1e]">
       <Editor resolver={{ Container, Text, Button }}>
         <Header />
         <div className="flex-1 flex overflow-hidden">

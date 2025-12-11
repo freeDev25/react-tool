@@ -20,18 +20,29 @@ export const RightSidebar = () => {
   });
 
   return (
-    <aside className="w-64 bg-gray-50 border-l border-gray-200 flex flex-col h-full">
-      <div className="flex-1 p-2">
-        {selected && selected.settings ? (
-          <div>
-            <div className="mb-4 pb-2 border-b border-gray-200 font-medium">
-              {selected.name}
+    <aside className="w-64 bg-[#2c2c2c] border-l border-black flex flex-col h-full text-white">
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-3 border-b border-black">
+            <h2 className="text-xs font-bold text-[#a0a0a0] uppercase tracking-wider">Properties</h2>
+        </div>
+        <div className="p-3">
+            {selected && selected.settings ? (
+            <div>
+                <div className="mb-4 pb-2 border-b border-[#444] font-medium text-sm flex items-center justify-between">
+                    <span>{selected.name}</span>
+                    <span className="text-[10px] bg-blue-600 px-1.5 py-0.5 rounded text-white">Selected</span>
+                </div>
+                <div className="space-y-4">
+                    {React.createElement(selected.settings)}
+                </div>
             </div>
-            {React.createElement(selected.settings)}
-          </div>
-        ) : (
-          <div className="text-sm text-gray-500">Select a component to edit its properties</div>
-        )}
+            ) : (
+            <div className="flex flex-col items-center justify-center h-40 text-center opacity-50">
+                <div className="w-8 h-8 border-2 border-dashed border-gray-400 rounded mb-2"></div>
+                <div className="text-xs text-gray-400">Select a layer to edit properties</div>
+            </div>
+            )}
+        </div>
       </div>
     </aside>
   );
