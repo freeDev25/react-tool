@@ -1,0 +1,56 @@
+import { useState } from 'react';
+
+export const EditorLeftPanel = () => {
+  const [activeTab, setActiveTab] = useState<'layers' | 'assets'>('assets');
+
+  return (
+    <>
+      <div className="px-4 py-3 border-b border-black flex items-center gap-3">
+        <div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center shrink-0">
+           <span className="text-black font-bold text-xs">F</span>
+        </div>
+        <h1 className="font-medium text-sm truncate">Untitled Design</h1>
+      </div>
+      <div className="flex border-b border-black">
+        <button
+          onClick={() => setActiveTab('layers')}
+          className={`flex-1 py-3 text-xs font-medium ${activeTab === 'layers' ? 'text-white border-b border-white' : 'text-[#a0a0a0] hover:text-white'}`}
+        >
+          Layers
+        </button>
+        <button
+          onClick={() => setActiveTab('assets')}
+          className={`flex-1 py-3 text-xs font-medium ${activeTab === 'assets' ? 'text-white border-b border-white' : 'text-[#a0a0a0] hover:text-white'}`}
+        >
+          Assets
+        </button>
+      </div>
+
+      <div className="flex-1 overflow-y-auto">
+        {activeTab === 'layers' ? (
+          <div className="pt-2 px-2">
+            <div className="text-xs text-gray-400 p-2">Layers panel</div>
+          </div>
+        ) : (
+          <div className="p-3">
+            <div className="text-[11px] font-bold text-[#a0a0a0] mb-3 uppercase tracking-wider">Basic</div>
+            <div className="grid grid-cols-3 gap-2">
+              <button className="aspect-square bg-[#383838] rounded hover:bg-[#444] transition-all flex flex-col items-center justify-center gap-2 cursor-move group">
+                <div className="w-6 h-6 border-2 border-gray-500 rounded-sm group-hover:border-white transition-colors" />
+                <span className="text-xs text-gray-300 group-hover:text-white">Container</span>
+              </button>
+              <button className="aspect-square bg-[#383838] rounded hover:bg-[#444] transition-all flex flex-col items-center justify-center gap-2 cursor-move group">
+                <span className="text-gray-500 font-serif font-bold text-lg group-hover:text-white transition-colors">T</span>
+                <span className="text-xs text-gray-300 group-hover:text-white">Text</span>
+              </button>
+              <button className="aspect-square bg-[#383838] rounded hover:bg-[#444] transition-all flex flex-col items-center justify-center gap-2 cursor-move group">
+                <div className="w-6 h-4 bg-blue-600 rounded-sm" />
+                <span className="text-xs text-gray-300 group-hover:text-white">Button</span>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
+  );
+};

@@ -1,7 +1,10 @@
-import { Frame, Element } from '@craftjs/core';
-import { Container } from '../../user/Container';
+import React from 'react';
 
-export const Canvas = () => {
+interface CanvasProps {
+  children?: React.ReactNode;
+}
+
+export const Canvas = ({ children }: CanvasProps) => {
     return (
         <main className="flex-1 bg-[#1e1e1e] h-full overflow-auto relative">
             {/* Grid Pattern Background */}
@@ -13,11 +16,7 @@ export const Canvas = () => {
             />
             
             <div className="min-h-full w-full flex items-center justify-center p-8 relative z-10">
-                <div className="bg-white w-full min-h-[600px] shadow-2xl shadow-black/50 overflow-hidden transition-all">
-                    <Frame>
-                        <Element is={Container} canvas />
-                    </Frame>
-                </div>
+                {children}
             </div>
         </main>
     );

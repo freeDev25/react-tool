@@ -1,21 +1,24 @@
-import { Editor } from '@craftjs/core';
 import { LeftSidebar } from '../components/LeftSidebar';
 import { RightSidebar } from '../components/RightSidebar';
 import { Canvas } from '../components/Canvas';
-import { Container } from '../user/Container';
-import { Text } from '../user/Text';
-import { Button } from '../user/Button';
+import { EditorLeftPanel } from '../components/Editor/EditorLeftPanel';
+import { EditorRightPanel } from '../components/Editor/EditorRightPanel';
+import { EditorCanvasArea } from '../components/Editor/EditorCanvasArea';
 
 export const Home = () => {
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-[#1e1e1e]">
-      <Editor resolver={{ Container, Text, Button }}>
         <div className="flex-1 flex overflow-hidden">
-          <LeftSidebar />
-          <Canvas />
-          <RightSidebar />
+          <LeftSidebar>
+            <EditorLeftPanel />
+          </LeftSidebar>
+          <Canvas>
+            <EditorCanvasArea />
+          </Canvas>
+          <RightSidebar>
+            <EditorRightPanel />
+          </RightSidebar>
         </div>
-      </Editor>
     </div>
   );
 };
