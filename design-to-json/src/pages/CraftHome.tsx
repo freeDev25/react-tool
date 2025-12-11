@@ -2,10 +2,16 @@ import { Editor, Frame, Element, useEditor } from '@craftjs/core';
 import { Container } from '../components/user/Container';
 import { Text } from '../components/user/Text';
 import { Button } from '../components/user/Button';
+import { Image } from '../components/user/Image';
+import { Input } from '../components/user/Input';
+import { Link } from '../components/user/Link';
+import { List, ListItem } from '../components/user/List';
+import { Accordion, AccordionItem } from '../craft/utils/Acordian';
 import CraftLeftSidebar from '../components/CraftLeftSidebar';
 import CraftRightSidebar from '../components/CraftRightSidebar';
 import Header from '../components/Header';
 import { useState } from 'react';
+import { convertCraftToSchema } from '../utils/craft-adapter';
 
 const CraftEditorContent = () => {
   const { query } = useEditor();
@@ -13,10 +19,11 @@ const CraftEditorContent = () => {
 
   const handleSave = () => {
     const json = query.serialize();
-    console.log('Craft.js JSON Output:', json);
-    const parsedJson = JSON.stringify(JSON.parse(json), null, 2)
-    console.log(parsedJson);
-    alert(parsedJson);
+    const nodes = JSON.parse(json);
+    const componentSchema = convertCraftToSchema(nodes);
+    
+    console.log('Converted Schema:', componentSchema);
+    alert(JSON.stringify(componentSchema, null, 2));
   };
 
   return (
@@ -38,11 +45,7 @@ const CraftEditorContent = () => {
         <div className="flex-1 bg-gray-100 p-8 overflow-y-auto">
           <div className="bg-white min-h-[800px] shadow-sm rounded-lg overflow-hidden">
               <Frame>
-                  <Element is={Container} canvas background="#ffffff" padding="40px">
-                      <Text text="Welcome to the new builder!" fontSize="24px" />
-                      <Element is={Container} canvas background="#f3f4f6" padding="20px">
-                          <Text text="Drag items here..." fontSize="14px" color="#666" />
-                      </Element>
+                  <Element is={Container} canvas background="#ffffff" padding="40px" style={{ minHeight: '800px' }}>
                   </Element>
               </Frame>
           </div>
@@ -56,7 +59,7 @@ const CraftEditorContent = () => {
 
 export default function CraftHome() {
   return (
-    <Editor resolver={{ Container, Text, Button }}>
+    <Editor resolver={{ Container, Text, Button, Image, Input, Link, List, ListItem, Accordion, AccordionItem }}>
       <CraftEditorContent />
     </Editor>
   );

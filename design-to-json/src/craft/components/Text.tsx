@@ -1,14 +1,12 @@
 import { useNode } from '@craftjs/core';
+import { useEditor } from '@craftjs/core';
 
 interface TextProps {
   text: string;
-  fontSize?: string;
-  color?: string;
   tagName?: string;
-  style?: React.CSSProperties;
 }
 
-export const Text = ({ text, fontSize, color, tagName = 'p', style }: TextProps) => {
+export const Text = ({ text, tagName = '' }: TextProps) => {
   const { connectors: { connect, drag } } = useNode();
   const Component = tagName as any;
 
@@ -19,14 +17,13 @@ export const Text = ({ text, fontSize, color, tagName = 'p', style }: TextProps)
               connect(drag(ref));
           }
       }}
-      style={{ fontSize, color, margin: 0, ...style }}
+      style={{ margin: 0 }}
     >
       {text}
     </Component>
   );
 };
 
-import { useEditor } from '@craftjs/core';
 
 export const TextSettings = () => {
   const { actions: { setProp }, props, id } = useEditor((state) => {
@@ -57,7 +54,7 @@ export const TextSettings = () => {
         />
       </div>
 
-      <div className="flex flex-col gap-1">
+      {/* <div className="flex flex-col gap-1">
         <label className="text-xs text-gray-500">Tag Name</label>
         <select
             value={props.tagName}
@@ -76,9 +73,9 @@ export const TextSettings = () => {
             <option value="h6">H6</option>
             <option value="span">Span</option>
         </select>
-      </div>
+      </div> */}
 
-      <div className="flex flex-col gap-1">
+      {/* <div className="flex flex-col gap-1">
         <label className="text-xs text-gray-500">Font Size</label>
         <input 
             type="text" 
@@ -105,7 +102,7 @@ export const TextSettings = () => {
             />
             <span className="text-xs text-gray-400">{props.color}</span>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };
@@ -114,9 +111,7 @@ Text.craft = {
   displayName: 'Text',
   props: {
     text: 'Hi world',
-    fontSize: '16px',
-    color: '#333',
-    tagName: 'p'
+    tagName: 'span'
   },
   related: {
     settings: TextSettings

@@ -3,7 +3,11 @@
  */
 import type React from 'react';
 
-export type NodeType = keyof React.JSX.IntrinsicElements;
+export type NodeType = keyof React.JSX.IntrinsicElements | 'accordion' | 'accordion-item';
+
+export type SchemaPropType = {
+  style?: React.CSSProperties;
+} & Record<string, unknown>;
 
 export interface TextNode {
   type: 'text';
@@ -14,9 +18,8 @@ export interface TextNode {
 export interface ElementNode {
   type: 'node';
   nodeType: NodeType;
+  props?: SchemaPropType;
   styles?: React.CSSProperties;
-  style?: React.CSSProperties;
-  props?: Record<string, unknown>;
   children?: (TextNode | ElementNode)[];
 }
 

@@ -6,8 +6,7 @@
             "schema" : {
                 "type": "node",
                 "nodeType": "div",
-                "styles": {
-                },
+                "props": {},
                 "children": []
             }
         },
@@ -26,11 +25,13 @@
             "schema": {
                 "type": "node",
                 "nodeType": "p",
-                "styles": {
-                    "marginBottom": "16px",
-                    "lineHeight": "1.5",
-                    "fontSize": "16px",
-                    "color": "#333"
+                "props": {
+                    "styles": {
+                        "marginBottom": "16px",
+                        "lineHeight": "1.5",
+                        "fontSize": "16px",
+                        "color": "#333"
+                    }
                 },
                 "children": [
                     {
@@ -46,13 +47,15 @@
             "schema": {
                 "type": "node",
                 "nodeType": "button",
-                "style": {
-                    "padding": "10px 20px",
-                    "backgroundColor": "#007bff",
-                    "color": "#fff",
-                    "border": "none",
-                    "borderRadius": "4px",
-                    "cursor": "pointer"
+                "props": {
+                    "style": {
+                        "padding": "10px 20px",
+                        "backgroundColor": "#007bff",
+                        "color": "#fff",
+                        "border": "none",
+                        "borderRadius": "4px",
+                        "cursor": "pointer"
+                    }
                 },
                 "children": [
                     {
@@ -69,10 +72,12 @@
             "schema": {
                 "type": "node",
                 "nodeType": "h1",
-                "styles": {
-                    "fontSize": "32px",
-                    "fontWeight": "bold",
-                    "margin-bottom": "20px"
+                "props": {
+                    "styles": {
+                        "fontSize": "32px",
+                        "fontWeight": "bold",
+                        "margin-bottom": "20px"
+                    }
                 },
                 "children": [
                     {
@@ -104,11 +109,11 @@
                 "props": {
                     "href": "https://example.com",
                     "target": "_blank",
-                    "rel": "noopener noreferrer"
-                },
-                "styles": {
-                    "color": "#007bff",
-                    "textDecoration": "none"
+                    "rel": "noopener noreferrer",
+                    "styles": {
+                        "color": "#007bff",
+                        "textDecoration": "none"
+                    }
                 },
                 "children": [
                     {
@@ -124,15 +129,15 @@
             "schema": {
                 "type": "node",
                 "nodeType": "input",
-                "styles": {
-                    "padding": "8px",
-                    "border": "1px solid #ccc",
-                    "borderRadius": "4px",
-                    "width": "200px"
-                },
                 "props": {
                     "type": "text",
-                    "placeholder": "Enter text here"
+                    "placeholder": "Enter text here",
+                    "styles": {
+                        "padding": "8px",
+                        "border": "1px solid #ccc",
+                        "borderRadius": "4px",
+                        "width": "200px"
+                    }
                 }
             }
         },
@@ -141,9 +146,11 @@
             "schema": {
                 "type": "node",
                 "nodeType": "ul",
-                "styles": {
-                    "listStyleType": "disc",
-                    "paddingLeft": "20px"
+                "props": {
+                    "styles": {
+                        "listStyleType": "disc",
+                        "paddingLeft": "20px"
+                    }
                 },
                 "children": [
                     {
@@ -175,6 +182,43 @@
                             {
                                 "type": "text",
                                 "children": ["List Item 3"],
+                                "isJsxText": false
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "title": "Accordion",
+            "schema": {
+                "type": "node",
+                "nodeType": "accordion",
+                "children": [
+                    {
+                        "type": "node",
+                        "nodeType": "accordion-item",
+                        "props": {
+                            "title": "Accordion Item 1"
+                        },
+                        "children": [
+                            {
+                                "type": "text",
+                                "children": ["Content for item 1"],
+                                "isJsxText": false
+                            }
+                        ]
+                    },
+                    {
+                        "type": "node",
+                        "nodeType": "accordion-item",
+                        "props": {
+                            "title": "Accordion Item 2"
+                        },
+                        "children": [
+                            {
+                                "type": "text",
+                                "children": ["Content for item 2"],
                                 "isJsxText": false
                             }
                         ]

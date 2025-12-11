@@ -69,7 +69,7 @@ export default function SchemaRenderer({
 
     const props: React.HTMLAttributes<HTMLElement> & { style?: React.CSSProperties, 'data-element-id'?: string, 'data-path'?: string } = {
       style: {
-        ...(elementNode.styles || elementNode.style || {}),
+        ...(elementNode.styles || elementNode.props?.style || {}),
         ...(isSelected && !isPreviewMode ? {
           // outline: '2px solid #3b82f6', // Handled by SelectionOverlay now
           // outlineOffset: '2px',

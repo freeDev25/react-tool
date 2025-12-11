@@ -1,42 +1,38 @@
-import { useNode } from '@craftjs/core';
+import { useNode, useEditor } from '@craftjs/core';
 
-interface ButtonProps {
-  text: string;
-  variant?: 'primary' | 'secondary';
-  onClick?: () => void;
+interface LinkProps {
+  href?: string;
+  target?: string;
+  children?: React.ReactNode;
   style?: React.CSSProperties;
 }
 
-export const Button = ({ text, variant = 'primary', style }: ButtonProps) => {
+export const Link = ({ href = '#', target, children, style }: LinkProps) => {
   const { connectors: { connect, drag } } = useNode();
 
-  const bg = variant === 'primary' ? '#3b82f6' : '#6b7280';
-
   return (
-    <button
-      ref={(ref: HTMLButtonElement | null) => {
+    <a
+      ref={(ref: HTMLAnchorElement | null) => {
           if (ref) {
               connect(drag(ref));
           }
       }}
-      style={{
-        padding: '8px 16px',
-        backgroundColor: bg,
-        color: 'white',
-        border: 'none',
-        borderRadius: '4px',
-        cursor: 'pointer',
-        ...style
+      href={href}
+      target={target}
+      style={{ 
+          color: '#007bff',
+          textDecoration: 'none',
+          cursor: 'pointer',
+          ...style 
       }}
+      onClick={(e) => e.preventDefault()} // Prevent navigation in editor
     >
-      {text}
-    </button>
+      {children}
+    </a>
   );
 };
 
-import { useEditor } from '@craftjs/core';
-
-export const ButtonSettings = () => {
+export const LinkSettings = () => {
   const { actions: { setProp }, props, id } = useEditor((state) => {
     const [currentNodeId] = state.events.selected;
     if (currentNodeId) {
@@ -53,43 +49,43 @@ export const ButtonSettings = () => {
   return (
     <div className="space-y-3">
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-gray-500">Button Text</label>
+        <label className="text-xs text-gray-500">URL</label>
         <input 
             type="text" 
-            value={props.text} 
+            value={props.href} 
             onChange={(e) => {
                 const value = e.target.value;
-                setProp(id, (props: any) => props.text = value);
+                setProp(id, (props: any) => props.href = value);
             }}
             className="w-full px-2 py-1 text-sm border border-gray-200 rounded"
         />
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-gray-500">Variant</label>
+        <label className="text-xs text-gray-500">Target</label>
         <select
-            value={props.variant}
+            value={props.target}
             onChange={(e) => {
                 const value = e.target.value;
-                setProp(id, (props: any) => props.variant = value);
+                setProp(id, (props: any) => props.target = value);
             }}
             className="w-full px-2 py-1 text-sm border border-gray-200 rounded bg-white"
         >
-            <option value="primary">Primary</option>
-            <option value="secondary">Secondary</option>
+            <option value="_self">Same Tab</option>
+            <option value="_blank">New Tab</option>
         </select>
       </div>
     </div>
   );
 };
 
-Button.craft = {
-  displayName: 'Button',
+Link.craft = {
+  displayName: 'Link',
   props: {
-    text: 'Click me',
-    variant: 'primary'
+    href: '#',
+    target: '_self'
   },
   related: {
-    settings: ButtonSettings
+    settings: LinkSettings
   }
 };
