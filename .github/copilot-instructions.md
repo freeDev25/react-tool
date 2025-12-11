@@ -16,7 +16,7 @@
 - **Folder-Based Structure**: Create a dedicated folder for each major component.
   ```
   src/components/MyComponent/
-  ├── index.tsx          # Main component export
+  ├── index.ts         # Main component export
   ├── MyComponent.tsx    # Implementation
   ├── MyComponent.utils.ts # Helper functions specific to this component
   ├── MyComponent.types.ts # Type definitions
